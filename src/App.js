@@ -8,6 +8,7 @@ import EmployeeNavbar from "./Components/Employee/EmployeeNavbar/EmployeeNavbar"
 import PrivateEmployeeRoute from "./Components/PrivateRoute/PrivateRoutes"
 import { Navigate, Route, Routes, useLocation } from "react-router-dom"
 import TrolleyLink from "./pages/TrolleyLInk/TrolleyLink"
+import CreateOrder from "./pages/CreateOrder/CreateOrder"
 
 function App() {
   const location = useLocation()
@@ -67,6 +68,14 @@ function App() {
           element={
             <PrivateEmployeeRoute>
               <TrolleyLink />
+            </PrivateEmployeeRoute>
+          }
+        />
+        <Route
+          path="/place-order"
+          element={
+            <PrivateEmployeeRoute>
+              <CreateOrder />
             </PrivateEmployeeRoute>
           }
         />

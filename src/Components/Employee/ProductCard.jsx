@@ -15,10 +15,15 @@ const ProductCard = ({ product }) => {
 
         <Box>
           <Avatar
-            alt={product.vendor_product.product.name || product?.productId.name}
+            alt={
+              product?.vendor_product?.product?.name ||
+              product?.productId?.name ||
+              product?.product?.product?.name
+            }
             src={
-              product.vendor_product.product.imageUrl ||
-              product?.productId.imageUrl
+              product?.vendor_product?.product?.imageUrl ||
+              product?.productId?.imageUrl ||
+              product?.product?.product?.imageUrl
             }
             sx={styles.avatar}
             variant="square"
@@ -29,7 +34,8 @@ const ProductCard = ({ product }) => {
               ₹
               {(
                 product?.vendor_product?.product?.price ||
-                product?.productId?.price
+                product?.productId?.price ||
+                product?.product?.product?.price
               )?.toFixed(2)}
             </Typography>
             <Typography sx={styles.scanRate}> Scan Rate</Typography>
@@ -38,16 +44,20 @@ const ProductCard = ({ product }) => {
 
         <Box sx={styles.details}>
           <Typography variant="h6" sx={styles.productName}>
-            {product.vendor_product?.product?.name || product?.productId.name}
+            {product?.vendor_product?.product?.name ||
+              product?.productId?.name ||
+              product?.product?.product?.name}
           </Typography>
           <div style={styles.priceContainer}>
-            {(product.vendor_product?.product?.mrpPrice ||
-              product?.productId.mrpPrice) && (
+            {(product?.vendor_product?.product?.mrpPrice ||
+              product?.productId?.mrpPrice ||
+              product?.product?.product?.mrpPrice) && (
               <Typography sx={styles.priceText}>
                 ₹
                 {(
                   product?.vendor_product?.product.mrpPrice ||
-                  product?.productId.mrpPrice
+                  product?.productId?.mrpPrice ||
+                  product?.product?.product?.mrpPrice
                 )?.toFixed(2)}
               </Typography>
             )}
@@ -56,7 +66,8 @@ const ProductCard = ({ product }) => {
                 ₹
                 {(
                   product?.vendor_product?.product?.price ||
-                  product?.productId.price
+                  product?.productId?.price ||
+                  product?.product?.product?.price
                 ).toFixed(2)}
               </Typography>
               <Typography sx={styles.salesPrice}>Ordered At</Typography>
@@ -64,21 +75,26 @@ const ProductCard = ({ product }) => {
 
             <Typography sx={styles.variantText}>
               {(product?.vendor_product?.product?.variant ||
-                product?.productId?.variant) &&
+                product?.productId?.variant ||
+                product?.product?.product?.variant) &&
                 `${
                   (product?.vendor_product?.product?.variant ||
-                    product?.productId?.variant) >= 100
+                    product?.productId?.variant ||
+                    product?.product?.product?.variant) >= 100
                     ? (product?.vendor_product?.product?.variant ||
-                        product?.productId?.variant) + " gm"
+                        product?.productId?.variant ||
+                        product?.product?.product?.variant) + " gm"
                     : (product?.vendor_product?.product?.variant ||
-                        product?.productId?.variant) + " Kg"
+                        product?.productId?.variant ||
+                        product?.product?.product?.variant) + " Kg"
                 }`}
             </Typography>
           </div>
           <div style={styles.labelCodeDiv}>
             <Typography variant="body1" sx={styles.labelCode}>
               {product?.vendor_product?.product?.labelcode ||
-                product?.productId?.labelcode}
+                product?.productId?.labelcode ||
+                product?.product?.product?.labelcode}
             </Typography>
           </div>
         </Box>
@@ -92,7 +108,8 @@ const ProductCard = ({ product }) => {
         )}
         <Box sx={styles.scannedCountContainer}>
           <Typography variant="body2" sx={styles.scannedCount}>
-            {product?.scannedCount || 0}/{product?.quantity}
+            {product?.scannedCount || product?.count || 0}/
+            {product?.quantity || product?.count}
           </Typography>
         </Box>
       </Box>

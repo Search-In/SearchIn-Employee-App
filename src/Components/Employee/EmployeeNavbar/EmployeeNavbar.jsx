@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom"
 import { ReactComponent as Account } from "../../../assets/account.svg"
 import { ReactComponent as Cart } from "../../../assets/cart.svg"
 import { ReactComponent as ScannerImg } from "../../../assets/qr-code-scan-icon.svg"
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart"
 
 export const NavBarContext = createContext()
 
@@ -84,6 +85,16 @@ const Navbar = () => {
         >
           <Box sx={NavItemStyle} className="nav-items">
             <ScannerImg style={{ width: "20px", height: "20px" }} />
+          </Box>
+        </NavLink>
+        <NavLink
+          to="/place-order"
+          style={({ isActive }) =>
+            isActive ? activenavbarclass : notactivenavbarclass
+          }
+        >
+          <Box sx={NavItemStyle} className="nav-items">
+            <AddShoppingCartIcon />
           </Box>
         </NavLink>
         <NavLink
