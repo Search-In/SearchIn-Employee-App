@@ -45,7 +45,7 @@ const CreateOrder = () => {
     console.log("Form Data:", formData)
     setFormData("")
     handleCloseDrawer() // Close the drawer after submission
-    navigate("/dispatch-success")
+    navigate("/dispatch-success", { state: { createOrder: true } })
   }
 
   const handleSnackbarClose = () => {

@@ -108,6 +108,7 @@ const Orders = (props) => {
       setOrders(arr)
     } catch (error) {
       console.log(error)
+      setOrders([])
     }
   }
 
@@ -163,9 +164,9 @@ const Orders = (props) => {
         <Box>
           <TabPanel value={value} index={0} sx={{ overflow: "auto" }}>
             {orders &&
-              orders.map((currorder, i) => {
+              orders?.map((currorder, i) => {
                 return (
-                  currorder.order_status === "pending" && (
+                  currorder?.order_status === "pending" && (
                     <EmployeeOrderCard
                       orderdetails={currorder}
                       value={value}
@@ -192,7 +193,7 @@ const Orders = (props) => {
           {orders &&
             orders.map((currorder, i) => {
               return (
-                currorder.order_status === "inprogress" && (
+                currorder?.order_status === "inprogress" && (
                   <EmployeeOrderCard
                     orderdetails={currorder}
                     value={value}

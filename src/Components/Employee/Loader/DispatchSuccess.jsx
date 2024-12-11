@@ -1,12 +1,19 @@
-import { useNavigate } from "react-router-dom";
-import "./style.css";
+import { useLocation, useNavigate } from "react-router-dom"
+import "./style.css"
 
 const DispatchSuccessAnimation = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { createOrder } = location.state || {}
 
   const handleNavigate = () => {
-    navigate("/employee-orders");
-  };
+    console.log("create Order ", createOrder)
+    if (createOrder) {
+      navigate("/employee-home")
+    } else {
+      navigate("/employee-orders")
+    }
+  }
 
   return (
     <div className="container">
@@ -23,7 +30,7 @@ const DispatchSuccessAnimation = () => {
         View Orders
       </button>
     </div>
-  );
-};
+  )
+}
 
-export default DispatchSuccessAnimation;
+export default DispatchSuccessAnimation
