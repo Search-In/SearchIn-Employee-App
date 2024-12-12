@@ -6,34 +6,33 @@ import {
   IconButton,
   Snackbar,
   Typography,
-} from "@mui/material"
-import axios from "axios"
-import { Html5QrcodeScanner } from "html5-qrcode"
-import { useEffect, useRef, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
-import { HashLoader, PacmanLoader } from "react-spinners"
-import { toast, ToastContainer } from "react-toastify"
-import server from "../../Components/server"
-import ArrowBackIcon from "@mui/icons-material/ArrowBack"
-import { useMqtt } from "../../../src/context/MqttContext"
-import { Html5Qrcode } from "html5-qrcode"
+} from "@mui/material";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { HashLoader, PacmanLoader } from "react-spinners";
+import { toast, ToastContainer } from "react-toastify";
+import server from "../../Components/server";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useMqtt } from "../../../src/context/MqttContext";
+import { Html5Qrcode } from "html5-qrcode";
 
 function TrolleyLink() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { orderId } = location?.state
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { orderId } = location?.state;
 
-  const [scanResult, setScanResult] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [trolleyLoading, setTrolleyLoading] = useState(false)
-  const [scanner, setScanner] = useState(null)
-  const [hardwareSnackbarOpen, setHardwareSnackbarOpen] = useState(false)
-  const [guestUserInfo, setGuestUserInfo] = useState({})
-  const [trolleyWaititng, setTrolleyWaiting] = useState(null)
-  const employee = localStorage.getItem("employee")
-  const accessToken = localStorage.getItem("accessToken")
-  const readerRef = useRef(null)
-  const [isScanning, setIsScanning] = useState(false)
+  const [scanResult, setScanResult] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [trolleyLoading, setTrolleyLoading] = useState(false);
+  const [scanner, setScanner] = useState(null);
+  const [hardwareSnackbarOpen, setHardwareSnackbarOpen] = useState(false);
+  const [guestUserInfo, setGuestUserInfo] = useState({});
+  const [trolleyWaititng, setTrolleyWaiting] = useState(null);
+  const employee = localStorage.getItem("employee");
+  const accessToken = localStorage.getItem("accessToken");
+  const readerRef = useRef(null);
+  const [isScanning, setIsScanning] = useState(false);
 
   const {
     client,
@@ -46,7 +45,7 @@ function TrolleyLink() {
     setQrCode,
     setIsSessionEnded,
     trolleyStatus,
-  } = useMqtt()
+  } = useMqtt();
 
   // const startScanner = () => {
   //   if (scanner) {
@@ -89,7 +88,7 @@ function TrolleyLink() {
 
   const guestUserSignIn = async () => {
     try {
-      trolleyWaititng ? null : setLoading(true)
+      trolleyWaititng ? null : setLoading(true);
       const result = await axios.get(
         `${server}/trolley/connect-trolley/${scanResult}`,
         {
@@ -97,33 +96,33 @@ function TrolleyLink() {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
-      )
-      console.log("guest uesr login ", result)
+      );
+      console.log("guest uesr login ", result);
       if (result?.data) {
-        localStorage.setItem("trolley", result?.data?.trolley?._id)
-        sessionStorage.setItem("qrCode", scanResult)
-        setQrCode(scanResult)
-        setTrolleyLoading(false)
-        connect()
+        localStorage.setItem("trolley", result?.data?.trolley?._id);
+        sessionStorage.setItem("qrCode", scanResult);
+        setQrCode(scanResult);
+        setTrolleyLoading(false);
+        connect();
       } else {
-        toast.error("Something went wrong!")
+        toast.error("Something went wrong!");
       }
     } catch (error) {
-      console.log("error is ", error)
+      console.log("error is ", error);
       if (error?.response?.data?.message === "Trolley is Yet to Connect") {
-        setTrolleyWaiting(true)
+        setTrolleyWaiting(true);
       } else {
-        toast.error(error?.response?.data?.message || "An error occurrred")
-        console.log("toast is ", error?.response?.data?.message)
-        console.log("setting scan result to empty")
-        setScanResult("")
+        toast.error(error?.response?.data?.message || "An error occurrred");
+        console.log("toast is ", error?.response?.data?.message);
+        console.log("setting scan result to empty");
+        setScanResult("");
         // setScanResult("");
       }
       // setScanResult("");
       // startScanner();
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // useEffect(() => {
   //   startScanner()
@@ -133,24 +132,24 @@ function TrolleyLink() {
   useEffect(() => {
     if (scanResult && scanResult !== "") {
       if (employee && accessToken) {
-        setLoading(true)
-        guestUserSignIn()
+        setLoading(true);
+        guestUserSignIn();
         // connect()
       }
       //   else {
       //     guestUserSignIn()
       //   }
     }
-  }, [scanResult])
+  }, [scanResult]);
 
   useEffect(() => {
     if (isConnected) {
       if (employee && accessToken) {
-        console.log("publishign the joinsession ", employee)
+        console.log("publishign the joinsession ", employee);
         publish("guestUser/joinSession", {
           guestUserId: employee,
           qrCode: scanResult,
-        })
+        });
         const getTrolley = async () => {
           if (scanResult !== "") {
             const trolleyData = await axios.get(
@@ -162,40 +161,40 @@ function TrolleyLink() {
                   )}`,
                 },
               }
-            )
-            console.log("saved data", trolleyData?.data?._id)
-            localStorage.setItem("trolley", trolleyData?.data?._id)
+            );
+            console.log("saved data", trolleyData?.data?._id);
+            localStorage.setItem("trolley", trolleyData?.data?._id);
           }
-        }
-        getTrolley()
-        localStorage.setItem("virtualcartweight", 0)
-        setIsSessionEnded(false)
-        setLoading(false)
-        navigate("/employee-order", { state: { orderId: orderId } })
+        };
+        getTrolley();
+        localStorage.setItem("virtualcartweight", 0);
+        setIsSessionEnded(false);
+        setLoading(false);
+        navigate("/employee-order", { state: { orderId: orderId } });
       }
     }
-  }, [navigate, isConnected])
+  }, [navigate, isConnected]);
 
   useEffect(() => {
     if (trolleyWaititng) {
-      setTrolleyLoading(true)
-      let attempts = 0
+      setTrolleyLoading(true);
+      let attempts = 0;
       const intervalId = setInterval(() => {
         if (attempts >= 10) {
-          clearInterval(intervalId)
-          setTrolleyLoading(false)
-          console.log("Timeout: Trolley did not join within 10 seconds")
-          setHardwareSnackbarOpen(true)
+          clearInterval(intervalId);
+          setTrolleyLoading(false);
+          console.log("Timeout: Trolley did not join within 10 seconds");
+          setHardwareSnackbarOpen(true);
           // startScanner()
-          return
+          return;
         }
-        attempts += 1
-        guestUserSignIn()
-      }, 2000)
+        attempts += 1;
+        guestUserSignIn();
+      }, 2000);
 
-      return () => clearInterval(intervalId)
+      return () => clearInterval(intervalId);
     }
-  }, [trolleyWaititng, scanResult])
+  }, [trolleyWaititng, scanResult]);
 
   const getQrBoxSize = () => {
     // if (readerRef.current) {
@@ -205,37 +204,37 @@ function TrolleyLink() {
     //   return `${Math.min(width, height)}`
     // }
     // console.log("250")
-    return 250
-  }
+    return 250;
+  };
 
   const handleScanner = async () => {
     if (isScanning) {
       scanner
         .stop()
         .then(() => {
-          console.log("Scanner stopped.")
-          setIsScanning(false)
+          console.log("Scanner stopped.");
+          setIsScanning(false);
         })
         .catch((err) => {
-          console.log("Failed to stop scanner: ", err)
-        })
+          console.log("Failed to stop scanner: ", err);
+        });
     } else {
       try {
-        const devices = await Html5Qrcode.getCameras()
+        const devices = await Html5Qrcode.getCameras();
         if (devices && devices.length) {
           const backCamera = devices.find((device) =>
             device.label.toLowerCase().includes("back")
-          )
+          );
           const frontCamera = devices.find((device) =>
             device.label.toLowerCase().includes("front")
-          )
+          );
           const cameraId = backCamera
             ? backCamera.id
             : frontCamera
             ? frontCamera.id
-            : devices[0].id
+            : devices[0].id;
           //   const cameraId = devices[0].id; // Use the first available camera
-          const html5QrCode = new Html5Qrcode(readerRef.current.id)
+          const html5QrCode = new Html5Qrcode(readerRef.current.id);
 
           await html5QrCode.start(
             cameraId,
@@ -248,26 +247,26 @@ function TrolleyLink() {
               // qrbox: getQrBoxSize(),
             },
             (decodedText) => {
-              setScanResult(decodedText)
-              console.log(`QR Code detected: ${decodedText}`)
+              setScanResult(decodedText);
+              console.log(`QR Code detected: ${decodedText}`);
             },
             (errorMessage) => {
               //   console.log(`QR Code scanning error: ${errorMessage}`);
             }
-          )
+          );
 
-          setScanner(html5QrCode)
-          setIsScanning(true)
+          setScanner(html5QrCode);
+          setIsScanning(true);
         } else {
-          console.log("No cameras found.")
+          console.log("No cameras found.");
         }
       } catch (error) {
-        console.log("Error starting scanner: ", error)
+        console.log("Error starting scanner: ", error);
       }
     }
-  }
+  };
 
-  console.log("scanreulst ", scanResult)
+  console.log("scanreulst ", scanResult);
   return (
     <>
       {" "}
@@ -368,7 +367,7 @@ function TrolleyLink() {
         </Snackbar>
       </div>
     </>
-  )
+  );
 }
 
-export default TrolleyLink
+export default TrolleyLink;
