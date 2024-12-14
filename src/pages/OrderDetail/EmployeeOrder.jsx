@@ -1,5 +1,5 @@
-import { ArrowBack } from "@mui/icons-material"
-import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded"
+import { ArrowBack } from "@mui/icons-material";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import {
   Alert,
   Box,
@@ -10,70 +10,76 @@ import {
   Snackbar,
   Typography,
   Fab,
-} from "@mui/material"
-import axios from "axios"
-import { useEffect, useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import server from "../../Components/server"
+} from "@mui/material";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import server from "../../Components/server";
 // import EmployeeScanner from "./EmployeeScanner";
-import BarcodeScanner from "../../Components/Employee/BarcodeScanner"
-import Instructions from "../../Components/Employee/LabelCode/Instructions"
-import LabelCodeCard from "../../Components/Employee/LabelCode/LabelCodeCard"
-import ProductCard from "../../Components/Employee/ProductCard"
-import { useMqtt } from "../../context/MqttContext"
-import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates"
-import ScaleIcon from "@mui/icons-material/Scale"
-import TrolleyValues from "./Layout/TrolleyValues"
+import BarcodeScanner from "../../Components/Employee/BarcodeScanner";
+import Instructions from "../../Components/Employee/LabelCode/Instructions";
+import LabelCodeCard from "../../Components/Employee/LabelCode/LabelCodeCard";
+import ProductCard from "../../Components/Employee/ProductCard";
+import { useMqtt } from "../../context/MqttContext";
+import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
+import ScaleIcon from "@mui/icons-material/Scale";
+import TrolleyValues from "./Layout/TrolleyValues";
 
 const EmployeeOrder = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { orderId } = location.state || {}
-  const { publish, isConnected } = useMqtt()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { orderId } = location.state || {};
+  const { publish, isConnected } = useMqtt();
 
-  console.log("Order Id from location is ", orderId)
-  const [id, setId] = useState()
-  const [allProducts, setProducts] = useState([])
-  const [openSnackbar, setOpenSnackbar] = useState(false)
-  const [snackbarMessage, setSnackbarMessage] = useState("")
-  const [snackbarSeverity, setSnackbarSeverity] = useState("info")
-  const [scanResult, setScanResult] = useState("")
-  const [activeScanner, setActiveScanner] = useState("image")
-  const data = localStorage.getItem("employee")
-  const employeeData = JSON.parse(data)
-  const employeeId = employeeData._id
-  const [orderInfo, setOrderInfo] = useState({})
-  const [productInfo, setProductInfo] = useState("")
-  const [openLabeCard, setOpenLabelCard] = useState(false)
-  const [isScanning, setIsScanning] = useState(false)
+  console.log("Order Id from location is ", orderId);
+  const [id, setId] = useState();
+  const [allProducts, setProducts] = useState([]);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+  const [scanResult, setScanResult] = useState("");
+  const [activeScanner, setActiveScanner] = useState("image");
+  const data = localStorage.getItem("employee");
+  const employeeData = JSON.parse(data);
+  const employeeId = employeeData._id;
+  const [orderInfo, setOrderInfo] = useState({});
+  const [productInfo, setProductInfo] = useState("");
+  const [openLabeCard, setOpenLabelCard] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
   const getProductByBarcode = async (barcode) => {
     try {
-      setOpenLabelCard(false)
-      const result = await axios.get(`${server}/products/barcode/${barcode}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      })
+      setOpenLabelCard(false);
+      const result = await axios.get(
+        `${server}/vendor/products/barcode/${barcode}`,
+        {
+          params: {
+            vendor: localStorage.getItem("vendorID"),
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
       if (result?.data.length > 0) {
-        setProductInfo(result.data[0])
-        setOpenLabelCard(true)
+        setProductInfo(result.data[0]);
+        setOpenLabelCard(true);
       } else {
-        showProductNotFound()
+        showProductNotFound();
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const updateLabelCode = async (productId, labelCode, weight) => {
     try {
-      const payload = {}
+      const payload = {};
       if (labelCode) {
-        payload.labelcode = labelCode
+        payload.labelcode = labelCode;
       }
       if (weight) {
-        payload.weight = weight
+        payload.weight = weight;
       }
       const result = await axios.put(
         `${server}/products/update/${productId}`,
@@ -83,30 +89,30 @@ const EmployeeOrder = () => {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
-      )
-      showLabeUpdate()
+      );
+      showLabeUpdate();
     } catch (error) {
-      showFailedLabelUpdate()
+      showFailedLabelUpdate();
     }
-  }
+  };
 
   const getOrders = async () => {
     const result = await axios.get(`${server}/employee-labelcode/${orderId}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    })
-    console.log("result is ", result.data)
+    });
+    console.log("result is ", result.data);
     setOrderInfo({
       message: result?.data?.message,
       orderNo: result?.data?.orderId,
       totalAmount: result?.data?.total_amount,
-    })
+    });
 
-    const productList = result.data?.products
-    console.log("detail order productlist", result?.data.products)
-    setProducts(productList)
-    setId(result?.data?.order?._id)
+    const productList = result.data?.products;
+    console.log("detail order productlist", result?.data.products);
+    setProducts(productList);
+    setId(result?.data?.order?._id);
     // if (productList) {
     //   // Sort the productList array based on labelcode within productId
     //   const sortedProductList = productList.sort((a, b) => {
@@ -118,58 +124,58 @@ const EmployeeOrder = () => {
     //   // Update state with the sorted product list
     //   setProducts(sortedProductList);
     // }
-  }
+  };
 
   const handleSnackbarClose = () => {
-    setOpenSnackbar(false)
-  }
+    setOpenSnackbar(false);
+  };
 
   const vibrateDevice = (pattern) => {
     if ("vibrate" in navigator) {
-      navigator.vibrate(pattern)
+      navigator.vibrate(pattern);
     }
-  }
+  };
 
   const showWarningSnackbar = () => {
-    setSnackbarMessage("Product is Already Scanned!")
-    setSnackbarSeverity("warning")
-    setOpenSnackbar(true)
-    vibrateDevice([200, 100, 200])
-  }
+    setSnackbarMessage("Product is Already Scanned!");
+    setSnackbarSeverity("warning");
+    setOpenSnackbar(true);
+    vibrateDevice([200, 100, 200]);
+  };
   const showProductScan = () => {
-    setSnackbarMessage("Your Product Scanned!")
-    setSnackbarSeverity("info")
-    setOpenSnackbar(true)
+    setSnackbarMessage("Your Product Scanned!");
+    setSnackbarSeverity("info");
+    setOpenSnackbar(true);
     // vibrateDevice([200, 100, 200]);
-  }
+  };
   const showProductNotFound = () => {
-    setSnackbarMessage("Product is Not in List!")
-    setSnackbarSeverity("warning")
-    setOpenSnackbar(true)
-    vibrateDevice([200, 100, 200])
-  }
+    setSnackbarMessage("Product is Not in List!");
+    setSnackbarSeverity("warning");
+    setOpenSnackbar(true);
+    vibrateDevice([200, 100, 200]);
+  };
   const showLabeUpdate = () => {
-    setSnackbarMessage("Product Updated")
-    setSnackbarSeverity("info")
-    setOpenSnackbar(true)
-  }
+    setSnackbarMessage("Product Updated");
+    setSnackbarSeverity("info");
+    setOpenSnackbar(true);
+  };
   const showFailedLabelUpdate = () => {
-    setSnackbarMessage("Failed to update!")
-    setSnackbarSeverity("warning")
-    setOpenSnackbar(true)
-  }
+    setSnackbarMessage("Failed to update!");
+    setSnackbarSeverity("warning");
+    setOpenSnackbar(true);
+  };
   const showTurnedOffCamera = () => {
-    setSnackbarMessage("Please Turned Off the Camera")
-    setSnackbarSeverity("warning")
-    setOpenSnackbar(true)
-  }
+    setSnackbarMessage("Please Turned Off the Camera");
+    setSnackbarSeverity("warning");
+    setOpenSnackbar(true);
+  };
 
   const handleScan = async (barcode) => {
     if (orderId) {
       // Convert the scanned barcode to a string and trim any extra whitespace
-      const productBarcode = String(barcode).trim()
+      const productBarcode = String(barcode).trim();
 
-      let foundProduct = false
+      let foundProduct = false;
       const updatedProducts = await Promise.all(
         allProducts?.map(async (product) => {
           const productBarcodes = Array.isArray(
@@ -178,21 +184,21 @@ const EmployeeOrder = () => {
             ? product.vendor_product?.product?.barcode.map((b) =>
                 String(b).trim()
               )
-            : []
+            : [];
 
-          console.log("Product barcodes after conversion:", productBarcodes)
-          console.log("Scanned barcode:", `"${productBarcode}"`)
+          console.log("Product barcodes after conversion:", productBarcodes);
+          console.log("Scanned barcode:", `"${productBarcode}"`);
 
           // Check if the product barcode array includes the scanned barcode
           if (
             product.vendor_product?.product?.barcode?.includes(productBarcode)
           ) {
-            foundProduct = true
+            foundProduct = true;
 
             if (product.scannedCount >= product.quantity) {
-              showWarningSnackbar()
-              setScanResult("")
-              return product
+              showWarningSnackbar();
+              setScanResult("");
+              return product;
             }
             // if (!product?.productId?.weight) {
             //   setProductInfo(product?.productId)
@@ -202,10 +208,10 @@ const EmployeeOrder = () => {
             // }
 
             try {
-              console.log("publish ", product.vendor_product?.product?.weight)
-              console.log("product.scannedCount+1", product.scannedCount + 1)
-              const newScannedCount = product.scannedCount + 1
-              const isScanned = newScannedCount === product.quantity
+              console.log("publish ", product.vendor_product?.product?.weight);
+              console.log("product.scannedCount+1", product.scannedCount + 1);
+              const newScannedCount = product.scannedCount + 1;
+              const isScanned = newScannedCount === product.quantity;
               await axios.patch(
                 `${server}/orders/update-scannedCount?orderId=${orderId}&productId=${product.vendor_product?._id}`,
                 {
@@ -219,60 +225,60 @@ const EmployeeOrder = () => {
                     )}`,
                   },
                 }
-              )
+              );
 
-              showProductScan()
+              showProductScan();
               const netWeight = parseFloat(
                 localStorage.getItem("virtualcartweight")
-              )
-              console.log("ntwet", netWeight)
+              );
+              console.log("ntwet", netWeight);
 
-              const trolley = localStorage.getItem("trolley")
-              const productWeight = product.vendor_product?.product?.weight
-              const totalWeight = netWeight + productWeight
-              localStorage.setItem("virtualcartweight", totalWeight)
+              const trolley = localStorage.getItem("trolley");
+              const productWeight = product.vendor_product?.product?.weight;
+              const totalWeight = netWeight + productWeight;
+              localStorage.setItem("virtualcartweight", totalWeight);
               publish("guestUser/updateVirtualCartWeight", {
                 virtualWeight: totalWeight,
                 trolleyId: trolley,
-              })
-              console.log("newScannedCount", newScannedCount)
-              console.log("isScanned ", isScanned)
+              });
+              console.log("newScannedCount", newScannedCount);
+              console.log("isScanned ", isScanned);
 
               setTimeout(() => {
-                setScanResult("")
-              }, 3000)
+                setScanResult("");
+              }, 3000);
 
               return {
                 ...product,
                 scannedCount: newScannedCount,
                 isScanned: isScanned,
-              }
+              };
             } catch (error) {
-              console.error(error)
-              return product
+              console.error(error);
+              return product;
             }
           }
-          return product
+          return product;
         })
-      )
+      );
 
       if (!foundProduct) {
-        showProductNotFound()
+        showProductNotFound();
       }
-      console.log("updatedProducts", updatedProducts)
-      setProducts(updatedProducts)
+      console.log("updatedProducts", updatedProducts);
+      setProducts(updatedProducts);
     } else {
       setTimeout(() => {
-        setScanResult("")
-      }, 2000)
-      await getProductByBarcode(barcode)
+        setScanResult("");
+      }, 2000);
+      await getProductByBarcode(barcode);
     }
-  }
+  };
 
   // Determine if all products are scanned
   const allProductsScanned = allProducts?.every(
     (product) => product.scannedCount >= product.quantity
-  )
+  );
 
   const updateEndScanTime = async () => {
     try {
@@ -286,30 +292,30 @@ const EmployeeOrder = () => {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
-      )
+      );
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const handleDispatch = async () => {
     if (allProductsScanned) {
-      setActiveScanner("image")
+      setActiveScanner("image");
       if (isScanning) {
-        return showTurnedOffCamera()
+        return showTurnedOffCamera();
       }
-      await updateEndScanTime()
-      navigate("/employee-dispatch", { state: { orderId: id, id: orderId } })
+      await updateEndScanTime();
+      navigate("/employee-dispatch", { state: { orderId: id, id: orderId } });
     } else {
-      console.log("Not all products are scanned.")
+      console.log("Not all products are scanned.");
     }
-  }
+  };
 
   const onLabelCodeChange = async (productId, labelCode, weight) => {
-    await updateLabelCode(productId, labelCode, weight)
-    getOrders()
-    setOpenLabelCard(false)
-  }
+    await updateLabelCode(productId, labelCode, weight);
+    getOrders();
+    setOpenLabelCard(false);
+  };
 
   useEffect(() => {
     const updateScanTime = async () => {
@@ -324,63 +330,63 @@ const EmployeeOrder = () => {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
-        )
+        );
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
     if (orderId) {
-      getOrders()
-      updateScanTime()
+      getOrders();
+      updateScanTime();
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (allProducts?.length > 0) {
       const count = allProducts?.filter(
         (product) => product.scannedCount === product.quantity
-      ).length
+      ).length;
 
       setOrderInfo((prevOrderInfo) => ({
         ...prevOrderInfo,
         scannedTotal: count,
-      }))
+      }));
 
       const getTotalPrice = () => {
         return allProducts?.reduce((total, product) => {
-          console.log("map product ", product)
-          let variantMultiplier = product?.variant ? product.variant : 1
-          console.log("variant mulitplie ri ", variantMultiplier)
+          console.log("map product ", product);
+          let variantMultiplier = product?.variant ? product.variant : 1;
+          console.log("variant mulitplie ri ", variantMultiplier);
           // If the variant is greater than or equal to 100 (grams), convert to kilograms
           if (variantMultiplier >= 100) {
-            variantMultiplier = variantMultiplier / 1000 // Convert grams to kg
+            variantMultiplier = variantMultiplier / 1000; // Convert grams to kg
           }
           return (
             total +
             product.scannedCount * (product?.price || 0) * variantMultiplier
-          )
-        }, 0)
-      }
-      const value = getTotalPrice()
-      console.log("value ", value)
+          );
+        }, 0);
+      };
+      const value = getTotalPrice();
+      console.log("value ", value);
       setOrderInfo((prevOrderInfo) => ({
         ...prevOrderInfo,
         scannedAmout: value,
-      }))
+      }));
     }
-  }, [allProducts])
+  }, [allProducts]);
 
   const handleBackClick = () => {
     if (isScanning) {
-      console.log("turned off the camera")
-      return showTurnedOffCamera()
+      console.log("turned off the camera");
+      return showTurnedOffCamera();
     }
     if (orderId) {
-      navigate("/employee-orders")
+      navigate("/employee-orders");
     } else {
-      navigate("/employee-home")
+      navigate("/employee-home");
     }
-  }
+  };
 
   return (
     <div style={styles.container}>
@@ -511,8 +517,8 @@ const EmployeeOrder = () => {
         </Alert>
       </Snackbar>
     </div>
-  )
-}
+  );
+};
 
 const styles = {
   CategoryTitle: {
@@ -643,6 +649,6 @@ const styles = {
     padding: "10px",
     textAlign: "left",
   },
-}
+};
 
-export default EmployeeOrder
+export default EmployeeOrder;

@@ -7,113 +7,119 @@ import {
   Grid,
   Snackbar,
   Alert,
-} from "@mui/material"
-import { ArrowBack } from "@mui/icons-material"
-import React, { useState } from "react"
-import BarcodeScanner from "../../Components/Employee/BarcodeScanner"
-import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded"
-import ProductCard from "../../Components/Employee/ProductCard"
-import axios from "axios"
-import UserDrawer from "../../Components/Employee/Drawer/UserInfoDrawer"
-import server from "../../Components/server"
-import { useNavigate } from "react-router-dom"
-import { toast, ToastContainer } from "react-toastify"
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import React, { useState } from "react";
+import BarcodeScanner from "../../Components/Employee/BarcodeScanner";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import ProductCard from "../../Components/Employee/ProductCard";
+import axios from "axios";
+import UserDrawer from "../../Components/Employee/Drawer/UserInfoDrawer";
+import server from "../../Components/server";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const CreateOrder = () => {
-  const navigate = useNavigate()
-  const [scannedProductList, setScannedProductList] = useState([])
-  const [openSnackbar, setOpenSnackbar] = useState(false)
-  const [snackbarMessage, setSnackbarMessage] = useState("")
-  const [snackbarSeverity, setSnackbarSeverity] = useState("info")
-  const [allProducts, setProducts] = useState([])
-  const [activeScanner, setActiveScanner] = useState("image")
-  const [scanResult, setScanResult] = useState("")
-  const [isScanning, setIsScanning] = useState(false)
-  const [isDrawerOpen, setDrawerOpen] = useState(false)
+  const navigate = useNavigate();
+  const [scannedProductList, setScannedProductList] = useState([]);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+  const [allProducts, setProducts] = useState([]);
+  const [activeScanner, setActiveScanner] = useState("image");
+  const [scanResult, setScanResult] = useState("");
+  const [isScanning, setIsScanning] = useState(false);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phoneNumber: "",
-  })
-  const [netPrice, setNetPrice] = useState(0)
+  });
+  const [netPrice, setNetPrice] = useState(0);
 
-  const handleOpenDrawer = () => setDrawerOpen(true)
+  const handleOpenDrawer = () => setDrawerOpen(true);
   const handleCloseDrawer = () => {
-    setDrawerOpen(false)
-    setFormData("")
-  }
+    setDrawerOpen(false);
+    setFormData("");
+  };
   const handleSubmit = async () => {
-    const response = await createInstoreOrder()
-    console.log("RESponse is ", response)
-    console.log("Form Data:", formData)
-    setFormData("")
-    handleCloseDrawer() // Close the drawer after submission
+    const response = await createInstoreOrder();
+    console.log("RESponse is ", response);
+    console.log("Form Data:", formData);
+    setFormData("");
+    handleCloseDrawer(); // Close the drawer after submission
     if (response) {
-      const Employee = JSON.parse(localStorage.getItem("employee"))
-      console.log("Employee", Employee)
+      const Employee = JSON.parse(localStorage.getItem("employee"));
+      console.log("Employee", Employee);
       // const employeeOrder = await createEmployeeOrder(
       //   Employee?._id,
       //   response._id
       // )
       // console.log("Emp order--", employeeOrder)
-      navigate("/dispatch-success", { state: { createOrder: true } })
-      toast.success("Order Created Successfully!")
+      navigate("/dispatch-success", { state: { createOrder: true } });
+      toast.success("Order Created Successfully!");
     } else {
-      toast.error("Failed to create Order!")
+      toast.error("Failed to create Order!");
     }
-  }
+  };
 
   const handleSnackbarClose = () => {
-    setOpenSnackbar(false)
-  }
+    setOpenSnackbar(false);
+  };
   const vibrateDevice = (pattern) => {
     if ("vibrate" in navigator) {
-      navigator.vibrate(pattern)
+      navigator.vibrate(pattern);
     }
-  }
+  };
 
   const showWarningSnackbar = () => {
-    setSnackbarMessage("Product is Already Scanned!")
-    setSnackbarSeverity("warning")
-    setOpenSnackbar(true)
-    vibrateDevice([200, 100, 200])
-  }
+    setSnackbarMessage("Product is Already Scanned!");
+    setSnackbarSeverity("warning");
+    setOpenSnackbar(true);
+    vibrateDevice([200, 100, 200]);
+  };
   const showProductScan = () => {
-    setSnackbarMessage("Your Product Scanned!")
-    setSnackbarSeverity("info")
-    setOpenSnackbar(true)
+    setSnackbarMessage("Your Product Scanned!");
+    setSnackbarSeverity("info");
+    setOpenSnackbar(true);
     // vibrateDevice([200, 100, 200]);
-  }
+  };
   const showProductNotFound = () => {
-    setSnackbarMessage("Product is Not in List!")
-    setSnackbarSeverity("warning")
-    setOpenSnackbar(true)
-    vibrateDevice([200, 100, 200])
-  }
+    setSnackbarMessage("Product is Not in List!");
+    setSnackbarSeverity("warning");
+    setOpenSnackbar(true);
+    vibrateDevice([200, 100, 200]);
+  };
   const showTurnedOffCamera = () => {
-    setSnackbarMessage("Please Turned Off the Camera")
-    setSnackbarSeverity("warning")
-    setOpenSnackbar(true)
-  }
+    setSnackbarMessage("Please Turned Off the Camera");
+    setSnackbarSeverity("warning");
+    setOpenSnackbar(true);
+  };
 
   const getVendorProductByBarcode = async (barcode) => {
     try {
-      const result = await axios.get(`${server}/products/barcode/${barcode}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      })
-      console.log("rsult is ", result)
+      const result = await axios.get(
+        `${server}/vendor/products/barcode/${barcode}`,
+        {
+          params: {
+            vendor: localStorage.getItem("vendorID"),
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      console.log("rsult is ", result);
       if (result?.data) {
-        console.log("get vendor product by barcode ", result.data)
-        return result.data
+        console.log("get vendor product by barcode ", result.data);
+        return result.data;
       }
       //   else {
       //     showProductNotFound()
       //   }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const createEmployeeOrder = async (employeeId, orderId) => {
     try {
@@ -125,13 +131,13 @@ const CreateOrder = () => {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
-      )
-      console.log("Created Employee ", result)
-      return result
+      );
+      console.log("Created Employee ", result);
+      return result;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   //   const handleScan = (barcode) => {
   //     console.log("barcode is ", barcode)
@@ -144,37 +150,37 @@ const CreateOrder = () => {
       variant: item.product.variants ? item.product.variants[0] : null,
       // price: item.product.product.price,
       // barcode: item.product.barcode,
-    }))
+    }));
     const totalPrice = scannedProductList.reduce((accumulator, item) => {
-      return accumulator + item.count * item.product.price
-    }, 0)
+      return accumulator + item.count * item.product.price;
+    }, 0);
     const orderData = {
       productList: productList,
       mobile: formData.mobile,
       totalAmount: totalPrice,
-    }
-    console.log("scnnaed P>L ", scannedProductList)
+    };
+    console.log("scnnaed P>L ", scannedProductList);
     // Calculate the total price
 
-    console.log("Total Price:", totalPrice)
-    console.log("user Info is ", formData)
+    console.log("Total Price:", totalPrice);
+    console.log("user Info is ", formData);
 
-    console.log("request body is ", productList)
+    console.log("request body is ", productList);
     try {
       const response = await axios.post(`${server}/orders/instore`, orderData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      })
-      console.log("Order created successfully:", response.data)
-      return response.data
+      });
+      console.log("Order created successfully:", response.data);
+      return response.data;
     } catch (error) {
       console.error(
         "Error creating order:",
         error.response?.data || error.message
-      )
+      );
     }
-  }
+  };
 
   // const handleScan = async (barcode) => {
   //   const productBarcode = String(barcode).trim()
@@ -224,20 +230,20 @@ const CreateOrder = () => {
   // }
 
   const handleScan = async (barcode) => {
-    const productBarcode = String(barcode).trim()
-    let foundProduct = false
+    const productBarcode = String(barcode).trim();
+    let foundProduct = false;
 
     try {
       // Fetch the product details using the getVendorProductByBarcode function
-      const product = await getVendorProductByBarcode(productBarcode)
-      console.log("found product", product)
+      const product = await getVendorProductByBarcode(productBarcode);
+      console.log("found product", product);
 
       if (product) {
         // Product found, update the scanned product list
         setScannedProductList((prevProducts) => {
           const existingProduct = prevProducts.find(
             (item) => item.product.barcode === product.barcode
-          )
+          );
 
           if (existingProduct) {
             // If the product exists, update the count
@@ -245,48 +251,48 @@ const CreateOrder = () => {
               item.product.barcode === product.barcode
                 ? { ...item, count: item.count + 1 }
                 : item
-            )
+            );
           } else {
             // If the product doesn't exist, add it to the list with count set to 1
-            return [...prevProducts, { product, count: 1 }]
+            return [...prevProducts, { product, count: 1 }];
           }
-        })
+        });
 
-        foundProduct = true
-        showProductScan() // Show the product scan success message
+        foundProduct = true;
+        showProductScan(); // Show the product scan success message
       } else {
-        console.log("Product with barcode not found")
-        showProductNotFound() // Show product not found message
+        console.log("Product with barcode not found");
+        showProductNotFound(); // Show product not found message
       }
     } catch (error) {
-      console.error("Error fetching product by barcode:", error)
-      showProductNotFound() // Handle error by showing product not found message
+      console.error("Error fetching product by barcode:", error);
+      showProductNotFound(); // Handle error by showing product not found message
     }
 
     // Clear the scan result after a delay
     setTimeout(() => {
-      setScanResult("")
-    }, 3000)
-  }
+      setScanResult("");
+    }, 3000);
+  };
 
   const handleDispatch = () => {
-    handleOpenDrawer()
-  }
+    handleOpenDrawer();
+  };
   const handleBackClick = () => {
     if (isScanning) {
-      console.log("turned off the camera")
-      return showTurnedOffCamera()
+      console.log("turned off the camera");
+      return showTurnedOffCamera();
     }
-    navigate("/employee-home")
-  }
+    navigate("/employee-home");
+  };
 
   useState(() => {
     const totalPrice = scannedProductList.reduce((accumulator, item) => {
-      return accumulator + item.count * item.product.price
-    }, 0)
-    console.log("setting is ", totalPrice)
-    setNetPrice(totalPrice)
-  }, [scannedProductList, handleScan])
+      return accumulator + item.count * item.product.price;
+    }, 0);
+    console.log("setting is ", totalPrice);
+    setNetPrice(totalPrice);
+  }, [scannedProductList, handleScan]);
 
   return (
     <>
@@ -379,10 +385,10 @@ const CreateOrder = () => {
         </Snackbar>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default CreateOrder
+export default CreateOrder;
 
 const styles = {
   CategoryTitle: {
@@ -514,7 +520,7 @@ const styles = {
     padding: "10px",
     textAlign: "left",
   },
-}
+};
 
 const productList = [
   {
@@ -792,7 +798,7 @@ const productList = [
     ],
     _id: "6757003313b6121e9a64914c",
   },
-]
+];
 
 const vendorProducts = [
   {
@@ -973,6 +979,6 @@ const vendorProducts = [
     labelcode: "LBL5005",
     barcode: "8901063019188",
   },
-]
+];
 
-console.log(vendorProducts)
+console.log(vendorProducts);
