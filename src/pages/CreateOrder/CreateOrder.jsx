@@ -17,6 +17,7 @@ import axios from "axios"
 import UserDrawer from "../../Components/Employee/Drawer/UserInfoDrawer"
 import server from "../../Components/server"
 import { useNavigate } from "react-router-dom"
+import { toast, ToastContainer } from "react-toastify"
 
 const CreateOrder = () => {
   const navigate = useNavigate()
@@ -41,11 +42,24 @@ const CreateOrder = () => {
     setFormData("")
   }
   const handleSubmit = async () => {
-    await createInstoreOrder()
+    const response = await createInstoreOrder()
+    console.log("RESponse is ", response)
     console.log("Form Data:", formData)
     setFormData("")
     handleCloseDrawer() // Close the drawer after submission
-    navigate("/dispatch-success", { state: { createOrder: true } })
+    if (response) {
+      const Employee = JSON.parse(localStorage.getItem("employee"))
+      console.log("Employee", Employee)
+      // const employeeOrder = await createEmployeeOrder(
+      //   Employee?._id,
+      //   response._id
+      // )
+      // console.log("Emp order--", employeeOrder)
+      navigate("/dispatch-success", { state: { createOrder: true } })
+      toast.success("Order Created Successfully!")
+    } else {
+      toast.error("Failed to create Order!")
+    }
   }
 
   const handleSnackbarClose = () => {
@@ -75,6 +89,11 @@ const CreateOrder = () => {
     setOpenSnackbar(true)
     vibrateDevice([200, 100, 200])
   }
+  const showTurnedOffCamera = () => {
+    setSnackbarMessage("Please Turned Off the Camera")
+    setSnackbarSeverity("warning")
+    setOpenSnackbar(true)
+  }
 
   const getVendorProductByBarcode = async (barcode) => {
     try {
@@ -91,6 +110,24 @@ const CreateOrder = () => {
       //   else {
       //     showProductNotFound()
       //   }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const createEmployeeOrder = async (employeeId, orderId) => {
+    try {
+      const result = await axios.post(
+        `${server}/employee-orders?employeeId=${employeeId}&orderId=${orderId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      )
+      console.log("Created Employee ", result)
+      return result
     } catch (error) {
       console.log(error)
     }
@@ -129,8 +166,8 @@ const CreateOrder = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       })
-
       console.log("Order created successfully:", response.data)
+      return response.data
     } catch (error) {
       console.error(
         "Error creating order:",
@@ -253,6 +290,7 @@ const CreateOrder = () => {
 
   return (
     <>
+      <ToastContainer />
       <UserDrawer
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
