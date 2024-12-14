@@ -1,12 +1,12 @@
-import { Box } from "@mui/material"
-import { createContext } from "react"
-import { NavLink } from "react-router-dom"
-import { ReactComponent as Account } from "../../../assets/account.svg"
-import { ReactComponent as Cart } from "../../../assets/cart.svg"
-import { ReactComponent as ScannerImg } from "../../../assets/qr-code-scan-icon.svg"
-import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart"
+import { Box } from "@mui/material";
+import { createContext } from "react";
+import { NavLink } from "react-router-dom";
+import Account from "../../../assets/account.svg";
+import Cart from "../../../assets/cart.svg";
+import ScannerImg from "../../../assets/qr-code-scan-icon.svg";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 
-export const NavBarContext = createContext()
+export const NavBarContext = createContext();
 
 const NavbarContainer = {
   backgroundColor: "#ffffff",
@@ -18,12 +18,12 @@ const NavbarContainer = {
   width: "100%",
   minHeight: "5vh",
   zIndex: 10,
-}
+};
 
 const NavbarDiv = {
   display: "flex",
   justifyContent: "space-evenly",
-}
+};
 
 const NavItemStyle = {
   borderRadius: "50%",
@@ -33,32 +33,29 @@ const NavItemStyle = {
   justifyContent: "center",
   alignItems: "center",
   color: "black",
-}
+};
 
 const notactivenavbarclass = {
   textDecoration: "none",
   backgroundColor: "#ffffff",
-}
+};
 
 const activenavbarclass = {
   textDecoration: "none",
   backgroundColor: "#5ec401",
   color: "#ffffff",
   borderRadius: "50%",
-}
+};
 
 const Navbar = () => {
-  const items = 0
+  const items = 0;
   return (
     <Box sx={NavbarContainer}>
       <Box sx={NavbarDiv}>
         <NavLink
-          to="/employee-orders"
-          style={({ isActive }) =>
-            isActive ? activenavbarclass : notactivenavbarclass
-          }
-        >
-          <Box sx={NavItemStyle} className="nav-items">
+          to='/employee-orders'
+          style={({ isActive }) => (isActive ? activenavbarclass : notactivenavbarclass)}>
+          <Box sx={NavItemStyle} className='nav-items'>
             <Box
               sx={{
                 borderRadius: "100%",
@@ -70,46 +67,36 @@ const Navbar = () => {
                 marginBottom: "20px",
                 marginLeft: "25px",
                 justifyContent: "center",
-              }}
-            >
+              }}>
               {items > 0 ? <>{items}</> : <></>}
             </Box>
-            <Cart />
+            <img src={Cart} alt='' />
           </Box>
         </NavLink>
         <NavLink
-          to="/employee-order"
-          style={({ isActive }) =>
-            isActive ? activenavbarclass : notactivenavbarclass
-          }
-        >
-          <Box sx={NavItemStyle} className="nav-items">
-            <ScannerImg style={{ width: "20px", height: "20px" }} />
+          to='/employee-order'
+          style={({ isActive }) => (isActive ? activenavbarclass : notactivenavbarclass)}>
+          <Box sx={NavItemStyle} className='nav-items'>
+            <img src={ScannerImg} alt='' style={{ width: "20px", height: "20px" }} />
           </Box>
         </NavLink>
         <NavLink
-          to="/place-order"
-          style={({ isActive }) =>
-            isActive ? activenavbarclass : notactivenavbarclass
-          }
-        >
-          <Box sx={NavItemStyle} className="nav-items">
+          to='/place-order'
+          style={({ isActive }) => (isActive ? activenavbarclass : notactivenavbarclass)}>
+          <Box sx={NavItemStyle} className='nav-items'>
             <AddShoppingCartIcon />
           </Box>
         </NavLink>
         <NavLink
-          to="/employee-home"
-          style={({ isActive }) =>
-            isActive ? activenavbarclass : notactivenavbarclass
-          }
-        >
-          <Box sx={NavItemStyle} className="nav-items">
-            <Account />
+          to='/employee-home'
+          style={({ isActive }) => (isActive ? activenavbarclass : notactivenavbarclass)}>
+          <Box sx={NavItemStyle} className='nav-items'>
+            <img src={Account} alt='' />
           </Box>
         </NavLink>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
