@@ -1,199 +1,133 @@
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import { Box, IconButton, Tab, Tabs, Typography } from "@mui/material";
-import axios from "axios";
-// import PropTypes from "prop-types"
+import { Box, IconButton, Tab, Tabs } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import server from "../../Components/server";
 import EmployeeOrderCard from "./Layout/EmployeeOrderCard";
 import TrolleyModal from "./Layout/TrolleyModal";
+import { api } from "../../api/api";
 
-const header = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "20px",
-  backgroundColor: "#fff",
-  borderBottom: "1px solid #EAEAEA",
-};
-
-const arrowStyle = {
-  position: "absolute",
-  left: "20px",
-};
-
-const CategoryTitle = {
-  fontWeight: "600",
-  fontFamily: "Quicksand",
-};
-
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role='tabpanel'
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}>
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
-
-// TabPanel.propTypes = {
-//   children: PropTypes.node,
-//   index: PropTypes.number.isRequired,
-//   value: PropTypes.number.isRequired,
-// };
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
-
-const Orders = (props) => {
+const Orders = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [currentOrderId, setCurrentOrderId] = useState(null);
-
-  const [value, setValue] = useState(location?.state?.value ? location?.state?.value : 0);
+  const [value, setValue] = useState(location?.state?.value || 0);
   const [orders, setOrders] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
 
-  const handleOpenModal = () => {
-    setModalOpen(true);
-  };
-
+  const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => {
     setModalOpen(false);
     navigate(`/employee-order`, { state: { orderId: currentOrderId } });
   };
-
   const handleConfirm = () => {
-    console.log("User confirmed they have a Searching Trolley.");
     setModalOpen(false);
     navigate(`/trolley-connect`, { state: { orderId: currentOrderId } });
   };
-
   const handleNavigate = (orderId) => {
-    // Set the current order and open the modal
     setCurrentOrderId(orderId);
     setModalOpen(true);
   };
 
   const getOrders = async () => {
-    const data = localStorage.getItem("employee");
-    const employeeData = JSON.parse(data);
     try {
-      const result = await axios.get(`${server}/employee-orders/${employeeData._id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      const arr = result.data;
-      console.log("vendor order is ", result.data);
-      setOrders(arr);
+      const result = await api.order.getOrders();
+      setOrders(result);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setOrders([]);
     }
-  };
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
   };
 
   useEffect(() => {
     getOrders();
   }, []);
 
-  useEffect(() => {}, [orders]);
+  const handleChange = (event, newValue) => setValue(newValue);
 
   return (
-    <Box sx={{ marginBottom: "100px", width: "100%" }}>
-      <Box sx={header}>
-        <Box sx={arrowStyle}>
-          <Link to='/employee-home'>
-            <IconButton>
-              <ArrowBackRoundedIcon />
-            </IconButton>
-          </Link>
+    <>
+      <TrolleyModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirm}
+      />
+      <Box className="mb-24 w-full px-3">
+        <Box className="flex items-center justify-center p-5 bg-white border-b border-gray-200">
+          <Box className="absolute left-5">
+            <Link to="/employee-home">
+              <IconButton>
+                <ArrowBackRoundedIcon />
+              </IconButton>
+            </Link>
+          </Box>
+          <p className="font-semibold font-quicksand">Fullfillment Orders</p>
         </Box>
-        <Typography variant='h6' sx={CategoryTitle}>
-          Fullfillment Orders
-        </Typography>
-      </Box>
-      <Box sx={{ width: "100%" }}>
-        <Box
-          sx={{
-            borderBottom: 1,
-            borderColor: "divider",
-            display: "flex",
-            justifyContent: "center",
-          }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label='basic tabs example'
-            textColor='secondary'
-            indicatorColor='primary'
-            sx={{
-              width: "100%",
-              justifyContent: "space-between",
-              display: "flex",
-            }}>
-            <Tab sx={{ width: "50%" }} label='Pending' {...a11yProps(0)} />
-            <Tab sx={{ width: "50%" }} label='for Dispatch' {...a11yProps(1)} />
-          </Tabs>
-        </Box>
-        <Box>
-          <TabPanel value={value} index={0} sx={{ overflow: "auto" }}>
-            {orders &&
-              orders?.map((currorder, i) => {
-                return (
-                  currorder?.order_status === "pending" && (
+        <Box className="w-full">
+          <Box className="border-b-1 border-gray-300 flex justify-center">
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              aria-label="Order Status Tabs"
+              textColor="secondary"
+              indicatorColor="primary"
+              className="w-full flex justify-between"
+            >
+              <Tab className="w-1/2" label="Pending" />
+              <Tab className="w-1/2" label="For Dispatch" />
+            </Tabs>
+          </Box>
+
+          <Box>
+            <TabPanel value={value} index={0}>
+              {orders.map(
+                (currOrder, i) =>
+                  currOrder.order_status === "pending" && (
                     <EmployeeOrderCard
-                      orderdetails={currorder}
+                      orderdetails={currOrder}
                       value={value}
                       key={i}
                       handleOpenModal={handleOpenModal}
                       handleNavigate={handleNavigate}
-                      sx={{ padding: "50px" }}
                     />
                   )
-                );
-              })}
-          </TabPanel>
+              )}
+            </TabPanel>
+
+            <TabPanel value={value} index={1}>
+              {orders.map(
+                (currOrder, i) =>
+                  currOrder.order_status === "inprogress" && (
+                    <EmployeeOrderCard
+                      orderdetails={currOrder}
+                      value={value}
+                      key={i}
+                    />
+                  )
+              )}
+            </TabPanel>
+          </Box>
         </Box>
-        <TabPanel
-          value={value}
-          index={1}
-          sx={{ overflow: "auto" }}
-          tabindicatorprops={{
-            style: {
-              backgroundColor: "#5EC401",
-            },
-          }}>
-          {orders &&
-            orders.map((currorder, i) => {
-              return (
-                currorder?.order_status === "inprogress" && (
-                  <EmployeeOrderCard orderdetails={currorder} value={value} key={i} />
-                )
-              );
-            })}
-        </TabPanel>
       </Box>
-      <TrolleyModal isOpen={isModalOpen} onClose={handleCloseModal} onConfirm={handleConfirm} />
-    </Box>
+    </>
   );
 };
+
+function TabPanel({ children, value, index, ...other }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box className="p-3">
+          <p>{children}</p>
+        </Box>
+      )}
+    </div>
+  );
+}
 
 export default Orders;

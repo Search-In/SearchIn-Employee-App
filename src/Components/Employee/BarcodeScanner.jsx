@@ -1,6 +1,6 @@
-import { Button } from "@mui/material"
-import { Html5Qrcode } from "html5-qrcode"
-import { useEffect, useRef, useState } from "react"
+import { Button } from "@mui/material";
+import { Html5Qrcode } from "html5-qrcode";
+import { useEffect, useRef, useState } from "react";
 
 function EmployeeScanner({
   handleScan,
@@ -9,49 +9,49 @@ function EmployeeScanner({
   setIsScanning,
   isScanning,
 }) {
-  const [scanner, setScanner] = useState(null)
+  const [scanner, setScanner] = useState(null);
   // const [isScanning, setIsScanning] = useState(false)
-  const readerRef = useRef(null)
+  const readerRef = useRef(null);
 
   const getQrBoxSize = () => {
     if (readerRef.current) {
-      const width = readerRef.current.clientWidth
-      const height = readerRef.current.clientHeight
-      console.log("math ", Math.min(width, height) * 0.8)
-      return `${Math.min(width, height) * 0.8}`
+      const width = readerRef.current.clientWidth;
+      const height = readerRef.current.clientHeight;
+      console.log("math ", Math.min(width, height) * 0.8);
+      return `${Math.min(width, height) * 0.8}`;
     }
-    console.log("250")
-    return 250
-  }
+    console.log("250");
+    return 250;
+  };
 
   const handleScanner = async () => {
     if (isScanning) {
       scanner
         .stop()
         .then(() => {
-          console.log("Scanner stopped.")
-          setIsScanning(false)
+          console.log("Scanner stopped.");
+          setIsScanning(false);
         })
         .catch((err) => {
-          console.log("Failed to stop scanner: ", err)
-        })
+          console.log("Failed to stop scanner: ", err);
+        });
     } else {
       try {
-        const devices = await Html5Qrcode.getCameras()
+        const devices = await Html5Qrcode.getCameras();
         if (devices && devices.length) {
           const backCamera = devices.find((device) =>
             device.label.toLowerCase().includes("back")
-          )
+          );
           const frontCamera = devices.find((device) =>
             device.label.toLowerCase().includes("front")
-          )
+          );
           const cameraId = backCamera
             ? backCamera.id
             : frontCamera
             ? frontCamera.id
-            : devices[0].id
+            : devices[0].id;
           //   const cameraId = devices[0].id; // Use the first available camera
-          const html5QrCode = new Html5Qrcode(readerRef.current.id)
+          const html5QrCode = new Html5Qrcode(readerRef.current.id);
 
           await html5QrCode.start(
             cameraId,
@@ -64,35 +64,40 @@ function EmployeeScanner({
               // qrbox: getQrBoxSize(),
             },
             (decodedText) => {
-              setScanResult(decodedText)
-              console.log(`QR Code detected: ${decodedText}`)
+              setScanResult(decodedText);
+              handleScan(decodedText);
+
+              console.log(`QR Code detected: ${decodedText}`);
             },
             (errorMessage) => {
               //   console.log(`QR Code scanning error: ${errorMessage}`);
             }
-          )
+          );
 
-          setScanner(html5QrCode)
-          setIsScanning(true)
+          setScanner(html5QrCode);
+          setIsScanning(true);
         } else {
-          console.log("No cameras found.")
+          console.log("No cameras found.");
         }
       } catch (error) {
-        console.log("Error starting scanner: ", error)
+        console.log("Error starting scanner: ", error);
       }
     }
-  }
+  };
 
   useEffect(() => {
-    if (scanResult) {
-      async function fetchData() {
-        if (scanResult) {
-          handleScan(scanResult)
-        }
+    if (!scanResult) return;
+
+    const fetchData = async () => {
+      try {
+        await handleScan(scanResult);
+      } catch (error) {
+        console.error("Error handling scan:", error);
       }
-      fetchData()
-    }
-  }, [scanResult])
+    };
+
+    fetchData();
+  }, [scanResult]);
 
   // useEffect(() => {
   //   return () => {
@@ -141,7 +146,7 @@ function EmployeeScanner({
         {isScanning ? "Stop" : "Start"}
       </Button>
     </>
-  )
+  );
 }
 
-export default EmployeeScanner
+export default EmployeeScanner;
