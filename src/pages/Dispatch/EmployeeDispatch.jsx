@@ -15,6 +15,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import server from "../../Components/server";
 import ProductCard from "../../Components/Employee/ProductCard";
 import { useMqtt } from "../../context/MqttContext";
+import { api } from "../../api/api";
 
 const EmployeeDispatch = () => {
   const navigate = useNavigate();
@@ -32,23 +33,16 @@ const EmployeeDispatch = () => {
   const getOrders = async () => {
     const data = localStorage.getItem("employee");
     const employeeData = JSON.parse(data);
-    const result = await axios.get(
-      `${server}/vendor/orders/${vendor_order_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }
-    );
+    const result = await api.order.fetchOneOrder(vendor_order_id);
     setRecipientInfo({
-      name: result?.data?.deliveryAddress?.recipientName,
-      phone: result?.data?.deliveryAddress?.recipientPhoneNo,
-      addressLine: result?.data?.deliveryAddress?.addressLine,
-      locationType: result?.data?.deliveryAddress?.locationType,
-      pincode: result?.data?.deliveryAddress?.pincode,
-      message: result?.data?.message,
-      orderNo: result?.data?.vendor_order,
-      totalAmount: result?.data?.totalAmount,
+      name: result?.deliveryAddress?.recipientName,
+      phone: result?.deliveryAddress?.recipientPhoneNo,
+      addressLine: result?.deliveryAddress?.addressLine,
+      locationType: result?.deliveryAddress?.locationType,
+      pincode: result?.deliveryAddress?.pincode,
+      message: result?.message,
+      orderNo: result?.vendor_order?._id,
+      totalAmount: result?.totalAmount,
     });
     const arr = result.data?.productList;
     console.log("setting arr", result.data);
@@ -57,17 +51,9 @@ const EmployeeDispatch = () => {
 
   const updateOrderStatus = async () => {
     try {
-      const result = await axios.patch(
-        `${server}/vendor/orders/${vendor_order_id}`,
-        {
-          order_status: "inprogress",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      const result = await api.order.updateOneOrder(vendor_order_id, {
+        order_status: "inprogress",
+      });
     } catch (error) {
       console.log(error);
     }
@@ -75,17 +61,9 @@ const EmployeeDispatch = () => {
 
   const updatedispatchTime = async () => {
     try {
-      const result = await axios.patch(
-        `${server}/update-employee-order/employeeOrder?employeeId=${employeeId}&vendor_order=${vendor_order_id}`,
-        {
-          dispatchTime: new Date(),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      const result = await api.order.updateScanTime(vendor_order_id, {
+        dispatchTime: new Date(),
+      });
     } catch (error) {
       console.log(error);
     }

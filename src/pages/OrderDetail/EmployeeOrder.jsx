@@ -237,7 +237,9 @@ const EmployeeOrder = () => {
 
   const updateEndScanTime = async () => {
     try {
-      await api.order.updateEndScanTime(vendor_order_id);
+      await api.order.updateScanTime(vendor_order_id, {
+        endScanTime: new Date(),
+      });
     } catch (error) {
       console.log("Error updating scan time:", error);
     }
@@ -268,7 +270,9 @@ const EmployeeOrder = () => {
 
   const updateScanTime = async () => {
     try {
-      await api.order.updateScanTime({ vendor_order: vendor_order_id });
+      await api.order.updateScanTime(vendor_order_id, {
+        startScanTime: new Date(),
+      });
     } catch (error) {
       console.log("Error updating scan time:", error);
     }
