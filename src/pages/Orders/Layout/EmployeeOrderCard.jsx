@@ -1,210 +1,76 @@
-import ShoppingBasketOutlinedIcon from "@mui/icons-material/ShoppingBasketOutlined"
-import { Box, Button, IconButton, Typography } from "@mui/material"
-import { useNavigate } from "react-router-dom"
+import ShoppingBasketOutlinedIcon from "@mui/icons-material/ShoppingBasketOutlined";
+import { Box, IconButton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-const EditButton = { backgroundColor: "#F37A20", margin: "5px 5px" }
-
-const OrderTitle = {
-  fontSize: "14px",
-  color: "#37474F",
-  fontFamily: "Poppins",
-  fontWeight: "600",
-}
-
-const ShippingStatusDeliver = {
-  color: "#5EC401",
-  fontSize: "14px",
-  fontFamily: "Poppins",
-  fontWeight: "500",
-}
-
-const OrderDate = {
-  fontSize: "13px",
-  fontWeight: "400",
-  fontFamily: "Poppins",
-  color: "#868889",
-}
-
-const salePriceText = {
-  color: "#F37A20",
-  fontWeight: "500",
-  fontSize: "18px",
-  fontFamily: "Poppins",
-  textAlign: "end",
-  right: 5,
-}
-
-const buttonProductCard = {
-  color: "#fff",
-  backgroundColor: "#5EC401",
-  display: "flex",
-  height: "40px",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "8px 2px",
-  textTransform: "capitalize",
-  borderRadius: "7px",
-  position: "relative",
-  bottom: 0,
-  "&.MuiButtonBase-root:hover": {
-    background: "#64cf00",
-  },
-  maxWidth: "80px",
-}
-
-const OrderDoneText = {
-  fontSize: "22px",
-  fontWeight: "600",
-  fontFamily: "quicksand",
-  textAlign: "center",
-  padding: "0px 10px",
-  color: "#181725",
-  margin: "10px 0px",
-}
-
-const OrderPlacedText = {
-  fontSize: "14px",
-  fontWeight: "600",
-  fontFamily: "quicksand",
-  textAlign: "center",
-  padding: "0px 10px",
-  color: "#7C7C7C",
-  margin: "10px 0px",
-}
-
-const ButtonCart = {
-  backgroundColor: "#5EC401",
-  color: "#fff",
-  textTransform: "none",
-  padding: "12px 10px",
-  fontSize: "14px",
-  fontWeight: "500",
-  width: "100%",
-  borderRadius: "19px",
-  fontFamily: "quicksand",
-  "&.MuiButtonBase-root:hover": {
-    background: "#64cf00",
-  },
-}
-
-const ButtonCartSecond = {
-  backgroundColor: "#fff",
-  color: "#181725",
-  textTransform: "none",
-  padding: "12px 10px",
-  fontSize: "14px",
-  fontWeight: "600",
-  width: "100%",
-  borderRadius: "19px",
-  fontFamily: "quicksand",
-  "&.MuiButtonBase-root:hover": {
-    background: "#e9e8e8",
-  },
-}
 const EmployeeOrderCard = (props) => {
-  console.log("EmployeOrderCard Props ", props)
-  const navigate = useNavigate()
-  const handleClick = (e) => {
-    e.preventDefault()
-    if (props.orderdetails.order_status === "pending") {
-      props?.handleOpenModal()
-    }
-  }
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        borderBottom: "1px solid #E1E1E1",
-        paddingBottom: "20px",
-        marginRight: "2px",
-        marginTop: "10px",
-        width: "100%",
-      }}
-      // onClick={handleClick}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-        }}
-        onClick={(e) => {
-          e.preventDefault()
-          // props?.handleOpenModal()
-          // props.orderdetails.status === "pending"
-          //   ? navigate(`/employee-order`, {
-          //       state: { orderId: props.orderdetails._id },
-          //     })
-          //   : null
+  const navigate = useNavigate();
 
-          if (props.orderdetails.order_staus === "pending") {
-            props?.handleNavigate(props.orderdetails._id)
+  return (
+    <Box className="flex items-center justify-between border-b border-gray-200 pb-5 mr-2 mt-2 w-full">
+      <Box
+        className="flex items-center"
+        onClick={(e) => {
+          e.preventDefault();
+
+          if (props.orderdetails.order_status === "pending") {
+            navigate("/employee-order", {
+              state: { vendor_order: props.orderdetails._id },
+            });
           }
         }}
       >
-        <IconButton sx={EditButton}>
-          <ShoppingBasketOutlinedIcon sx={{ color: "#fff" }} />
+        <IconButton className="bg-[#F37A20] mx-1">
+          <ShoppingBasketOutlinedIcon />
         </IconButton>
         <Box
-          sx={{ margin: "0px 0px 0px 10px" }}
+          className="ml-2"
           onClick={(e) => {
-            e.preventDefault()
-            // props?.handleOpenModal()
-            // props.orderdetails.status === "pending"
-            //   ? navigate(`/employee-order`, {
-            //       state: { orderId: props.orderdetails._id },
-            //     })
-            //   : null
+            e.preventDefault();
 
             if (props.orderdetails.order_status === "pending") {
-              props?.handleNavigate(props.orderdetails._id)
+              navigate("/employee-order", {
+                state: { vendor_order: props.orderdetails._id },
+              });
             }
           }}
         >
-          <Typography sx={OrderTitle}>
-            Order #{props.orderdetails.order}
-          </Typography>
+          <p className="text-[#37474F] text-sm font-semibold">
+            Order #{props.orderdetails.order?.slice(10)}
+          </p>
 
-          <Typography sx={ShippingStatusDeliver}>
+          <p className="text-[#5EC401] text-sm font-medium capitalize">
             {props.orderdetails.order_status}
-          </Typography>
-          <Typography sx={OrderDate}>
+          </p>
+          <p className="text-[#868889] text-xs font-normal">
             {props.orderdetails.createdAt?.toString().substring(0, 10)}
-          </Typography>
+          </p>
         </Box>
       </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
-        }}
-      >
-        <Typography sx={salePriceText}>
+
+      <Box className="flex flex-col items-end justify-between h-full">
+        <p className="text-[#F37A20] font-medium text-xl text-right">
           ₹
           {props.orderdetails.total_amount !== null
             ? props.orderdetails.total_amount?.toFixed(2)
             : props.orderdetails?.returnAmount?.toFixed(2)}
-        </Typography>
+        </p>
+
         {props.orderdetails.order_status === "pending" && (
-          <Button
-            sx={buttonProductCard}
+          <button
+            className="mt-4 border-2 border-[#5EC401] flex items-center justify-center py-2 px-2 rounded-md max-w-[80px] hover:bg-[#64cf00] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#5EC401] focus:ring-offset-2"
             onClick={(e) => {
-              e.preventDefault()
-              // props?.handleOpenModal()
-              // navigate(`/employee-order`, {
-              //   state: { orderId: props.orderdetails._id },
-              // })
-              props?.handleNavigate(props.orderdetails._id)
+              e.preventDefault();
+              navigate("/employee-order", {
+                state: { vendor_order: props.orderdetails._id },
+              });
             }}
           >
             Start
-          </Button>
+          </button>
         )}
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default EmployeeOrderCard
+export default EmployeeOrderCard;

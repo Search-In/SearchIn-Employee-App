@@ -3,7 +3,6 @@ import verifyIcon from "../../../src/assets/verifyimage.png";
 
 const ProductCard = ({ product }) => {
   const isScanned = product.scannedCount >= product.quantity;
-  console.log("Product Card is ", product);
 
   return (
     <Paper

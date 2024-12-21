@@ -170,7 +170,7 @@ function TrolleyLink() {
         localStorage.setItem("virtualcartweight", 0);
         setIsSessionEnded(false);
         setLoading(false);
-        navigate("/employee-order", { state: { orderId: orderId } });
+        navigate("/employee-order", { state: { vendor_order: orderId } });
       }
     }
   }, [navigate, isConnected]);
