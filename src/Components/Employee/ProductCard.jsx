@@ -1,9 +1,9 @@
-import { Avatar, Box, Paper, Typography } from "@mui/material"
-import verifyIcon from "../../../src/assets/verifyimage.png"
+import { Avatar, Box, Paper, Typography } from "@mui/material";
+import verifyIcon from "../../../src/assets/verifyimage.png";
 
 const ProductCard = ({ product }) => {
-  const isScanned = product.scannedCount >= product.quantity
-  console.log("Product Card is ", product)
+  const isScanned = product.scannedCount >= product.quantity;
+  console.log("Product Card is ", product);
 
   return (
     <Paper
@@ -114,8 +114,8 @@ const ProductCard = ({ product }) => {
         </Box>
       </Box>
     </Paper>
-  )
-}
+  );
+};
 
 const styles = {
   card: {
@@ -283,6 +283,6 @@ const styles = {
     marginLeft: "5px",
     textAlign: "center",
   },
-}
+};
 
-export default ProductCard
+export default ProductCard;

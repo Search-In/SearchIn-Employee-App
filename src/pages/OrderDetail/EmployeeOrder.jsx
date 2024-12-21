@@ -269,98 +269,7 @@ const EmployeeOrder = () => {
   };
 
   return (
-    <div style={styles.container}>
-      {isConnected && <TrolleyValues />}
-      <Box sx={styles.header}>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="back"
-          onClick={handleBackClick}
-          sx={{ position: "absolute", top: "4px", left: "10px" }}
-        >
-          <ArrowBack />
-        </IconButton>
-      </Box>
-      <div style={styles.topHalf}>
-        <div style={styles.scannerContainer}>
-          <BarcodeScanner
-            handleScan={handleScan}
-            scanResult={scanResult}
-            setScanResult={setScanResult}
-            activeScanner={activeScanner}
-            setActiveScanner={setActiveScanner}
-            setIsScanning={setIsScanning}
-            isScanning={isScanning}
-          />
-        </div>
-      </div>
-      {orderId && (
-        <Box sx={styles.TopDiv}>
-          <Typography variant="h6" sx={styles.TotalTotal}>
-            Order #{orderInfo.orderNo}
-          </Typography>
-          <Typography sx={styles.TotalTotal}>Total Products</Typography>
-          <Typography sx={styles.TotalTotal}>
-            {orderInfo.scannedTotal} / {allProducts.length}
-          </Typography>
-        </Box>
-      )}
-
-      <div style={styles.bottomHalf}>
-        {!orderId && <Instructions />}
-        {openLabelCard && (
-          <>
-            <div style={styles.overlay}></div>
-            <Box style={{ position: "absolute", bottom: 170, zIndex: 999 }}>
-              <LabelCodeCard
-                product={productInfo}
-                onLabelCodeChange={onLabelCodeChange}
-                onRemove={() => setOpenLabelCard(false)}
-              />
-            </Box>
-          </>
-        )}
-
-        {orderInfo.message && (
-          <Box sx={styles.messageSection}>
-            <Typography variant="h6" sx={styles.messageHeading}>
-              Customer's Special Message
-            </Typography>
-            <Box sx={styles.messageBody}>
-              <Typography variant="body2">{orderInfo.message}</Typography>
-            </Box>
-          </Box>
-        )}
-
-        <Container maxWidth={false} disableGutters>
-          <Grid container spacing={0}>
-            {allProducts.map((product, index) => (
-              <Grid item xs={12} key={index}>
-                <ProductCard product={product} />
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </div>
-
-      {orderId && (
-        <Box sx={styles.bottomStickyContainer}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleDispatch}
-            sx={styles.bottomButton}
-            disabled={!allProductsScanned || orderId === undefined}
-          >
-            Confirm Order ₹{orderInfo.scannedAmout} / ₹{orderInfo.totalAmount}
-            <ArrowForwardRoundedIcon
-              sx={{ position: "absolute", right: "20px" }}
-            />
-          </Button>
-        </Box>
-      )}
-
+    <>
       <Snackbar
         open={openSnackbar}
         autoHideDuration={3000}
@@ -370,139 +279,119 @@ const EmployeeOrder = () => {
         <Alert
           onClose={handleSnackbarClose}
           severity={snackbarSeverity}
-          sx={{ width: "100%" }}
+          className="w-full"
         >
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </div>
+      {isConnected && <TrolleyValues />}
+
+      <div className="fixed top-0 z-10 flex items-center justify-center p-5 bg-white border-b border-gray-200 w-screen">
+        <IconButton
+          edge="start"
+          color="inherit"
+          aria-label="back"
+          onClick={handleBackClick}
+          // className="mx-2"
+        >
+          <ArrowBack />
+        </IconButton>
+        <Typography
+          variant="h6"
+          className="font-semibold font-quicksand w-full flex justify-center"
+        >
+          Fullfillment Orders
+        </Typography>
+      </div>
+      <div className="flex flex-col h-screen w-full">
+        <div className="flex-1 flex items-center justify-center border-b border-gray-200 bg-gray-100">
+          <div className="flex items-center justify-center w-full h-full">
+            <BarcodeScanner
+              handleScan={handleScan}
+              scanResult={null} // Your state for scanResult
+              setScanResult={() => {}}
+              activeScanner={null} // Your state for activeScanner
+              setActiveScanner={() => {}}
+              setIsScanning={() => {}}
+              isScanning={false} // Your state for isScanning
+            />
+          </div>
+        </div>
+
+        {orderId && (
+          <Box className="flex justify-between items-center border-b-2 border-gray-200 p-5">
+            <Typography variant="h6" className="font-semibold text-gray-800">
+              Order #{orderInfo.orderNo}
+            </Typography>
+            <Typography className="font-semibold text-gray-800">
+              Total Products
+            </Typography>
+            <Typography className="font-semibold text-gray-800">
+              {orderInfo.scannedTotal} / {allProducts.length}
+            </Typography>
+          </Box>
+        )}
+
+        <div className="flex-1 overflow-auto bg-white">
+          {!orderId && <Instructions />}
+
+          {openLabelCard && (
+            <>
+              <div className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-50 backdrop-blur-md"></div>
+              <Box className="absolute bottom-40 z-50">
+                <LabelCodeCard
+                  product={productInfo}
+                  onLabelCodeChange={onLabelCodeChange}
+                  onRemove={() => setOpenLabelCard(false)}
+                />
+              </Box>
+            </>
+          )}
+
+          {orderInfo.message && (
+            <Box className="border border-gray-200 rounded p-5 bg-gray-50">
+              <Typography
+                variant="h6"
+                className="font-semibold text-sm text-left mb-2 font-quicksand"
+              >
+                Customer's Special Message
+              </Typography>
+              <Box className="max-h-20 overflow-auto">
+                <Typography variant="body2" className="text-gray-700">
+                  {orderInfo.message}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
+          <Container maxWidth={false} disableGutters>
+            <Grid container spacing={0}>
+              {allProducts.map((product, index) => (
+                <Grid item xs={12} key={index}>
+                  <ProductCard product={product} />
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </div>
+
+        {orderId && (
+          <Box className="sticky bottom-0 bg-white p-5 z-50">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDispatch}
+              className="w-full h-12 rounded-lg bg-indigo-600 flex justify-between items-center"
+              disabled={!allProductsScanned || orderId === undefined}
+            >
+              Confirm Order ₹{orderInfo.scannedAmout} / ₹{orderInfo.totalAmount}
+              <ArrowForwardRoundedIcon className="absolute right-5" />
+            </Button>
+          </Box>
+        )}
+      </div>
+    </>
   );
-};
-
-const styles = {
-  CategoryTitle: {
-    fontWeight: "600",
-    fontFamily: "Quicksand",
-  },
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent dark background
-    backdropFilter: "blur(5px)", // Blur effect
-    zIndex: 998, // Make sure it's behind the card but above the other content
-  },
-  header: {
-    position: "absolute",
-    top: 0,
-    zIndex: 10,
-  },
-  arrowStyle: {
-    position: "absolute",
-    left: "20px",
-  },
-
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100vh",
-    width: "100%",
-  },
-  topHalf: {
-    height: "35%",
-    minHeight: "250px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderBottom: "1px solid #ccc",
-    backgroundColor: "#f5f5f5",
-    overflowY: "hidden",
-  },
-  scannerContainer: {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  bottomHalf: {
-    height: "65%",
-    overflowY: "auto",
-    backgroundColor: "#ffffff",
-  },
-  backButton: {
-    position: "absolute",
-    left: 10,
-    top: 10,
-  },
-
-  bottomStickyContainer: {
-    position: "sticky",
-    bottom: 0,
-    backgroundColor: "#fff",
-    padding: "10px 20px",
-    zIndex: 999,
-  },
-  bottomButton: {
-    width: "100%",
-    height: 50,
-    borderRadius: 8,
-    backgroundColor: "#3f51b5",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  TopDiv: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottom: "2px solid #F0F0F0",
-    padding: "10px 20px",
-  },
-  TotalDivTotal: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    margin: "10px 0px",
-    borderBottom: "2px solid #EAEAEA",
-    borderTop: "2px solid #EAEAEA",
-    padding: "10px 0px",
-  },
-  TotalDivTotal: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    margin: "10px 10px",
-    borderBottom: "2px solid #EAEAEA",
-    borderTop: "2px solid #EAEAEA",
-    padding: "10px 0px",
-  },
-  TotalTotal: {
-    fontSize: "15px",
-    fontWeight: "600",
-    fontFamily: "Poppins",
-  },
-  messageSection: {
-    margin: 0,
-    border: "1px solid #EAEAEA",
-    borderRadius: "4px",
-    padding: "10px",
-    backgroundColor: "#fafafa",
-  },
-  messageHeading: {
-    marginBottom: "8px",
-    fontWeight: "600",
-    fontFamily: "Quicksand",
-    fontSize: "13px",
-    lineHeight: "16.25px",
-    textalign: "left",
-  },
-  messageBody: {
-    maxHeight: "80px",
-    overflowY: "auto",
-  },
 };
 
 export default EmployeeOrder;

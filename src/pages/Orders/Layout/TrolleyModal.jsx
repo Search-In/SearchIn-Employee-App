@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 const overlayStyle = {
   position: "fixed",
   top: 0,
@@ -9,15 +9,7 @@ const overlayStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-}
-
-const contentStyle = {
-  background: "white",
-  padding: "20px",
-  borderRadius: "5px",
-  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-  textAlign: "center",
-}
+};
 
 const buttonStyle = {
   margin: "0 10px",
@@ -27,20 +19,17 @@ const buttonStyle = {
   cursor: "pointer",
   backgroundColor: "#007bff",
   color: "white",
-}
-
-const buttonHoverStyle = {
-  ...buttonStyle,
-  backgroundColor: "#0056b3",
-}
+};
 
 const TrolleyModal = ({ isOpen, onClose, onConfirm }) => {
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div style={overlayStyle}>
-      <div style={contentStyle}>
-        <h2>Do you have a Search In Trolley?</h2>
+      <div className="flex flex-col justify-between bg-white p-5 shadow-lg text-center rounded-lg">
+        <h2 className="my-4 text-xl font-semibold">
+          Do you have a Search In Trolley?
+        </h2>
         <div>
           <button
             style={buttonStyle}
@@ -56,7 +45,7 @@ const TrolleyModal = ({ isOpen, onClose, onConfirm }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TrolleyModal
+export default TrolleyModal;
