@@ -35,6 +35,14 @@ const employeeOrderToBarcodeScannedCount = (employee_order) =>
   });
 
 export const api = {
+  auth: {
+    login: async ({ phone, password }) => {
+      return axios.post(`${server}/auth/employee/login`, {
+        phone: phone,
+        password: password,
+      });
+    },
+  },
   products: {
     getByBarcode: async (barcode) => {
       try {
@@ -81,6 +89,32 @@ export const api = {
       }
     },
 
+    fetchOneOrder: async (id) => {
+      try {
+        const response = await axios.get(`${server}/vendor/orders/${id}`, {
+          headers: getAuthHeader(),
+        });
+        return response?.data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+
+    updateOneOrder: async (id, data) => {
+      try {
+        const response = await axios.patch(
+          `${server}/vendor/orders/${id}`,
+          data,
+          {
+            headers: getAuthHeader(),
+          }
+        );
+        return response?.data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+
     getOrdersByLabelcode: async (vendor_order) => {
       try {
         const result = await axios.get(
@@ -102,7 +136,7 @@ export const api = {
       }
     },
 
-    updateEndScanTime: async (vendor_order) => {
+    updateEndScanTime: async (vendor_order, data) => {
       try {
         const result = await axios.patch(
           `${server}/update-employee-order/employeeOrder`,
@@ -119,11 +153,11 @@ export const api = {
       }
     },
 
-    updateScanTime: async ({ vendor_order }) => {
+    updateScanTime: async (vendor_order, data = {}) => {
       try {
         const result = await axios.patch(
           `${server}/update-employee-order/employeeOrder`,
-          { startScanTime: new Date() },
+          data,
           {
             headers: getAuthHeader(),
             params: { employeeId: getEmployeeID(), vendor_order },

@@ -1,5 +1,5 @@
-import LockIcon from "@mui/icons-material/Lock"
-import PhoneIcon from "@mui/icons-material/Phone"
+import LockIcon from "@mui/icons-material/Lock";
+import PhoneIcon from "@mui/icons-material/Phone";
 import {
   Backdrop,
   Box,
@@ -8,17 +8,18 @@ import {
   InputAdornment,
   TextField,
   Typography,
-} from "@mui/material"
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { toast, ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import { Visibility, VisibilityOff } from "@mui/icons-material"
-import axios from "axios"
-import { HashLoader } from "react-spinners"
-import searchinlogo from "../../assets/Searchin_Logo_Green.png"
-import server from "../../Components/server"
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import axios from "axios";
+import { HashLoader } from "react-spinners";
+import searchinlogo from "../../assets/Searchin_Logo_Green.png";
+import server from "../../Components/server";
+import { api } from "../../api/api";
 
 const primaryBtn = {
   backgroundColor: "rgba(26, 153, 142, 1)",
@@ -31,7 +32,7 @@ const primaryBtn = {
   "&:hover": {
     backgroundColor: "rgba(26, 153, 142, 0.9)",
   },
-}
+};
 
 const InputField = {
   marginBottom: "20px",
@@ -40,17 +41,17 @@ const InputField = {
       borderColor: "#ddd",
     },
   },
-}
+};
 
 const EmployeeLogin = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [showModal, setModal] = useState(false)
-  const [phone, setPhone] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [employee, setEmployee] = useState()
-  const [token, setToken] = useState()
+  const [showModal, setModal] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [employee, setEmployee] = useState();
+  const [token, setToken] = useState();
 
   const handleLogin = async () => {
     if (phone === "" || password === "") {
@@ -58,57 +59,54 @@ const EmployeeLogin = () => {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: true,
-      })
-      return
+      });
+      return;
     }
 
     try {
-      setModal(true)
-      const result = await axios.post(`${server}/auth/employee/login`, {
-        phone: phone,
-        password: password,
-      })
-      setModal(false)
+      setModal(true);
+      const result = await api.auth.login({ phone, password });
+      setModal(false);
 
       if (result?.data) {
-        localStorage.setItem("employee", JSON.stringify(result.data?.user))
-        localStorage.setItem("accessToken", result.data.accessToken)
-        setEmployee(result?.data?.user)
-        setToken(result?.data?.accessToken)
+        localStorage.setItem("employee", JSON.stringify(result.data?.user));
+        localStorage.setItem("accessToken", result.data.accessToken);
+        setEmployee(result?.data?.user);
+        setToken(result?.data?.accessToken);
       } else {
         toast.error("Something Went Wrong", {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: true,
-        })
+        });
       }
     } catch (error) {
-      console.log(error)
-      setModal(false)
+      console.log(error);
+      setModal(false);
       if (error.response && error.response.data) {
-        return toast.error(error.response.data.message)
+        return toast.error(error.response.data.message);
       }
       toast.error("An unexpected error occured. Please try again ", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: true,
-      })
+      });
     }
-  }
+  };
 
   useEffect(() => {
     if (employee && token) {
-      navigate("/employee-home")
+      navigate("/employee-home");
     }
-  }, [employee, token])
+  }, [employee, token]);
 
   useEffect(() => {
-    const employee = localStorage.getItem("employee")
-    const accessToken = localStorage.getItem("accessToken")
+    const employee = localStorage.getItem("employee");
+    const accessToken = localStorage.getItem("accessToken");
     if (employee && accessToken) {
-      navigate("/employee-home")
+      navigate("/employee-home");
     }
-  }, [])
+  }, []);
 
   return (
     <>
@@ -216,7 +214,7 @@ const EmployeeLogin = () => {
         </Box>
       </Box>
     </>
-  )
-}
+  );
+};
 
-export default EmployeeLogin
+export default EmployeeLogin;
