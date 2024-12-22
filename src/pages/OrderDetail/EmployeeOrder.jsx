@@ -18,6 +18,7 @@ import ProductCard from "../../Components/Employee/ProductCard";
 import { useMqtt } from "../../context/MqttContext";
 import TrolleyValues from "./Layout/TrolleyValues";
 import { api } from "../../api/api";
+import { objectIdToNumber } from "../../lib/mongo";
 
 /**
  * @typedef {Object} ScannedBarcodeEntry
@@ -363,7 +364,9 @@ const EmployeeOrder = () => {
           <div className="flex justify-between items-center border-b-2 border-gray-200 p-5">
             <Typography variant="h6" className="font-semibold text-gray-800">
               Order #
-              {vendor_order_id ? vendor_order_id?.slice(10) : "Not created"}
+              {vendor_order_id
+                ? objectIdToNumber(vendor_order_id)
+                : "Not created"}
             </Typography>
             <Typography className="font-semibold text-gray-800">
               Total Products
