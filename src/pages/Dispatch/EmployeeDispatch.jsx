@@ -52,7 +52,7 @@ const EmployeeDispatch = () => {
   const updateOrderStatus = async () => {
     try {
       const result = await api.order.updateOneOrder(vendor_order_id, {
-        order_status: "inprogress",
+        order_status: "confirmed",
       });
     } catch (error) {
       console.log(error);
@@ -83,7 +83,7 @@ const EmployeeDispatch = () => {
     localStorage.removeItem("trolley");
     sessionStorage.clear();
     await updatedispatchTime();
-    updateOrderStatus();
+    await updateOrderStatus();
   };
 
   useEffect(() => {
