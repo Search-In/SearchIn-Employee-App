@@ -32,7 +32,6 @@ const EmployeeDispatch = () => {
 
   const getOrders = async () => {
     const data = localStorage.getItem("employee");
-    const employeeData = JSON.parse(data);
     const result = await api.order.fetchOneOrder(vendor_order_id);
     setRecipientInfo({
       name: result?.deliveryAddress?.recipientName,

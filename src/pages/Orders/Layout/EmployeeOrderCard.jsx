@@ -1,7 +1,7 @@
 import ShoppingBasketOutlinedIcon from "@mui/icons-material/ShoppingBasketOutlined";
 import { Box, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
+import { objectIdToNumber } from "../../../lib/mongo";
 const EmployeeOrderCard = (props) => {
   const navigate = useNavigate();
 
@@ -35,14 +35,14 @@ const EmployeeOrderCard = (props) => {
           }}
         >
           <p className="text-[#37474F] text-sm font-semibold">
-            Order #{props.orderdetails.order?.slice(10)}
+            Order #{objectIdToNumber(props.orderdetails.order)}
           </p>
 
           <p className="text-[#5EC401] text-sm font-medium capitalize">
             {props.orderdetails.order_status}
           </p>
           <p className="text-[#868889] text-xs font-normal">
-            {props.orderdetails.createdAt?.toString().substring(0, 10)}
+            {new Date(props.orderdetails.createdAt).toLocaleString()}
           </p>
         </Box>
       </Box>

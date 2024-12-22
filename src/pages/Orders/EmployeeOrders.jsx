@@ -44,6 +44,8 @@ const Orders = () => {
 
   const handleChange = (event, newValue) => setValue(newValue);
 
+  // console.log({ order_statuses: orders.map((o) => o.order_status) });
+
   return (
     <>
       <TrolleyModal
@@ -73,7 +75,7 @@ const Orders = () => {
               className="w-full flex justify-between"
             >
               <Tab className="w-1/2" label="Pending" />
-              <Tab className="w-1/2" label="For Dispatch" />
+              <Tab className="w-1/2" label="Packed" />
             </Tabs>
           </Box>
 
@@ -96,7 +98,7 @@ const Orders = () => {
             <TabPanel value={value} index={1}>
               {orders.map(
                 (currOrder, i) =>
-                  currOrder.order_status === "inprogress" && (
+                  currOrder.order_status === "confirmed" && (
                     <EmployeeOrderCard
                       orderdetails={currOrder}
                       value={value}
