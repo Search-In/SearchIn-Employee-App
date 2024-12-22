@@ -44,7 +44,7 @@ const Orders = () => {
 
   const handleChange = (event, newValue) => setValue(newValue);
 
-  // console.log({ order_statuses: orders.map((o) => o.order_status) });
+  // console.log({ order_statuses: orders.map((o) => o.order_status) }); .
 
   return (
     <>
