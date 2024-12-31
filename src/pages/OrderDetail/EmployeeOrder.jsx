@@ -6,6 +6,7 @@ import {
   Container,
   Grid,
   IconButton,
+  Modal,
   Snackbar,
   Typography,
 } from "@mui/material";
@@ -43,7 +44,7 @@ const EmployeeOrder = () => {
   const [productInfo, setProductInfo] = useState("");
   const [openLabelCard, setOpenLabelCard] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-
+  const [dispatchOverrideConfirm, setDispatchOverrideConfirm] = useState(false);
   /**
    * State for tracking scanned counts by barcode.
    * @type {[ScannedBarcodeEntry, React.Dispatch<React.SetStateAction<ScannedBarcodeEntry[]>>]}
@@ -220,13 +221,14 @@ const EmployeeOrder = () => {
 
   const getOrders = async () => {
     try {
-      const { db_vendor_order, barcodeScans } =
+      const { db_vendor_order, barcodeScans, employee_order } =
         await api.order.getOrdersByLabelcode(vendor_order_id);
 
       setOrderInfo({
         message: db_vendor_order?.message,
         orderNo: db_vendor_order?._id,
         totalAmount: db_vendor_order?.total_amount,
+        employee_order,
       });
       setOrderItems(db_vendor_order?.products || []);
       setId(db_vendor_order?.order?._id);
@@ -238,7 +240,7 @@ const EmployeeOrder = () => {
 
   const updateEndScanTime = async () => {
     try {
-      await api.order.updateScanTime(vendor_order_id, {
+      await api.order.updateEmployeeOrder(vendor_order_id, {
         endScanTime: new Date(),
       });
     } catch (error) {
@@ -247,7 +249,15 @@ const EmployeeOrder = () => {
   };
 
   const handleDispatch = async () => {
-    if (allProductsScanned) {
+    if (
+      !allProductsScanned &&
+      !orderInfo.employee_order?.dispatchOverwriteApproved
+    ) {
+      return setDispatchOverrideConfirm(true);
+    } else if (
+      allProductsScanned ||
+      orderInfo.employee_order?.dispatchOverwriteApproved
+    ) {
       if (isScanning)
         return showSnackbar("Please Turn Off the Camera", "warning");
       await updateEndScanTime();
@@ -271,7 +281,7 @@ const EmployeeOrder = () => {
 
   const updateScanTime = async () => {
     try {
-      await api.order.updateScanTime(vendor_order_id, {
+      await api.order.updateEmployeeOrder(vendor_order_id, {
         startScanTime: new Date(),
       });
     } catch (error) {
@@ -310,6 +320,14 @@ const EmployeeOrder = () => {
     navigate(vendor_order_id ? "/employee-orders" : "/employee-home");
   };
 
+  const dispatchOverrideRequest = async () => {
+    await api.order.updateEmployeeOrder(vendor_order_id, {
+      dispatchOverwriteReason: "Insufficient Stock",
+    });
+    await getOrders();
+    setDispatchOverrideConfirm(false);
+  };
+
   return (
     <>
       <Snackbar
@@ -326,6 +344,32 @@ const EmployeeOrder = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+      <Modal open={dispatchOverrideConfirm}>
+        <div
+          className={
+            "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 " +
+            "bg-white rounded-lg shadow-lg p-6 flex flex-col justify-center items-center w-[320px]"
+          }
+        >
+          <p className="my-5 text-center text-2xl font-semibold">
+            Raise insufficient stock issue?
+          </p>
+          <div className="flex w-full gap-4 mx-auto justify-center">
+            <button
+              className="bg-red-500 text-white p-2 rounded-lg"
+              onClick={() => setDispatchOverrideConfirm(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="bg-blue-500 text-white p-2 rounded-lg"
+              onClick={() => dispatchOverrideRequest().finally(() => {})}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </Modal>
       {isConnected && <TrolleyValues />}
 
       <div className="fixed top-0 z-10 flex items-center justify-center p-5 bg-white border-b border-gray-200 w-screen">
@@ -435,9 +479,10 @@ const EmployeeOrder = () => {
               color="primary"
               onClick={handleDispatch}
               className="w-full h-12 rounded-lg bg-indigo-600 flex justify-between items-center"
-              disabled={!allProductsScanned || vendor_order_id === undefined}
+              disabled={vendor_order_id === undefined}
             >
-              Confirm Order ₹{orderInfo.scannedAmout} / ₹{orderInfo.totalAmount}
+              Confirm Order ₹{orderInfo.scannedAmout || 0} / ₹
+              {orderInfo.totalAmount}
               <ArrowForwardRoundedIcon className="absolute right-5" />
             </Button>
           </div>

@@ -72,7 +72,6 @@ const EmployeeDispatch = () => {
   }, []);
 
   const handleDispatch = async () => {
-    navigate("/dispatch-success");
     localStorage.setItem("virtualcartweight", 0);
     const session = localStorage.getItem("session");
     publish("guestUser/endSession", { sessionId: session });
@@ -83,6 +82,7 @@ const EmployeeDispatch = () => {
     sessionStorage.clear();
     await updatedispatchTime();
     await updateOrderStatus();
+    navigate("/dispatch-success");
   };
 
   useEffect(() => {

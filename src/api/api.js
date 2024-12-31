@@ -84,7 +84,7 @@ export const api = {
         );
         return result.data;
       } catch (error) {
-        console.error(error);
+        // if (error.response.status !== 404) console.error(error);
         return [];
       }
     },
@@ -100,7 +100,7 @@ export const api = {
       }
     },
 
-    updateOneOrder: async (id, data) => {
+    updateVendorOrder: async (id, data) => {
       try {
         const response = await axios.patch(
           `${server}/vendor/orders/${id}`,
@@ -153,7 +153,7 @@ export const api = {
       }
     },
 
-    updateScanTime: async (vendor_order, data = {}) => {
+    updateEmployeeOrder: async (vendor_order, data = {}) => {
       try {
         const result = await axios.patch(
           `${server}/update-employee-order/employeeOrder`,
