@@ -5,7 +5,7 @@ const dev_env = import.meta.env.DEV === true;
 // const server = "https://estore.searchintech.in/api/v1";
 const server = !dev_env
   ? "https://estore.searchintech.in/api/v1"
-  : // : "https://estore.searchintech.in/api/v1";
+  : // : // : "https://estore.searchintech.in/api/v1";
     "http://localhost:8000/api/v1";
 
 // Helper function to get Authorization header

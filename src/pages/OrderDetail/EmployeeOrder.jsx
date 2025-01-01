@@ -71,6 +71,14 @@ const EmployeeOrder = () => {
   );
   const allProductsScanned = scannedOrderItems.length === orderItems.length;
 
+  console.log({ scannedOrderItems });
+
+  const scannedAmout = scannedOrderItems.reduce((total, product) => {
+    let variantMultiplier = product?.variant || 1;
+    if (variantMultiplier >= 100) variantMultiplier /= 1000;
+    return total + product.quantity * (product?.price || 0) * variantMultiplier;
+  }, 0);
+
   const handleSnackbarClose = () => setOpenSnackbar(false);
 
   const vibrateDevice = (pattern) => {
@@ -195,7 +203,7 @@ const EmployeeOrder = () => {
           );
         }
 
-        console.error(error); // Log the error for debugging
+        console.log(error?.response?.data); // Log the error for debugging
       }
     } else {
       // Handle case where vendor order is not present
@@ -296,23 +304,23 @@ const EmployeeOrder = () => {
     }
   }, [vendor_order_id]);
 
-  useEffect(() => {
-    if (scannedOrderItems.length > 0) {
-      const totalPrice = scannedOrderItems.reduce((total, product) => {
-        let variantMultiplier = product?.variant || 1;
-        if (variantMultiplier >= 100) variantMultiplier /= 1000;
-        return (
-          total +
-          product.scannedCount * (product?.price || 0) * variantMultiplier
-        );
-      }, 0);
+  // useEffect(() => {
+  //   if (scannedOrderItems.length > 0) {
+  //     const totalPrice = scannedOrderItems.reduce((total, product) => {
+  //       let variantMultiplier = product?.variant || 1;
+  //       if (variantMultiplier >= 100) variantMultiplier /= 1000;
+  //       return (
+  //         total +
+  //         product.scannedCount * (product?.price || 0) * variantMultiplier
+  //       );
+  //     }, 0);
 
-      setOrderInfo((prev) => ({
-        ...prev,
-        scannedAmout: totalPrice,
-      }));
-    }
-  }, [scannedOrderItems]);
+  //     setOrderInfo((prev) => ({
+  //       ...prev,
+  //       scannedAmout: totalPrice,
+  //     }));
+  //   }
+  // }, [scannedOrderItems]);
 
   const handleBackClick = () => {
     if (isScanning)
@@ -481,8 +489,7 @@ const EmployeeOrder = () => {
               className="w-full h-12 rounded-lg bg-indigo-600 flex justify-between items-center"
               disabled={vendor_order_id === undefined}
             >
-              Confirm Order ₹{orderInfo.scannedAmout || 0} / ₹
-              {orderInfo.totalAmount}
+              Confirm Order ₹{scannedAmout || 0} / ₹{orderInfo.totalAmount}
               <ArrowForwardRoundedIcon className="absolute right-5" />
             </Button>
           </div>

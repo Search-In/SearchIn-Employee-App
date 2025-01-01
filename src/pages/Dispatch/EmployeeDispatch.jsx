@@ -48,40 +48,26 @@ const EmployeeDispatch = () => {
     setProducts(arr);
   };
 
-  const updateOrderStatus = async () => {
-    try {
-      const result = await api.order.updateOneOrder(vendor_order_id, {
-        order_status: "confirmed",
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const updatedispatchTime = async () => {
-    try {
-      const result = await api.order.updateScanTime(vendor_order_id, {
-        dispatchTime: new Date(),
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
     getOrders();
   }, []);
 
   const handleDispatch = async () => {
+    await api.order.updateVendorOrder(vendor_order_id, {
+      order_status: "confirmed",
+    });
+    await api.order.updateEmployeeOrder(vendor_order_id, {
+      dispatchTime: new Date(),
+    });
     localStorage.setItem("virtualcartweight", 0);
     const session = localStorage.getItem("session");
-    publish("guestUser/endSession", { sessionId: session });
-    setIsSessionEnded(true);
-    disconnect();
+
     localStorage.removeItem("session");
     localStorage.removeItem("trolley");
     sessionStorage.clear();
-    await updatedispatchTime();
-    await updateOrderStatus();
+    publish("guestUser/endSession", { sessionId: session });
+    setIsSessionEnded(true);
+    disconnect();
     navigate("/dispatch-success");
   };
 
