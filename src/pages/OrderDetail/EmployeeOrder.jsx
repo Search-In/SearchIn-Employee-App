@@ -38,7 +38,6 @@ const EmployeeOrder = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
-  const [scanResult, setScanResult] = useState("");
   const [activeScanner, setActiveScanner] = useState("image");
   const [orderInfo, setOrderInfo] = useState({});
   const [productInfo, setProductInfo] = useState("");
@@ -408,8 +407,6 @@ const EmployeeOrder = () => {
           <div className="flex items-center justify-center w-full h-full">
             <BarcodeScanner
               handleScan={handleScan}
-              scanResult={scanResult}
-              setScanResult={setScanResult}
               activeScanner={activeScanner}
               setActiveScanner={setActiveScanner}
               setIsScanning={setIsScanning}
