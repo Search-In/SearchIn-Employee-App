@@ -271,7 +271,12 @@ const EmployeeOrder = () => {
     ) {
       await updateEndScanTime();
       navigate("/employee-dispatch", {
-        state: { vendor_order: id, id: vendor_order_id },
+        state: {
+          vendor_order: id,
+          id: vendor_order_id,
+          orderItems,
+          vendorProductScannedCount,
+        },
       });
     } else {
       showSnackbar("Not all products are scanned.", "error");
