@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { Html5Qrcode } from "html5-qrcode";
 import { useEffect, useRef, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 
 function EmployeeScanner({
   handleScan,
@@ -23,6 +24,12 @@ function EmployeeScanner({
     console.log("250");
     return 250;
   };
+
+  // Debounce the handleScan function
+  const debouncedHandleScan = useDebouncedCallback((decodedText) => {
+    setScanResult(decodedText);
+    handleScan(decodedText);
+  }, 500); // 500ms debounce delay
 
   const handleScanner = async () => {
     if (isScanning) {
@@ -64,8 +71,9 @@ function EmployeeScanner({
               // qrbox: getQrBoxSize(),
             },
             (decodedText) => {
-              setScanResult(decodedText);
-              handleScan(decodedText);
+              // setScanResult(decodedText);
+              // handleScan(decodedText);
+              debouncedHandleScan(decodedText); // Use debounced version
 
               console.log(`QR Code detected: ${decodedText}`);
             },
