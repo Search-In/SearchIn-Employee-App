@@ -1,18 +1,13 @@
 import { Button } from "@mui/material";
 import { Html5Qrcode } from "html5-qrcode";
 import { useEffect, useRef, useState } from "react";
-import { useDebouncedCallback } from "use-debounce";
+import { useDebounce } from "use-debounce";
 
-function EmployeeScanner({
-  handleScan,
-  scanResult,
-  setScanResult,
-  setIsScanning,
-  isScanning,
-}) {
+function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   const [scanner, setScanner] = useState(null);
   // const [isScanning, setIsScanning] = useState(false)
   const readerRef = useRef(null);
+  const [scanResult, setScanResult] = useState("");
 
   const getQrBoxSize = () => {
     if (readerRef.current) {
@@ -26,10 +21,21 @@ function EmployeeScanner({
   };
 
   // Debounce the handleScan function
-  const debouncedHandleScan = useDebouncedCallback((decodedText) => {
-    setScanResult(decodedText);
-    handleScan(decodedText);
-  }, 500); // 500ms debounce delay
+  const debouncedScanResult = useDebounce(scanResult, 1500); // 500ms debounce delay
+
+  useEffect(() => {
+    if (!scanResult) return;
+
+    const fetchData = async () => {
+      try {
+        await handleScan(scanResult);
+      } catch (error) {
+        console.log("Error handling scan:", error);
+      }
+    };
+
+    fetchData();
+  }, [debouncedScanResult]);
 
   const handleScanner = async () => {
     if (isScanning) {
@@ -73,7 +79,7 @@ function EmployeeScanner({
             (decodedText) => {
               // setScanResult(decodedText);
               // handleScan(decodedText);
-              debouncedHandleScan(decodedText); // Use debounced version
+              setScanResult(decodedText); // Use debounced version
 
               console.log(`QR Code detected: ${decodedText}`);
             },
@@ -92,20 +98,6 @@ function EmployeeScanner({
       }
     }
   };
-
-  useEffect(() => {
-    if (!scanResult) return;
-
-    const fetchData = async () => {
-      try {
-        await handleScan(scanResult);
-      } catch (error) {
-        console.error("Error handling scan:", error);
-      }
-    };
-
-    fetchData();
-  }, [scanResult]);
 
   // useEffect(() => {
   //   return () => {

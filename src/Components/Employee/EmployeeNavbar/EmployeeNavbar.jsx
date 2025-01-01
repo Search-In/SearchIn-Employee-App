@@ -53,9 +53,12 @@ const Navbar = () => {
     <Box sx={NavbarContainer}>
       <Box sx={NavbarDiv}>
         <NavLink
-          to='/employee-orders'
-          style={({ isActive }) => (isActive ? activenavbarclass : notactivenavbarclass)}>
-          <Box sx={NavItemStyle} className='nav-items'>
+          to="/employee-orders"
+          style={({ isActive }) =>
+            isActive ? activenavbarclass : notactivenavbarclass
+          }
+        >
+          <Box sx={NavItemStyle} className="nav-items">
             <Box
               sx={{
                 borderRadius: "100%",
@@ -67,31 +70,42 @@ const Navbar = () => {
                 marginBottom: "20px",
                 marginLeft: "25px",
                 justifyContent: "center",
-              }}>
+              }}
+            >
               {items > 0 ? <>{items}</> : <></>}
             </Box>
-            <img src={Cart} alt='' />
+            <img src={Cart} alt="" />
           </Box>
         </NavLink>
         <NavLink
-          to='/employee-order'
-          style={({ isActive }) => (isActive ? activenavbarclass : notactivenavbarclass)}>
-          <Box sx={NavItemStyle} className='nav-items'>
-            <img src={ScannerImg} alt='' style={{ width: "20px", height: "20px" }} />
+          to="/employee-order"
+          style={({ isActive }) =>
+            isActive ? activenavbarclass : notactivenavbarclass
+          }
+        >
+          <Box sx={NavItemStyle} className="nav-items">
+            <img
+              src={ScannerImg}
+              alt=""
+              style={{ width: "20px", height: "20px" }}
+            />
           </Box>
         </NavLink>
-        <NavLink
+        {/* <NavLink
           to='/place-order'
           style={({ isActive }) => (isActive ? activenavbarclass : notactivenavbarclass)}>
           <Box sx={NavItemStyle} className='nav-items'>
             <AddShoppingCartIcon />
           </Box>
-        </NavLink>
+        </NavLink> */}
         <NavLink
-          to='/employee-home'
-          style={({ isActive }) => (isActive ? activenavbarclass : notactivenavbarclass)}>
-          <Box sx={NavItemStyle} className='nav-items'>
-            <img src={Account} alt='' />
+          to="/employee-home"
+          style={({ isActive }) =>
+            isActive ? activenavbarclass : notactivenavbarclass
+          }
+        >
+          <Box sx={NavItemStyle} className="nav-items">
+            <img src={Account} alt="" />
           </Box>
         </NavLink>
       </Box>
