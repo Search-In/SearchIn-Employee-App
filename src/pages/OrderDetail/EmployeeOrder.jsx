@@ -257,6 +257,9 @@ const EmployeeOrder = () => {
   };
 
   const handleDispatch = async () => {
+    if (isScanning)
+      return showSnackbar("Please Turn Off the Camera", "warning");
+
     if (
       !allProductsScanned &&
       !orderInfo.employee_order?.dispatchOverwriteApproved
@@ -266,11 +269,14 @@ const EmployeeOrder = () => {
       allProductsScanned ||
       orderInfo.employee_order?.dispatchOverwriteApproved
     ) {
-      if (isScanning)
-        return showSnackbar("Please Turn Off the Camera", "warning");
       await updateEndScanTime();
       navigate("/employee-dispatch", {
-        state: { vendor_order: id, id: vendor_order_id },
+        state: {
+          vendor_order: id,
+          id: vendor_order_id,
+          orderItems,
+          vendorProductScannedCount,
+        },
       });
     } else {
       showSnackbar("Not all products are scanned.", "error");

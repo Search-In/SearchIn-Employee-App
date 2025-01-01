@@ -9,10 +9,8 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import server from "../../Components/server";
 import ProductCard from "../../Components/Employee/ProductCard";
 import { useMqtt } from "../../context/MqttContext";
 import { api } from "../../api/api";
@@ -20,7 +18,11 @@ import { api } from "../../api/api";
 const EmployeeDispatch = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { vendor_order: vendor_order_id } = location.state || {};
+  const {
+    vendor_order: vendor_order_id,
+    orderItems = [],
+    vendorProductScannedCount = {},
+  } = location.state || {};
   // console.log("new world order", id)
   const { publish, disconnect, setIsSessionEnded } = useMqtt();
 
@@ -96,102 +98,95 @@ const EmployeeDispatch = () => {
   }, [products]);
 
   return (
-    <Box
-      sx={{
-        border: 0,
-        padding: 0,
-        margin: 0,
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        width: "100%",
-        border: "1px solid blue",
-        overflowY: "auto",
-      }}
-    >
-      <Box sx={header}>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="back"
-          onClick={() => navigate(-1)}
-          sx={{ position: "absolute", top: "10px", left: "10px" }}
-        >
-          <ArrowBack />
-        </IconButton>
-        <Typography variant="h6" sx={CategoryTitle}>
-          Order #{recipientInfo.orderNo}
-        </Typography>
-      </Box>
-
-      <Box sx={TopDiv}>
-        <Typography sx={TotalTotal}>Total</Typography>
-        <Typography sx={TotalTotal}>
-          {recipientInfo.scannedTotal}/{products?.length}
-        </Typography>
-      </Box>
-
-      <Container maxWidth={false} disableGutters>
-        <Grid container spacing={0}>
-          {products?.map((product, index) => (
-            <Grid item xs={12} key={index}>
-              <ProductCard product={product} />
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-
-      <Box sx={dropLocationSection}>
-        <Typography variant="h6" sx={dropLocationHeading}>
-          <PlaceIcon />
-          Drop Location
-        </Typography>
-        <Box sx={dropLocationBody}>
-          <Typography variant="body1" sx={dropLocationHeading}>
-            Name:{recipientInfo.name}
-          </Typography>
-          <Typography variant="body1" sx={dropLocationText}>
-            Phone: {recipientInfo.phone}
-          </Typography>
-          <Typography variant="body1" sx={dropLocationText}>
-            Location Type : {recipientInfo.locationType}
-          </Typography>
-          <Typography variant="body1" sx={dropLocationText}>
-            Address:
-            {`${recipientInfo.addressLine} ${recipientInfo.pincode}`}
+    <div className="p-0 m-0 flex flex-col justify-between h-screen w-full border border-blue-500 overflow-y-auto">
+      <div>
+        <Box sx={header}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="back"
+            onClick={() => navigate(-1)}
+            sx={{ position: "absolute", top: "10px", left: "10px" }}
+          >
+            <ArrowBack />
+          </IconButton>
+          <Typography variant="h6" sx={CategoryTitle}>
+            Order #{recipientInfo.orderNo}
           </Typography>
         </Box>
-      </Box>
-      {recipientInfo.message && (
-        <Box sx={messageSection}>
-          <Typography variant="h6" sx={messageHeading}>
-            Customer's Special Message
+
+        <Box sx={TopDiv}>
+          <Typography sx={TotalTotal}>Total</Typography>
+          <Typography sx={TotalTotal}>
+            {recipientInfo.scannedTotal}/{products?.length}
           </Typography>
-          <Box sx={messageBody}>
-            <Typography variant="body2">{recipientInfo.message}</Typography>
+        </Box>
+
+        <Container maxWidth={false} disableGutters>
+          <Grid container spacing={0}>
+            {orderItems?.map((product, index) => (
+              <Grid item xs={12} key={index}>
+                <ProductCard
+                  product={{
+                    ...product,
+                    scannedCount:
+                      vendorProductScannedCount?.[
+                        product?.vendor_product?._id
+                      ] || -1,
+                  }}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </div>
+      <div>
+        <div className="bg-[#f5f5f5] px-4 text-lg min-h-[200px] font-semibold">
+          <p>
+            <PlaceIcon />
+            Drop Location
+          </p>
+          <div className="flex flex-col overflow-y-auto text-md p-2">
+            <p>Name: {recipientInfo.name}</p>
+            <p>Phone: {recipientInfo.phone}</p>
+            <p>Location Type : {recipientInfo.locationType}</p>
+            <p>
+              Address:
+              {`${recipientInfo.addressLine} ${recipientInfo.pincode}`}
+            </p>
+          </div>
+        </div>
+        {recipientInfo.message && (
+          <Box sx={messageSection}>
+            <Typography variant="h6" sx={messageHeading}>
+              Customer's Special Message
+            </Typography>
+            <Box sx={messageBody}>
+              <Typography variant="body2">{recipientInfo.message}</Typography>
+            </Box>
           </Box>
+        )}
+        <Box sx={TotalDivTotal}>
+          <p className="text-lg font-semibold px-4">Order Amount</p>
+          <Typography sx={TotalTotal}>
+            ₹{recipientInfo.scannedAmout}/₹{recipientInfo.totalAmount}
+          </Typography>
         </Box>
-      )}
-      <Box sx={TotalDivTotal}>
-        <Typography sx={TotalTotal}>Order Amount</Typography>
-        <Typography sx={TotalTotal}>
-          ₹{recipientInfo.scannedAmout}/₹{recipientInfo.totalAmount}
-        </Typography>
-      </Box>
-      <Box sx={bottomStickyContainer}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleDispatch}
-          sx={ButtonCart}
-        >
-          Ready For Dispatch
-          <ArrowForwardRoundedIcon
-            sx={{ position: "absolute", right: "20px" }}
-          />
-        </Button>
-      </Box>
-    </Box>
+        <Box sx={bottomStickyContainer}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleDispatch}
+            sx={ButtonCart}
+          >
+            Ready For Dispatch
+            <ArrowForwardRoundedIcon
+              sx={{ position: "absolute", right: "20px" }}
+            />
+          </Button>
+        </Box>
+      </div>
+    </div>
   );
 };
 
@@ -297,7 +292,6 @@ const dropLocationBody = {
   display: "flex",
   flexDirection: "column",
   gap: "8px",
-  maxHeight: "110px",
   overflowY: "auto",
 };
 

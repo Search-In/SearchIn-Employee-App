@@ -139,17 +139,17 @@ function EmployeeScanner({
           backgroundColor: isScanning ? "#E40101" : "#5EC401",
           color: "#fff",
           textTransform: "none",
-          fontSize: "36px",
+          fontSize: "24px",
           fontFamily: "Poppins",
           "&.MuiButtonBase-root:hover": {
             backgroundColor: isScanning ? "#C40000" : "#64cf00",
           },
           position: "absolute",
-          top: "20%",
-          left: "50%",
+          top: "30%",
+          right: "0%",
           transform: "translateX(-50%)",
           zIndex: 10,
-          padding: 1,
+          padding: "6px",
         }}
       >
         {isScanning ? "Stop" : "Start"}
