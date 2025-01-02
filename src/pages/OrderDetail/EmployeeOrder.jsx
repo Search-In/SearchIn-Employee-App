@@ -275,6 +275,7 @@ const EmployeeOrder = () => {
           id: vendor_order_id,
           orderItems,
           vendorProductScannedCount,
+          scannedOrderItems,
         },
       });
     } else {
