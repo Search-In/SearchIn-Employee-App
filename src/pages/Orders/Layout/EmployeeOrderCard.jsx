@@ -35,7 +35,7 @@ const EmployeeOrderCard = (props) => {
           }}
         >
           <p className="text-[#37474F] text-sm font-semibold">
-            Order #{objectIdToNumber(props.orderdetails.order)}
+            Order #{objectIdToNumber(props.orderdetails._id)}
           </p>
 
           <p className="text-[#5EC401] text-sm font-medium capitalize">
