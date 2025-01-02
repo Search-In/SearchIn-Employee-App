@@ -8,6 +8,8 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   // const [isScanning, setIsScanning] = useState(false)
   const readerRef = useRef(null);
   const [scanResult, setScanResult] = useState("");
+  const [inputValue, setInputValue] = useState(""); // New state for input value
+  const showInput = false;
 
   const getQrBoxSize = () => {
     if (readerRef.current) {
@@ -21,7 +23,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   };
 
   // Debounce the handleScan function
-  const debouncedScanResult = useDebounce(scanResult, 1500); // 500ms debounce delay
+  const debouncedScanResult = useDebounce(scanResult, 900); // 500ms debounce delay
 
   useEffect(() => {
     if (!scanResult) return;
@@ -29,6 +31,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
     const fetchData = async () => {
       try {
         await handleScan(scanResult);
+        setScanResult("");
       } catch (error) {
         console.log("Error handling scan:", error);
       }
@@ -146,6 +149,34 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
       >
         {isScanning ? "Stop" : "Start"}
       </Button>
+      {showInput ? (
+        <div className="relative flex justify-between">
+          <input
+            placeholder="Enter barcode"
+            variant="outlined"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            fullWidth
+            sx={{
+              zIndex: 10,
+              backgroundColor: "#fff",
+            }}
+          />
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setScanResult(inputValue)}
+            sx={{
+              transform: "translateX(-50%)",
+              zIndex: 10,
+              padding: "10px 20px",
+            }}
+          >
+            Submit
+          </Button>
+        </div>
+      ) : null}
     </>
   );
 }

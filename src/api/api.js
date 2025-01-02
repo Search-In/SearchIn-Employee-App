@@ -131,7 +131,7 @@ export const api = {
           barcodeScans: employeeOrderToBarcodeScannedCount(employee_order),
         };
       } catch (error) {
-        console.error("Error fetching order data:", error);
+        // console.error("Error fetching order data:", error);
         throw error;
       }
     },
@@ -165,7 +165,7 @@ export const api = {
         );
         return result.data;
       } catch (error) {
-        console.error("Error updating start scan time:", error.response);
+        console.log("Error updating start scan time:", error.response?.data);
         // throw error;
       }
     },

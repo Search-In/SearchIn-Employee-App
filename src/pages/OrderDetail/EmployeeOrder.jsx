@@ -152,7 +152,7 @@ const EmployeeOrder = () => {
         });
 
         // Reset the scan result after a short delay
-        setTimeout(() => setScanResult(""), 3000);
+        // setTimeout(() => setScanResult(""), 300);
 
         // getOrders();
         setBarcodeScannedCount((prevCounts) => {
@@ -206,7 +206,7 @@ const EmployeeOrder = () => {
       }
     } else {
       // Handle case where vendor order is not present
-      setTimeout(() => setScanResult(""), 2000);
+
       await handleProductScan(barcode);
     }
   };
@@ -275,6 +275,7 @@ const EmployeeOrder = () => {
           id: vendor_order_id,
           orderItems,
           vendorProductScannedCount,
+          scannedOrderItems,
         },
       });
     } else {

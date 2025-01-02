@@ -22,9 +22,16 @@ const EmployeeDispatch = () => {
     vendor_order: vendor_order_id,
     orderItems = [],
     vendorProductScannedCount = {},
+    scannedOrderItems = [],
   } = location.state || {};
   // console.log("new world order", id)
   const { publish, disconnect, setIsSessionEnded } = useMqtt();
+
+  const scannedAmout = scannedOrderItems.reduce((total, product) => {
+    let variantMultiplier = product?.variant || 1;
+    if (variantMultiplier >= 100) variantMultiplier /= 1000;
+    return total + product.quantity * (product?.price || 0) * variantMultiplier;
+  }, 0);
 
   const [products, setProducts] = useState([]);
   const data = localStorage.getItem("employee");
@@ -169,7 +176,7 @@ const EmployeeDispatch = () => {
         <Box sx={TotalDivTotal}>
           <p className="text-lg font-semibold px-4">Order Amount</p>
           <Typography sx={TotalTotal}>
-            ₹{recipientInfo.scannedAmout}/₹{recipientInfo.totalAmount}
+            ₹{scannedAmout}/₹{recipientInfo.totalAmount}
           </Typography>
         </Box>
         <Box sx={bottomStickyContainer}>
