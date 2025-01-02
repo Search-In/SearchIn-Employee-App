@@ -13,16 +13,18 @@ import CreateOrder from "./pages/CreateOrder/CreateOrder";
 function App() {
   const location = useLocation();
   const EmployeeRoutes = ["/employee-home", "/employee-orders"];
-  const isEmployeeRoute = EmployeeRoutes.some((route) => location.pathname.startsWith(route));
+  const isEmployeeRoute = EmployeeRoutes.some((route) =>
+    location.pathname.startsWith(route)
+  );
 
   return (
-    <>
+    <div className="app max-w-3xl mx-auto relative">
       {isEmployeeRoute && <EmployeeNavbar />}
       <Routes>
-        <Route path='/' element={<Navigate to='/employee-login' />} />
-        <Route path='/employee-login' element={<EmployeeLogin />} />
+        <Route path="/" element={<Navigate to="/employee-login" />} />
+        <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route
-          path='/employee-home'
+          path="/employee-home"
           element={
             <PrivateEmployeeRoute>
               <EmployeeHome />
@@ -30,7 +32,7 @@ function App() {
           }
         />
         <Route
-          path='/employee-order'
+          path="/employee-order"
           element={
             <PrivateEmployeeRoute>
               <EmployeeOrder />
@@ -38,7 +40,7 @@ function App() {
           }
         />
         <Route
-          path='/employee-orders'
+          path="/employee-orders"
           element={
             <PrivateEmployeeRoute>
               <EmployeeOrders />
@@ -46,7 +48,7 @@ function App() {
           }
         />
         <Route
-          path='/employee-dispatch'
+          path="/employee-dispatch"
           element={
             <PrivateEmployeeRoute>
               <EmployeeDispatch />
@@ -54,7 +56,7 @@ function App() {
           }
         />
         <Route
-          path='/dispatch-success'
+          path="/dispatch-success"
           element={
             <PrivateEmployeeRoute>
               <DispatchSuccessAnimation />
@@ -62,7 +64,7 @@ function App() {
           }
         />
         <Route
-          path='/trolley-connect'
+          path="/trolley-connect"
           element={
             <PrivateEmployeeRoute>
               <TrolleyLink />
@@ -70,7 +72,7 @@ function App() {
           }
         />
         <Route
-          path='/place-order'
+          path="/place-order"
           element={
             <PrivateEmployeeRoute>
               <CreateOrder />
@@ -78,7 +80,7 @@ function App() {
           }
         />
       </Routes>
-    </>
+    </div>
   );
 }
 

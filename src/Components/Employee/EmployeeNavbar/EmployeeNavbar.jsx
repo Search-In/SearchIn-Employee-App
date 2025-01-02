@@ -50,7 +50,12 @@ const activenavbarclass = {
 const Navbar = () => {
   const items = 0;
   return (
-    <Box sx={NavbarContainer}>
+    <div
+      className={
+        "bg-white shadow-[0px_2px_7px_rgba(0,0,0,0.84)] rounded-t-[20px] p-[16px_0] fixed bottom-0 w-full min-h-[5vh] z-10 " +
+        "max-w-3xl"
+      }
+    >
       <Box sx={NavbarDiv}>
         <NavLink
           to="/employee-orders"
@@ -109,7 +114,7 @@ const Navbar = () => {
           </Box>
         </NavLink>
       </Box>
-    </Box>
+    </div>
   );
 };
 

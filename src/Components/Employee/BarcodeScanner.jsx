@@ -137,7 +137,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
             backgroundColor: isScanning ? "#C40000" : "#64cf00",
           },
           position: "absolute",
-          top: "30%",
+          top: "15%",
           right: "0%",
           transform: "translateX(-50%)",
           zIndex: 10,
