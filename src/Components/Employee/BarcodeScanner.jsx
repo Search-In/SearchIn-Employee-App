@@ -141,7 +141,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
           right: "0%",
           transform: "translateX(-50%)",
           zIndex: 10,
-          padding: "6px",
+          padding: "5px",
         }}
       >
         {isScanning ? "Stop" : "Start"}
