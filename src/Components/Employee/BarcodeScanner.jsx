@@ -1,18 +1,15 @@
 import { Button } from "@mui/material";
 import { Html5Qrcode } from "html5-qrcode";
 import { useEffect, useRef, useState } from "react";
-import { useDebouncedCallback } from "use-debounce";
+import { useDebounce } from "use-debounce";
 
-function EmployeeScanner({
-  handleScan,
-  scanResult,
-  setScanResult,
-  setIsScanning,
-  isScanning,
-}) {
+function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   const [scanner, setScanner] = useState(null);
   // const [isScanning, setIsScanning] = useState(false)
   const readerRef = useRef(null);
+  const [scanResult, setScanResult] = useState("");
+  const [inputValue, setInputValue] = useState(""); // New state for input value
+  const showInput = false;
 
   const getQrBoxSize = () => {
     if (readerRef.current) {
@@ -26,10 +23,22 @@ function EmployeeScanner({
   };
 
   // Debounce the handleScan function
-  const debouncedHandleScan = useDebouncedCallback((decodedText) => {
-    setScanResult(decodedText);
-    handleScan(decodedText);
-  }, 500); // 500ms debounce delay
+  const debouncedScanResult = useDebounce(scanResult, 900); // 500ms debounce delay
+
+  useEffect(() => {
+    if (!scanResult) return;
+
+    const fetchData = async () => {
+      try {
+        await handleScan(scanResult);
+        setScanResult("");
+      } catch (error) {
+        console.log("Error handling scan:", error);
+      }
+    };
+
+    fetchData();
+  }, [debouncedScanResult]);
 
   const handleScanner = async () => {
     if (isScanning) {
@@ -73,7 +82,7 @@ function EmployeeScanner({
             (decodedText) => {
               // setScanResult(decodedText);
               // handleScan(decodedText);
-              debouncedHandleScan(decodedText); // Use debounced version
+              setScanResult(decodedText); // Use debounced version
 
               console.log(`QR Code detected: ${decodedText}`);
             },
@@ -92,20 +101,6 @@ function EmployeeScanner({
       }
     }
   };
-
-  useEffect(() => {
-    if (!scanResult) return;
-
-    const fetchData = async () => {
-      try {
-        await handleScan(scanResult);
-      } catch (error) {
-        console.error("Error handling scan:", error);
-      }
-    };
-
-    fetchData();
-  }, [scanResult]);
 
   // useEffect(() => {
   //   return () => {
@@ -139,21 +134,49 @@ function EmployeeScanner({
           backgroundColor: isScanning ? "#E40101" : "#5EC401",
           color: "#fff",
           textTransform: "none",
-          fontSize: "36px",
+          fontSize: "24px",
           fontFamily: "Poppins",
           "&.MuiButtonBase-root:hover": {
             backgroundColor: isScanning ? "#C40000" : "#64cf00",
           },
           position: "absolute",
-          top: "20%",
-          left: "50%",
+          top: "15%",
+          right: "0%",
           transform: "translateX(-50%)",
           zIndex: 10,
-          padding: 1,
+          padding: "5px",
         }}
       >
         {isScanning ? "Stop" : "Start"}
       </Button>
+      {showInput ? (
+        <div className="relative flex justify-between">
+          <input
+            placeholder="Enter barcode"
+            variant="outlined"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            fullWidth
+            sx={{
+              zIndex: 10,
+              backgroundColor: "#fff",
+            }}
+          />
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setScanResult(inputValue)}
+            sx={{
+              transform: "translateX(-50%)",
+              zIndex: 10,
+              padding: "10px 20px",
+            }}
+          >
+            Submit
+          </Button>
+        </div>
+      ) : null}
     </>
   );
 }

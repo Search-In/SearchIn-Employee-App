@@ -48,19 +48,7 @@ const ProductCard = ({ product }) => {
               product?.product?.product?.name}
           </Typography>
           <div style={styles.priceContainer}>
-            {(product?.vendor_product?.product?.mrpPrice ||
-              product?.productId?.mrpPrice ||
-              product?.product?.product?.mrpPrice) && (
-              <Typography sx={styles.priceText}>
-                ₹
-                {(
-                  product?.vendor_product?.product.mrpPrice ||
-                  product?.productId?.mrpPrice ||
-                  product?.product?.product?.mrpPrice
-                )?.toFixed(2)}
-              </Typography>
-            )}
-            <Box>
+            {/* <Box>
               <Typography sx={styles.salePriceText}>
                 ₹
                 {(
@@ -69,8 +57,7 @@ const ProductCard = ({ product }) => {
                   product?.product?.product?.price
                 ).toFixed(2)}
               </Typography>
-              <Typography sx={styles.salesPrice}>Ordered At</Typography>
-            </Box>
+            </Box> */}
 
             <Typography sx={styles.variantText}>
               {(product?.vendor_product?.product?.variant ||

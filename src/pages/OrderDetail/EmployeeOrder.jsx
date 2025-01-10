@@ -38,7 +38,6 @@ const EmployeeOrder = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
-  const [scanResult, setScanResult] = useState("");
   const [activeScanner, setActiveScanner] = useState("image");
   const [orderInfo, setOrderInfo] = useState({});
   const [productInfo, setProductInfo] = useState("");
@@ -153,7 +152,7 @@ const EmployeeOrder = () => {
         });
 
         // Reset the scan result after a short delay
-        setTimeout(() => setScanResult(""), 3000);
+        // setTimeout(() => setScanResult(""), 300);
 
         // getOrders();
         setBarcodeScannedCount((prevCounts) => {
@@ -207,7 +206,7 @@ const EmployeeOrder = () => {
       }
     } else {
       // Handle case where vendor order is not present
-      setTimeout(() => setScanResult(""), 2000);
+
       await handleProductScan(barcode);
     }
   };
@@ -257,6 +256,9 @@ const EmployeeOrder = () => {
   };
 
   const handleDispatch = async () => {
+    if (isScanning)
+      return showSnackbar("Please Turn Off the Camera", "warning");
+
     if (
       !allProductsScanned &&
       !orderInfo.employee_order?.dispatchOverwriteApproved
@@ -266,11 +268,15 @@ const EmployeeOrder = () => {
       allProductsScanned ||
       orderInfo.employee_order?.dispatchOverwriteApproved
     ) {
-      if (isScanning)
-        return showSnackbar("Please Turn Off the Camera", "warning");
       await updateEndScanTime();
       navigate("/employee-dispatch", {
-        state: { vendor_order: id, id: vendor_order_id },
+        state: {
+          vendor_order: id,
+          id: vendor_order_id,
+          orderItems,
+          vendorProductScannedCount,
+          scannedOrderItems,
+        },
       });
     } else {
       showSnackbar("Not all products are scanned.", "error");
@@ -370,7 +376,7 @@ const EmployeeOrder = () => {
               Cancel
             </button>
             <button
-              className="bg-blue-500 text-white p-2 rounded-lg"
+              className="text-blue-500 p-2 rounded-lg border border-blue-500"
               onClick={() => dispatchOverrideRequest().finally(() => {})}
             >
               Confirm
@@ -380,7 +386,7 @@ const EmployeeOrder = () => {
       </Modal>
       {isConnected && <TrolleyValues />}
 
-      <div className="fixed top-0 z-10 flex items-center justify-center p-5 bg-white border-b border-gray-200 w-screen">
+      <div className="absolute max-w-full top-0 z-10 flex items-center justify-center p-5 bg-white border-b border-gray-200 w-screen">
         <IconButton
           edge="start"
           color="inherit"
@@ -394,38 +400,43 @@ const EmployeeOrder = () => {
           variant="h6"
           className="font-semibold font-quicksand w-full flex justify-center"
         >
-          Fullfillment Orders
+          Scan Order
         </Typography>
       </div>
+
       <div className="flex flex-col h-screen w-full">
-        <div className="flex-1 flex items-center justify-center border-b border-gray-200 bg-gray-100">
+        <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
           <div className="flex items-center justify-center w-full h-full">
             <BarcodeScanner
               handleScan={handleScan}
-              scanResult={scanResult}
-              setScanResult={setScanResult}
               activeScanner={activeScanner}
               setActiveScanner={setActiveScanner}
               setIsScanning={setIsScanning}
               isScanning={isScanning}
             />
           </div>
+          {/* {objectIdToNumber("673f88a4cecc8568404a9896")} */}
         </div>
 
         {vendor_order_id && (
-          <div className="flex justify-between items-center border-b-2 border-gray-200 p-5">
-            <Typography variant="h6" className="font-semibold text-gray-800">
+          <div className="flex justify-between items-center border-b-2 border-gray-200 p-5 text-lg">
+            <p
+              variant="h6"
+              className="flex flex-wrap font-semibold text-gray-800 max-w-[50%]"
+            >
               Order #
               {vendor_order_id
                 ? objectIdToNumber(vendor_order_id)
                 : "Not created"}
-            </Typography>
-            <Typography className="font-semibold text-gray-800">
-              Total Products
-            </Typography>
-            <Typography className="font-semibold text-gray-800">
-              {scannedOrderItems.length} / {orderItems.length}
-            </Typography>
+            </p>
+            <div className="flex justify-between gap-2 font-semibold text-gray-800">
+              <p className="text-md flex flex-wrap max-w-[100px]">
+                Products Scanned:
+              </p>
+              <p className="">
+                {scannedOrderItems.length} / {orderItems.length}
+              </p>
+            </div>
           </div>
         )}
 
