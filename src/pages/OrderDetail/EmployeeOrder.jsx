@@ -43,7 +43,11 @@ const EmployeeOrder = () => {
   const [productInfo, setProductInfo] = useState("");
   const [openLabelCard, setOpenLabelCard] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [dispatchOverrideConfirm, setDispatchOverrideConfirm] = useState(false);
+  const [dispatchOverrideRequest, setDispatchOverrideRequest] = useState({
+    barcode: "",
+    dispatchOverwriteReason: "",
+  });
+
   /**
    * State for tracking scanned counts by barcode.
    * @type {[ScannedBarcodeEntry, React.Dispatch<React.SetStateAction<ScannedBarcodeEntry[]>>]}
@@ -105,12 +109,6 @@ const EmployeeOrder = () => {
           (entry) => entry.barcode === scannedBarcode
         );
 
-        // If barcode is found, increment its scanned_count, otherwise create a new entry
-        let newScannedCount = 1;
-        if (existingEntry) {
-          newScannedCount = existingEntry.scanned_count + 1;
-        }
-
         // Call the API to update scanned count on the server
         const {
           vendor_order: updated_vendor_order,
@@ -121,6 +119,12 @@ const EmployeeOrder = () => {
           scannedCount: newScannedCount, // Pass the updated scanned count
           barcode: scannedBarcode,
         });
+
+        // If barcode is found, increment its scanned_count, otherwise create a new entry
+        let newScannedCount = 1;
+        if (existingEntry) {
+          newScannedCount = existingEntry.scanned_count + 1;
+        }
 
         // If the API response contains a message, show it
         if (message) {
@@ -195,6 +199,12 @@ const EmployeeOrder = () => {
         // Handle errors from the API
         if (error?.response?.data?.message) {
           showSnackbar(error.response.data.message, "error");
+
+          if (error?.response?.data?.message === "Product batch has expired")
+            setDispatchOverrideRequest({
+              barcode,
+              dispatchOverwriteReason: "Product batch has expired",
+            });
         } else {
           showSnackbar(
             "Unknown error occurred while processing the scan.",
@@ -263,7 +273,9 @@ const EmployeeOrder = () => {
       !allProductsScanned &&
       !orderInfo.employee_order?.dispatchOverwriteApproved
     ) {
-      return setDispatchOverrideConfirm(true);
+      return setDispatchOverrideRequest({
+        dispatchOverwriteReason: "Insufficient Stock",
+      });
     } else if (
       allProductsScanned ||
       orderInfo.employee_order?.dispatchOverwriteApproved
@@ -310,36 +322,19 @@ const EmployeeOrder = () => {
     }
   }, [vendor_order_id]);
 
-  // useEffect(() => {
-  //   if (scannedOrderItems.length > 0) {
-  //     const totalPrice = scannedOrderItems.reduce((total, product) => {
-  //       let variantMultiplier = product?.variant || 1;
-  //       if (variantMultiplier >= 100) variantMultiplier /= 1000;
-  //       return (
-  //         total +
-  //         product.scannedCount * (product?.price || 0) * variantMultiplier
-  //       );
-  //     }, 0);
-
-  //     setOrderInfo((prev) => ({
-  //       ...prev,
-  //       scannedAmout: totalPrice,
-  //     }));
-  //   }
-  // }, [scannedOrderItems]);
-
   const handleBackClick = () => {
     if (isScanning)
       return showSnackbar("Please Turned Off the Camera", "warning");
     navigate(vendor_order_id ? "/employee-orders" : "/employee-home");
   };
 
-  const dispatchOverrideRequest = async () => {
+  const placeDispatchOverrideRequest = async (dispatchOverwriteReason) => {
     await api.order.updateEmployeeOrder(vendor_order_id, {
-      dispatchOverwriteReason: "Insufficient Stock",
+      dispatchOverwriteReason,
+      dispatchOverwriteApproved: false,
     });
     await getOrders();
-    setDispatchOverrideConfirm(false);
+    setDispatchOverrideRequest({});
   };
 
   return (
@@ -358,7 +353,7 @@ const EmployeeOrder = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      <Modal open={dispatchOverrideConfirm}>
+      <Modal open={!!dispatchOverrideRequest.dispatchOverwriteReason}>
         <div
           className={
             "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 " +
@@ -366,18 +361,22 @@ const EmployeeOrder = () => {
           }
         >
           <p className="my-5 text-center text-2xl font-semibold">
-            Raise insufficient stock issue?
+            Raise {dispatchOverrideRequest.dispatchOverwriteReason} issue?
           </p>
           <div className="flex w-full gap-4 mx-auto justify-center">
             <button
               className="bg-red-500 text-white p-2 rounded-lg"
-              onClick={() => setDispatchOverrideConfirm(false)}
+              onClick={() => setDispatchOverrideRequest({})}
             >
               Cancel
             </button>
             <button
               className="text-blue-500 p-2 rounded-lg border border-blue-500"
-              onClick={() => dispatchOverrideRequest().finally(() => {})}
+              onClick={() =>
+                placeDispatchOverrideRequest(
+                  dispatchOverrideRequest.dispatchOverwriteReason
+                ).finally(() => {})
+              }
             >
               Confirm
             </button>
