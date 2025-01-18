@@ -271,7 +271,8 @@ const EmployeeOrder = () => {
 
     if (
       !allProductsScanned &&
-      !orderInfo.employee_order?.dispatchOverwriteApproved
+      !orderInfo.employee_order?.dispatchOverwriteApproved &&
+      orderInfo.employee_order?.dispatchOverwriteReason !== "Insufficient Stock"
     ) {
       return setDispatchOverrideRequest({
         dispatchOverwriteReason: "Insufficient Stock",
