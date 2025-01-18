@@ -109,6 +109,12 @@ const EmployeeOrder = () => {
           (entry) => entry.barcode === scannedBarcode
         );
 
+        // If barcode is found, increment its scanned_count, otherwise create a new entry
+        let newScannedCount = 1;
+        if (existingEntry) {
+          newScannedCount = existingEntry.scanned_count + 1;
+        }
+
         // Call the API to update scanned count on the server
         const {
           vendor_order: updated_vendor_order,
@@ -119,12 +125,6 @@ const EmployeeOrder = () => {
           scannedCount: newScannedCount, // Pass the updated scanned count
           barcode: scannedBarcode,
         });
-
-        // If barcode is found, increment its scanned_count, otherwise create a new entry
-        let newScannedCount = 1;
-        if (existingEntry) {
-          newScannedCount = existingEntry.scanned_count + 1;
-        }
 
         // If the API response contains a message, show it
         if (message) {
