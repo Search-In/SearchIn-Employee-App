@@ -1,7 +1,7 @@
 import { Avatar, Box, Paper, Typography } from "@mui/material";
 import verifyIcon from "../../../src/assets/verifyimage.png";
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onClick = () => {} }) => {
   const isScanned = product.scannedCount >= product.quantity;
 
   return (
@@ -85,19 +85,23 @@ const ProductCard = ({ product }) => {
           </div>
         </Box>
         {isScanned && (
-          <Box
-            component="img"
+          <img
             src={verifyIcon}
             alt="Verified"
-            sx={styles.verifyIcon}
+            style={styles.verifyIcon}
+            onClick={onClick}
           />
         )}
-        <Box sx={styles.scannedCountContainer}>
-          <Typography variant="body2" sx={styles.scannedCount}>
+        <div style={styles.scannedCountContainer} onClick={onClick}>
+          <Typography
+            variant="body2"
+            sx={styles.scannedCount}
+            onClick={onClick}
+          >
             {product?.scannedCount || product?.count || 0}/
             {product?.quantity || product?.count}
           </Typography>
-        </Box>
+        </div>
       </Box>
     </Paper>
   );

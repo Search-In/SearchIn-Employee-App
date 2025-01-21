@@ -286,7 +286,7 @@ function TrolleyLink() {
           sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
           open={loading}
         >
-          <HashLoader color="#5EC401" size={100} />
+          <HashLoader color="#F37A20" size={100} />
         </Backdrop>
         <Backdrop
           sx={{
@@ -337,13 +337,13 @@ function TrolleyLink() {
           color="primary"
           onClick={handleScanner}
           sx={{
-            backgroundColor: isScanning ? "#E40101" : "#5EC401",
+            backgroundColor: isScanning ? "#E40101" : "#F37A20",
             color: "#fff",
             textTransform: "none",
             fontSize: "18px",
             fontFamily: "Poppins",
             "&.MuiButtonBase-root:hover": {
-              backgroundColor: isScanning ? "#C40000" : "#64cf00",
+              backgroundColor: isScanning ? "#C40000" : "#F37A20",
             },
             position: "absolute",
             top: 150,

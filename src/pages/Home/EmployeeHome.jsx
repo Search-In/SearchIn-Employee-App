@@ -1,4 +1,4 @@
-import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import {
   AppBar,
   Avatar,
@@ -13,56 +13,56 @@ import {
   Paper,
   Toolbar,
   Typography,
-} from "@mui/material"
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { useMqtt } from "../../context/MqttContext"
+} from "@mui/material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMqtt } from "../../context/MqttContext";
 
 const EmployeeHome = () => {
   const { disconnect, isConnected, connect, publish, setIsSessionEnded } =
-    useMqtt()
-  const navigate = useNavigate()
-  const [open, setOpen] = useState(false)
-  const data = localStorage.getItem("employee")
-  const employeeData = JSON.parse(data)
+    useMqtt();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const data = localStorage.getItem("employee");
+  const employeeData = JSON.parse(data);
 
   const handleClickOpen = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const handleClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
   const handleLogout = async (e) => {
     if (isConnected) {
-      e.preventDefault()
-      setOpen(false)
-      localStorage.removeItem("employee")
-      localStorage.removeItem("accessToken")
-      localStorage.removeItem("virtualcartweight")
-      const session = localStorage.getItem("session")
-      publish("guestUser/endSession", { sessionId: session })
-      setIsSessionEnded(true)
-      disconnect()
-      localStorage.removeItem("session")
-      localStorage.removeItem("trolley")
-      navigate("/employee-login")
+      e.preventDefault();
+      setOpen(false);
+      localStorage.removeItem("employee");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("virtualcartweight");
+      const session = localStorage.getItem("session");
+      publish("guestUser/endSession", { sessionId: session });
+      setIsSessionEnded(true);
+      disconnect();
+      localStorage.removeItem("session");
+      localStorage.removeItem("trolley");
+      navigate("/employee-login");
     } else {
-      e.preventDefault()
-      setOpen(false)
-      localStorage.removeItem("employee")
-      localStorage.removeItem("accessToken")
-      localStorage.removeItem("trolley")
-      localStorage.removeItem("session")
-      navigate("/employee-login")
+      e.preventDefault();
+      setOpen(false);
+      localStorage.removeItem("employee");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("trolley");
+      localStorage.removeItem("session");
+      navigate("/employee-login");
     }
-  }
+  };
 
   return (
     <div>
       <AppBar
         position="static"
-        sx={{ backgroundColor: "#5EC401", color: "#fff", opacity: 0.8 }}
+        sx={{ backgroundColor: "#F37A20", color: "#fff", opacity: 0.8 }}
       >
         <Toolbar>
           <AccountCircleIcon sx={{ mr: 2 }} />
@@ -141,7 +141,7 @@ const EmployeeHome = () => {
         </DialogActions>
       </Dialog>
     </div>
-  )
-}
+  );
+};
 
-export default EmployeeHome
+export default EmployeeHome;

@@ -1,56 +1,59 @@
-import CloseIcon from "@mui/icons-material/Close"
-import Box from "@mui/material/Box"
-import Button from "@mui/material/Button"
-import Card from "@mui/material/Card"
-import CardContent from "@mui/material/CardContent"
-import CardMedia from "@mui/material/CardMedia"
-import IconButton from "@mui/material/IconButton"
-import TextField from "@mui/material/TextField"
-import Typography from "@mui/material/Typography"
-import { useRef, useState } from "react"
+import CloseIcon from "@mui/icons-material/Close";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { useRef, useState } from "react";
 
-const LabelCodeCard = ({ product, onRemove, onLabelCodeChange }) => {
+const LabelCodeCard = ({
+  product: vendor_product,
+  onRemove,
+  onLabelCodeChange,
+}) => {
+  console.log({ product: vendor_product });
   const [labelArea = "", labelBay = "", labelRack = "", labelShelf = ""] =
-    product?.labelcode?.split("-") || []
-  const [area, setArea] = useState(labelArea || "")
-  const [bayNo, setBayNo] = useState(labelBay || "")
-  const [rack, setRack] = useState(labelRack || "")
-  const [shelf, setShelf] = useState(labelShelf || "")
-  const [weight, setWeight] = useState(product?.weight || "") // New state for weight
+    vendor_product?.labelcode?.split("-") || [];
+  const [area, setArea] = useState(labelArea || "");
+  const [bayNo, setBayNo] = useState(labelBay || "");
+  const [rack, setRack] = useState(labelRack || "");
+  const [shelf, setShelf] = useState(labelShelf || "");
+  const [weight, setWeight] = useState(vendor_product?.weight || ""); // New state for weight
 
-  const areaRef = useRef(null)
-  const bayNoRef = useRef(null)
-  const rackRef = useRef(null)
-  const shelfRef = useRef(null)
-  const weightRef = useRef(null)
+  const areaRef = useRef(null);
+  const bayNoRef = useRef(null);
+  const rackRef = useRef(null);
+  const shelfRef = useRef(null);
+  const weightRef = useRef(null);
 
   const handleKeyPress = (e, nextRef) => {
     if (e.key === "Enter") {
-      e.preventDefault() // Prevent the default form submission behavior
-      nextRef.current?.focus() // Focus on the next input field
+      e.preventDefault(); // Prevent the default form submission behavior
+      nextRef.current?.focus(); // Focus on the next input field
     }
-  }
+  };
 
   const handleLabelCodeChange = () => {
-    const labelCode = `${area}-${bayNo}-${rack}-${shelf}`
-    onLabelCodeChange(product._id, labelCode, weight)
-  }
+    const labelCode = `${area}-${bayNo}-${rack}-${shelf}`;
+    onLabelCodeChange(vendor_product._id, labelCode, weight);
+  };
 
   const handleRemove = () => {
     if (!weight) {
-      alert("Please enter the weight before closing the card.") // Show alert or error message
-      return
+      alert("Please enter the weight before closing the card."); // Show alert or error message
+      return;
     }
-    onRemove()
-  }
+    onRemove();
+  };
 
   return (
     <Card
       sx={{
         display: "flex",
         flexDirection: "column",
-        maxWidth: 450,
-        margin: "auto",
         boxShadow: 5,
       }}
     >
@@ -58,8 +61,8 @@ const LabelCodeCard = ({ product, onRemove, onLabelCodeChange }) => {
         <CardMedia
           component="img"
           sx={{ width: 100, height: 100 }}
-          image={product?.imageUrl}
-          alt={product?.name}
+          image={vendor_product?.product?.imageUrl}
+          alt={vendor_product?.name}
         />
         <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
           <CardContent
@@ -87,7 +90,7 @@ const LabelCodeCard = ({ product, onRemove, onLabelCodeChange }) => {
                   WebkitLineClamp: 1,
                 }}
               >
-                {product?.name}
+                {vendor_product?.name}
               </Typography>
               <IconButton
                 aria-label="close"
@@ -99,16 +102,16 @@ const LabelCodeCard = ({ product, onRemove, onLabelCodeChange }) => {
               </IconButton>
             </Box>
             <div style={styles.priceContainer}>
-              {product?.mrpPrice && (
+              {vendor_product?.mrpPrice && (
                 <Typography sx={styles.priceText}>
-                  ₹{product?.mrpPrice?.toFixed(2)}
+                  ₹{vendor_product?.mrpPrice?.toFixed(2)}
                 </Typography>
               )}
               <Typography sx={styles.salePriceText}>
-                ₹{product?.price?.toFixed(2)}
+                ₹{vendor_product?.price?.toFixed(2)}
               </Typography>
             </div>
-            <Typography>BarCode-{product?.barcode}</Typography>
+            <Typography>BarCode-{vendor_product?.barcode}</Typography>
           </CardContent>
         </Box>
       </Box>
@@ -175,8 +178,8 @@ const LabelCodeCard = ({ product, onRemove, onLabelCodeChange }) => {
             onChange={(e) => setShelf(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                e.preventDefault()
-                handleLabelCodeChange()
+                e.preventDefault();
+                handleLabelCodeChange();
               }
             }}
             inputProps={{ maxLength: 2 }}
@@ -201,8 +204,8 @@ const LabelCodeCard = ({ product, onRemove, onLabelCodeChange }) => {
           required
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              e.preventDefault()
-              handleLabelCodeChange()
+              e.preventDefault();
+              handleLabelCodeChange();
             }
           }}
           inputRef={weightRef}
@@ -217,7 +220,7 @@ const LabelCodeCard = ({ product, onRemove, onLabelCodeChange }) => {
           <Button
             variant="contained"
             size="small"
-            sx={{ marginTop: 1, backgroundColor: "#5EC401" }}
+            sx={{ marginTop: 1, backgroundColor: "#F37A20" }}
             onClick={handleLabelCodeChange}
           >
             Update
@@ -225,10 +228,10 @@ const LabelCodeCard = ({ product, onRemove, onLabelCodeChange }) => {
         </div>
       </Box>
     </Card>
-  )
-}
+  );
+};
 
-export default LabelCodeCard
+export default LabelCodeCard;
 
 const styles = {
   priceContainer: {
@@ -249,4 +252,4 @@ const styles = {
     fontSize: "20px",
     fontFamily: "Poppins",
   },
-}
+};

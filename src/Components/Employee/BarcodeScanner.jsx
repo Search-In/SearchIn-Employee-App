@@ -23,7 +23,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   };
 
   // Debounce the handleScan function
-  const debouncedScanResult = useDebounce(scanResult, 900); // 500ms debounce delay
+  const debouncedScanResult = useDebounce(scanResult, 3000); // 500ms debounce delay
 
   useEffect(() => {
     if (!scanResult) return;
@@ -131,13 +131,13 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
         color="primary"
         onClick={handleScanner}
         sx={{
-          backgroundColor: isScanning ? "#E40101" : "#5EC401",
+          backgroundColor: isScanning ? "#E40101" : "#F37A20",
           color: "#fff",
           textTransform: "none",
           fontSize: "24px",
           fontFamily: "Poppins",
           "&.MuiButtonBase-root:hover": {
-            backgroundColor: isScanning ? "#C40000" : "#64cf00",
+            backgroundColor: isScanning ? "#C40000" : "#F37A20",
           },
           position: "absolute",
           top: "15%",
