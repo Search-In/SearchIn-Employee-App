@@ -20,6 +20,7 @@ import { useMqtt } from "../../context/MqttContext";
 import TrolleyValues from "./Layout/TrolleyValues";
 import { api } from "../../api/api";
 import { objectIdToNumber } from "../../lib/mongo";
+import BatchDrawer from "../../Components/BatchDrawer";
 
 /**
  * @typedef {Object} ScannedBarcodeEntry
@@ -32,6 +33,8 @@ const EmployeeOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { vendor_order: vendor_order_id } = location.state || {};
+
+  const isUpdateProductPage = !vendor_order_id;
   const { publish, isConnected } = useMqtt();
   const [id, setId] = useState();
   const [orderItems, setOrderItems] = useState([]);
@@ -54,6 +57,13 @@ const EmployeeOrder = () => {
    */
   const [barcodeScannedCount, setBarcodeScannedCount] = useState([]);
 
+  const [batchDrawerProduct, setBatchDrawerProduct] = useState("");
+  const batchDrawerScannedCount = barcodeScannedCount.filter(
+    (scan) => scan.vendor_product === batchDrawerProduct
+  );
+
+  console.log({ batchDrawerProduct });
+
   const vendorProductScannedCount = barcodeScannedCount.reduce((acc, entry) => {
     const vendorProduct = entry.vendor_product;
     // If the vendor_product is already in the object, update its scanned_count
@@ -74,7 +84,7 @@ const EmployeeOrder = () => {
   );
   const allProductsScanned = scannedOrderItems.length === orderItems.length;
 
-  console.log({ scannedOrderItems });
+  console.log({ barcodeScannedCount });
 
   const scannedAmout = scannedOrderItems.reduce((total, product) => {
     let variantMultiplier = product?.variant || 1;
@@ -224,9 +234,9 @@ const EmployeeOrder = () => {
   // New function to handle the product scan when no vendor_order exists
   const handleProductScan = async (barcode) => {
     try {
-      const productData = await api.products.getByBarcode(barcode);
-      if (productData.length > 0) {
-        setProductInfo(productData[0]);
+      const vendor_product = await api.products.getByBarcode(barcode);
+      if (vendor_product._id) {
+        setProductInfo({ ...vendor_product, barcode });
         setOpenLabelCard(true);
       } else {
         showSnackbar("Product is Not in List!", "warning");
@@ -237,6 +247,7 @@ const EmployeeOrder = () => {
   };
 
   const getOrders = async () => {
+    if (!vendor_order_id) return;
     try {
       const { db_vendor_order, barcodeScans, employee_order } =
         await api.order.getOrdersByLabelcode(vendor_order_id);
@@ -354,6 +365,11 @@ const EmployeeOrder = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+      {/* <BatchDrawer
+        drawerOpen={!!batchDrawerProduct}
+        batchData={batchDrawerScannedCount}
+        onClose={() => setBatchDrawerProduct("")}
+      /> */}
       <Modal open={!!dispatchOverrideRequest.dispatchOverwriteReason}>
         <div
           className={
@@ -441,17 +457,22 @@ const EmployeeOrder = () => {
         )}
 
         <div className="flex-1 overflow-auto bg-white">
-          {!vendor_order_id && <Instructions />}
+          {isUpdateProductPage && <Instructions />}
 
           {openLabelCard && (
             <>
+              {/* Background Overlay */}
               <div className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-50 backdrop-blur-md"></div>
-              <div className="absolute bottom-40 z-50">
-                <LabelCodeCard
-                  product={productInfo}
-                  onLabelCodeChange={onLabelCodeChange}
-                  onRemove={() => setOpenLabelCard(false)}
-                />
+
+              {/* Centered Modal */}
+              <div className="absolute inset-0 flex justify-center items-center z-50">
+                <div className="w-full max-w-lg p-3 bg-white rounded-lg shadow-lg">
+                  <LabelCodeCard
+                    product={productInfo}
+                    onLabelCodeChange={onLabelCodeChange}
+                    onRemove={() => setOpenLabelCard(false)}
+                  />
+                </div>
               </div>
             </>
           )}
@@ -484,6 +505,9 @@ const EmployeeOrder = () => {
                           product?.vendor_product?._id
                         ],
                     }}
+                    onClick={() =>
+                      setBatchDrawerProduct(product?.vendor_product?._id)
+                    }
                   />
                 </Grid>
               ))}

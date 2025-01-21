@@ -115,7 +115,7 @@ const EmployeeLogin = () => {
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={showModal}
       >
-        <HashLoader color="#5EC401" size={100} />
+        <HashLoader color="#F37A20" size={100} />
       </Backdrop>
 
       <Box

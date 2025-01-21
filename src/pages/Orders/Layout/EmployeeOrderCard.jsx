@@ -19,9 +19,12 @@ const EmployeeOrderCard = (props) => {
           }
         }}
       >
-        <IconButton className="bg-[#F37A20] mx-1">
-          <ShoppingBasketOutlinedIcon />
-        </IconButton>
+        <div className="bg-[#F37A20] p-2 flex h-full rounded-full">
+          <ShoppingBasketOutlinedIcon
+            className="bg-[#F37A20] rounded-full flex h-full w-full"
+            sx={{ color: "#fff" }}
+          />
+        </div>
         <Box
           className="ml-2"
           onClick={(e) => {
@@ -38,7 +41,7 @@ const EmployeeOrderCard = (props) => {
             Order #{objectIdToNumber(props.orderdetails._id)}
           </p>
 
-          <p className="text-[#5EC401] text-sm font-medium capitalize">
+          <p className="text-[#F37A20] text-sm font-medium capitalize">
             {props.orderdetails.order_status}
           </p>
           <p className="text-[#868889] text-xs font-normal">
@@ -57,7 +60,7 @@ const EmployeeOrderCard = (props) => {
 
         {props.orderdetails.order_status === "pending" && (
           <button
-            className="mt-4 border-2 border-[#5EC401] flex items-center justify-center py-2 px-2 rounded-md max-w-[80px] hover:bg-[#64cf00] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#5EC401] focus:ring-offset-2"
+            className="mt-4 border-2 bg-[#F37A20] text-white flex items-center justify-center py-2 px-2 rounded-md max-w-[80px] hover:bg-[#F37A20] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#F37A20] focus:ring-offset-2"
             onClick={(e) => {
               e.preventDefault();
               navigate("/employee-order", {

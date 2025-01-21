@@ -451,7 +451,7 @@ const styles = {
   },
 
   ButtonCart: {
-    backgroundColor: "#5EC401",
+    backgroundColor: "#F37A20",
     color: "#fff",
     textTransform: "none",
     fontSize: "18px",
@@ -459,7 +459,7 @@ const styles = {
     fontFamily: "Poppins",
     width: "95%",
     "&.MuiButtonBase-root:hover": {
-      background: "#64cf00",
+      background: "#F37A20",
     },
   },
   TopDiv: {
