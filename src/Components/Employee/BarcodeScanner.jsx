@@ -124,7 +124,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
       <div
         id="reader"
         ref={readerRef}
-        style={{ width: "100%", height: "160%" }}
+        style={{ width: "100%", height: "100%" }}
       ></div>
       <Button
         variant="contained"
