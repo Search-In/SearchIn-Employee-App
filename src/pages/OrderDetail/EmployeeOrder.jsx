@@ -20,7 +20,7 @@ import { useMqtt } from "../../context/MqttContext";
 import TrolleyValues from "./Layout/TrolleyValues";
 import { api } from "../../api/api";
 import { objectIdToNumber } from "../../lib/mongo";
-import BatchDrawer from "../../Components/BatchDrawer";
+// import BatchDrawer from "../../Components/BatchDrawer";
 
 /**
  * @typedef {Object} ScannedBarcodeEntry
