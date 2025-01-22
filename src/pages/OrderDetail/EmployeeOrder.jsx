@@ -427,7 +427,7 @@ const EmployeeOrder = () => {
 
       <div className="flex flex-col h-screen w-full">
         <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
-          <div className="flex items-center justify-center w-full h-[35vh]">
+          <div className="flex items-center justify-center w-full h-[35%]">
             <BarcodeScanner
               handleScan={handleScan}
               activeScanner={activeScanner}
