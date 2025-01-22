@@ -86,10 +86,15 @@ const EmployeeOrder = () => {
 
   console.log({ barcodeScannedCount });
 
-  const scannedAmout = scannedOrderItems.reduce((total, product) => {
+  const scannedAmout = orderItems.reduce((total, product) => {
     let variantMultiplier = product?.variant || 1;
     if (variantMultiplier >= 100) variantMultiplier /= 1000;
-    return total + product.quantity * (product?.price || 0) * variantMultiplier;
+    return (
+      total +
+      (vendorProductScannedCount[product?.vendor_product?._id] || 0) *
+        (product?.price || 0) *
+        variantMultiplier
+    );
   }, 0);
 
   const handleSnackbarClose = () => setOpenSnackbar(false);
@@ -402,7 +407,7 @@ const EmployeeOrder = () => {
       </Modal>
       {isConnected && <TrolleyValues />}
 
-      <div className="absolute max-w-full top-0 z-10 flex items-center justify-center p-5 bg-white border-b border-gray-200 w-screen">
+      <div className="absolute max-w-full top-0 z-10 flex items-center justify-center p-2 bg-white border-b border-gray-200 w-screen">
         <IconButton
           edge="start"
           color="inherit"
@@ -422,7 +427,7 @@ const EmployeeOrder = () => {
 
       <div className="flex flex-col h-screen w-full">
         <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
-          <div className="flex items-center justify-center w-full h-full">
+          <div className="flex items-center justify-center w-full h-[35vh]">
             <BarcodeScanner
               handleScan={handleScan}
               activeScanner={activeScanner}
@@ -435,7 +440,7 @@ const EmployeeOrder = () => {
         </div>
 
         {vendor_order_id && (
-          <div className="flex justify-between items-center border-b-2 border-gray-200 p-5 text-lg">
+          <div className="flex justify-between items-center border-b-2 border-gray-200 p-2 text-md">
             <p
               variant="h6"
               className="flex flex-wrap font-semibold text-gray-800 max-w-[50%]"
@@ -449,7 +454,7 @@ const EmployeeOrder = () => {
               <p className="text-md flex flex-wrap max-w-[100px]">
                 Products Scanned:
               </p>
-              <p className="">
+              <p className="flex w-full my-auto justify-center">
                 {scannedOrderItems.length} / {orderItems.length}
               </p>
             </div>
@@ -478,7 +483,7 @@ const EmployeeOrder = () => {
           )}
 
           {orderInfo.message && (
-            <div className="border border-gray-200 rounded p-5 bg-gray-50">
+            <div className="border border-gray-200 rounded p-2 bg-gray-50">
               <Typography
                 variant="h6"
                 className="font-semibold text-sm text-left mb-2 font-quicksand"
@@ -516,7 +521,7 @@ const EmployeeOrder = () => {
         </div>
 
         {vendor_order_id && (
-          <div className="sticky bottom-0 bg-white p-5 z-50">
+          <div className="sticky bottom-0 bg-white p-2 z-50">
             <Button
               variant="contained"
               color="primary"
