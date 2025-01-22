@@ -54,7 +54,7 @@ const Orders = () => {
         onConfirm={handleConfirm}
       />
       <Box className="mb-24 w-full px-3">
-        <Box className="flex items-center justify-center p-5 bg-white border-b border-gray-200">
+        <Box className="flex items-center justify-center p-2 bg-white border-b border-gray-200">
           <Box className="absolute left-5">
             <Link to="/employee-home">
               <IconButton>
