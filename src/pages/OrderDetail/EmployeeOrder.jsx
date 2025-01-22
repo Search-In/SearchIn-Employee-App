@@ -20,7 +20,7 @@ import { useMqtt } from "../../context/MqttContext";
 import TrolleyValues from "./Layout/TrolleyValues";
 import { api } from "../../api/api";
 import { objectIdToNumber } from "../../lib/mongo";
-// import BatchDrawer from "../../Components/BatchDrawer";
+import BatchDrawer from "../../Components/BatchDrawer";
 
 /**
  * @typedef {Object} ScannedBarcodeEntry
@@ -427,7 +427,7 @@ const EmployeeOrder = () => {
 
       <div className="flex flex-col h-screen w-full">
         <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
-          <div className="flex items-center justify-center w-full h-[35%]">
+          <div className="flex items-center justify-center w-full h-full">
             <BarcodeScanner
               handleScan={handleScan}
               activeScanner={activeScanner}
