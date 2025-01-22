@@ -26,7 +26,7 @@ const TrolleyModal = ({ isOpen, onClose, onConfirm }) => {
 
   return (
     <div style={overlayStyle}>
-      <div className="flex flex-col justify-between bg-white p-2 shadow-lg text-center rounded-lg">
+      <div className="flex flex-col justify-between bg-white p-5 shadow-lg text-center rounded-lg">
         <h2 className="my-4 text-xl font-semibold">
           Do you have a Search In Trolley?
         </h2>
