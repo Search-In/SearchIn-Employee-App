@@ -2,6 +2,7 @@ import { Button } from "@mui/material";
 import { Html5Qrcode } from "html5-qrcode";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "use-debounce";
+import { delay } from "../../lib/time";
 
 function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   const [scanner, setScanner] = useState(null);
@@ -26,18 +27,17 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   const debouncedScanResult = useDebounce(scanResult, 3000); // 500ms debounce delay
 
   useEffect(() => {
-    if (!scanResult) return;
-
     const fetchData = async () => {
       try {
         await handleScan(scanResult);
+        await delay(3000);
         setScanResult("");
       } catch (error) {
         console.log("Error handling scan:", error);
       }
     };
 
-    fetchData();
+    if (scanResult) fetchData();
   }, [debouncedScanResult]);
 
   const handleScanner = async () => {
