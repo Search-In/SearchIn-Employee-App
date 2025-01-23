@@ -82,7 +82,9 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
             (decodedText) => {
               // setScanResult(decodedText);
               // handleScan(decodedText);
-              setScanResult(decodedText); // Use debounced version
+              if (decodedText !== scanResult) {
+                setScanResult(decodedText); // Use debounced version
+              }
 
               console.log(`QR Code detected: ${decodedText}`);
             },
