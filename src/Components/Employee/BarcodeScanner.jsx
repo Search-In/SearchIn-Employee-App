@@ -25,19 +25,23 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
 
   // Debounce the handleScan function
   const [debouncedScanResult] = useDebounce(scanResult, 3100); // 500ms debounce delay
+  const [isThrottled, setIsThrottled] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await handleScan(scanResult);
+        if (isThrottled) return;
+        setIsThrottled(true);
+        await handleScan(debouncedScanResult);
         await delay(3000);
         setScanResult("");
+        setIsThrottled(false);
       } catch (error) {
         console.log("Error handling scan:", error);
       }
     };
 
-    if (scanResult) fetchData();
+    if (debouncedScanResult) fetchData();
   }, [debouncedScanResult]);
 
   const handleScanner = async () => {
