@@ -285,6 +285,8 @@ const EmployeeOrder = () => {
     if (isScanning)
       return showSnackbar("Please Turn Off the Camera", "warning");
 
+    console.log({ employee_order: orderInfo.employee_order });
+
     if (
       !allProductsScanned &&
       !orderInfo.employee_order?.dispatchOverwriteApproved &&
@@ -440,7 +442,7 @@ const EmployeeOrder = () => {
         </div>
 
         {vendor_order_id && (
-          <div className="flex justify-between items-center border-b-2 border-gray-200 p-2 text-md">
+          <div className="flex justify-between items-center border-b-2 border-gray-200 p-3 text-md">
             <p
               variant="h6"
               className="flex flex-wrap font-semibold text-gray-800 max-w-[50%]"
@@ -451,9 +453,7 @@ const EmployeeOrder = () => {
                 : "Not created"}
             </p>
             <div className="flex justify-between gap-2 font-semibold text-gray-800">
-              <p className="text-md flex flex-wrap max-w-[100px]">
-                Products Scanned:
-              </p>
+              <p className="text-md flex flex-wrap max-w-[100px]">Scanned:</p>
               <p className="flex w-full my-auto justify-center">
                 {scannedOrderItems.length} / {orderItems.length}
               </p>
@@ -521,17 +521,19 @@ const EmployeeOrder = () => {
         </div>
 
         {vendor_order_id && (
-          <div className="sticky bottom-0 bg-white p-2 z-50">
-            <Button
+          <div className="sticky bottom-0 bg-white p-2 z-50 ">
+            <button
               variant="contained"
               color="primary"
               onClick={handleDispatch}
-              className="w-full h-12 rounded-lg bg-indigo-600 flex justify-between items-center"
+              className="w-full h-12 bg-blue-500  text-white rounded-lg flex justify-center items-center font-semibold text-lg px-8"
               disabled={vendor_order_id === undefined}
             >
-              Confirm Order ₹{scannedAmout || 0} / ₹{orderInfo.totalAmount}
+              <span className="mr-3">
+                Confirm Order ₹{scannedAmout || 0} / ₹{orderInfo.totalAmount}
+              </span>
               <ArrowForwardRoundedIcon className="absolute right-5" />
-            </Button>
+            </button>
           </div>
         )}
       </div>
