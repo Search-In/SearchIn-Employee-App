@@ -1,8 +1,8 @@
 import { Avatar, Box, Paper, Typography } from "@mui/material";
 import verifyIcon from "../../../src/assets/verifyimage.png";
 
-const ProductCard = ({ product, onClick = () => {} }) => {
-  const isScanned = product.scannedCount >= product.quantity;
+const ProductCard = ({ product: order_item, onClick = () => {} }) => {
+  const isScanned = order_item.scannedCount >= order_item.quantity;
 
   return (
     <Paper
@@ -15,14 +15,14 @@ const ProductCard = ({ product, onClick = () => {} }) => {
         <Box>
           <Avatar
             alt={
-              product?.vendor_product?.product?.name ||
-              product?.productId?.name ||
-              product?.product?.product?.name
+              order_item?.vendor_product?.product?.name ||
+              order_item?.productId?.name ||
+              order_item?.product?.product?.name
             }
             src={
-              product?.vendor_product?.product?.imageUrl ||
-              product?.productId?.imageUrl ||
-              product?.product?.product?.imageUrl
+              order_item?.vendor_product?.product?.imageUrl ||
+              order_item?.productId?.imageUrl ||
+              order_item?.product?.product?.imageUrl
             }
             sx={styles.avatar}
             variant="square"
@@ -30,60 +30,48 @@ const ProductCard = ({ product, onClick = () => {} }) => {
           <Typography sx={styles.labelId}>Product Label:</Typography>
           <Box sx={styles.scanPriceTextBox}>
             <Typography sx={styles.scanPriceText}>
-              ₹
-              {(
-                product?.vendor_product?.product?.price ||
-                product?.productId?.price ||
-                product?.product?.product?.price
-              )?.toFixed(2)}
+              ₹{order_item?.vendor_product?.price?.toFixed(2)}
             </Typography>
-            <Typography sx={styles.scanRate}> Scan Rate</Typography>
+            <p className="font-semibold text-blue-900 text-sm font-[Poppins] text-[16px]">
+              Scan Rate
+            </p>
           </Box>
         </Box>
 
-        <Box sx={styles.details}>
-          <Typography variant="h6" sx={styles.productName}>
-            {product?.vendor_product?.product?.name ||
-              product?.productId?.name ||
-              product?.product?.product?.name}
-          </Typography>
-          <div style={styles.priceContainer}>
-            {/* <Box>
-              <Typography sx={styles.salePriceText}>
-                ₹
-                {(
-                  product?.vendor_product?.product?.price ||
-                  product?.productId?.price ||
-                  product?.product?.product?.price
-                ).toFixed(2)}
-              </Typography>
-            </Box> */}
+        <div>
+          <p variant="h6" className="font-bold py-1 text-[17px]">
+            {order_item?.vendor_product?.product?.name ||
+              order_item?.productId?.name ||
+              order_item?.product?.product?.name}
+          </p>
+          <div className="flex w-full justify-between mr-3 ">
+            <Box>
+              <p className="text-orange-500 font-bold text-[18px]">
+                ₹{(order_item?.price).toFixed(2)}
+              </p>
+              <p className="font-semibold text-sm font-[Poppins] text-[16px]">
+                Ordered At
+              </p>
+            </Box>
 
             <Typography sx={styles.variantText}>
-              {(product?.vendor_product?.product?.variant ||
-                product?.productId?.variant ||
-                product?.product?.product?.variant) &&
+              {order_item?.quantity != null &&
+                !Number.isInteger(order_item.quantity) && // Ensure quantity exists
                 `${
-                  (product?.vendor_product?.product?.variant ||
-                    product?.productId?.variant ||
-                    product?.product?.product?.variant) >= 100
-                    ? (product?.vendor_product?.product?.variant ||
-                        product?.productId?.variant ||
-                        product?.product?.product?.variant) + " gm"
-                    : (product?.vendor_product?.product?.variant ||
-                        product?.productId?.variant ||
-                        product?.product?.product?.variant) + " Kg"
+                  order_item.quantity < 1
+                    ? (order_item.quantity * 1000).toFixed(2) + " gm" // Convert to grams if less than 1
+                    : Number.isInteger(order_item.quantity)
+                    ? order_item.quantity
+                    : order_item.quantity + " Kg" // Display as loose product if it's a decimal
                 }`}
             </Typography>
           </div>
           <div style={styles.labelCodeDiv}>
             <Typography variant="body1" sx={styles.labelCode}>
-              {product?.vendor_product?.product?.labelcode ||
-                product?.productId?.labelcode ||
-                product?.product?.product?.labelcode}
+              {order_item?.vendor_product?.labelcode}
             </Typography>
           </div>
-        </Box>
+        </div>
         {isScanned && (
           <img
             src={verifyIcon}
@@ -98,8 +86,8 @@ const ProductCard = ({ product, onClick = () => {} }) => {
             sx={styles.scannedCount}
             onClick={onClick}
           >
-            {product?.scannedCount || product?.count || 0}/
-            {product?.quantity || product?.count}
+            {order_item?.scannedCount || order_item?.count || 0}/
+            {order_item?.quantity || order_item?.count}
           </Typography>
         </div>
       </Box>

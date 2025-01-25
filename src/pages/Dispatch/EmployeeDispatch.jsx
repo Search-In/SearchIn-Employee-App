@@ -4,6 +4,7 @@ import PlaceIcon from "@mui/icons-material/Place";
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
   Grid,
   IconButton,
@@ -38,8 +39,11 @@ const EmployeeDispatch = () => {
   const employeeData = JSON.parse(data);
   const employeeId = employeeData._id;
   const [recipientInfo, setRecipientInfo] = useState({});
+  const [dispatching, setDispatching] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const getOrders = async () => {
+    setLoading(true);
     const data = localStorage.getItem("employee");
     const result = await api.order.fetchOneOrder(vendor_order_id);
     setRecipientInfo({
@@ -55,6 +59,7 @@ const EmployeeDispatch = () => {
     const arr = result.data?.productList;
     console.log("setting arr", result.data);
     setProducts(arr);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -62,22 +67,28 @@ const EmployeeDispatch = () => {
   }, []);
 
   const handleDispatch = async () => {
-    await api.order.updateVendorOrder(vendor_order_id, {
-      order_status: "confirmed",
-    });
-    await api.order.updateEmployeeOrder(vendor_order_id, {
-      dispatchTime: new Date(),
-    });
-    localStorage.setItem("virtualcartweight", 0);
-    const session = localStorage.getItem("session");
+    setDispatching(true);
 
-    localStorage.removeItem("session");
-    localStorage.removeItem("trolley");
-    sessionStorage.clear();
-    publish("guestUser/endSession", { sessionId: session });
-    setIsSessionEnded(true);
-    disconnect();
-    navigate("/dispatch-success");
+    try {
+      await api.order.updateVendorOrder(vendor_order_id, {
+        order_status: "confirmed",
+      });
+      await api.order.updateEmployeeOrder(vendor_order_id, {
+        dispatchTime: new Date(),
+      });
+      localStorage.setItem("virtualcartweight", 0);
+      const session = localStorage.getItem("session");
+
+      localStorage.removeItem("session");
+      localStorage.removeItem("trolley");
+      sessionStorage.clear();
+      publish("guestUser/endSession", { sessionId: session });
+      setIsSessionEnded(true);
+      disconnect();
+      navigate("/dispatch-success");
+    } finally {
+      setDispatching(false);
+    }
   };
 
   useEffect(() => {
@@ -122,12 +133,12 @@ const EmployeeDispatch = () => {
           </Typography>
         </Box>
 
-        <Box sx={TopDiv}>
+        {/* <Box sx={TopDiv}>
           <Typography sx={TotalTotal}>Total</Typography>
           <Typography sx={TotalTotal}>
             {recipientInfo.scannedTotal}/{products?.length}
           </Typography>
-        </Box>
+        </Box> */}
 
         <Container maxWidth={false} disableGutters>
           <Grid container spacing={0}>
@@ -139,7 +150,7 @@ const EmployeeDispatch = () => {
                     scannedCount:
                       vendorProductScannedCount?.[
                         product?.vendor_product?._id
-                      ] || -1,
+                      ] || 0,
                   }}
                 />
               </Grid>
@@ -147,44 +158,55 @@ const EmployeeDispatch = () => {
           </Grid>
         </Container>
       </div>
-      <div>
-        <div className="bg-[#f5f5f5] px-4 text-lg min-h-[200px] font-semibold">
-          <p>
-            <PlaceIcon />
-            Drop Location
-          </p>
-          <div className="flex flex-col overflow-y-auto text-md p-2">
-            <p>Name: {recipientInfo.name}</p>
-            <p>Phone: {recipientInfo.phone}</p>
-            <p>Location Type : {recipientInfo.locationType}</p>
-            <p>
-              Address:
-              {`${recipientInfo.addressLine} ${recipientInfo.pincode}`}
-            </p>
+      <div className="py-1">
+        {loading ? (
+          <div className="flex min-h-[25vh] h-full justify-center items-center">
+            <CircularProgress size={48} color="blue" />
           </div>
-        </div>
-        {recipientInfo.message && (
-          <Box sx={messageSection}>
-            <Typography variant="h6" sx={messageHeading}>
-              Customer's Special Message
-            </Typography>
-            <Box sx={messageBody}>
-              <Typography variant="body2">{recipientInfo.message}</Typography>
-            </Box>
-          </Box>
+        ) : (
+          <>
+            <div className="bg-[#f5f5f5] px-4 text-lg min-h-[200px] font-semibold">
+              <p className="flex items-center">
+                <PlaceIcon />
+                Drop Location
+              </p>
+              <div className="flex flex-col overflow-y-auto text-md p-2">
+                <p>Name: {recipientInfo.name}</p>
+                <p>Phone: {recipientInfo.phone}</p>
+                <p>Location Type : {recipientInfo.locationType}</p>
+                <p>
+                  Address:
+                  {`${recipientInfo.addressLine} ${recipientInfo.pincode}`}
+                </p>
+              </div>
+            </div>
+            {recipientInfo.message && (
+              <Box sx={messageSection}>
+                <Typography variant="h6" sx={messageHeading}>
+                  Customer's Special Message
+                </Typography>
+                <Box sx={messageBody}>
+                  <Typography variant="body2">
+                    {recipientInfo.message}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+            <div className="flex px-3 justify-between items-center">
+              <p className="text-lg font-semibold">Order Amount</p>
+              <p className="text-lg font-bold">
+                ₹{scannedAmout}/₹{recipientInfo.totalAmount}
+              </p>
+            </div>
+          </>
         )}
-        <Box sx={TotalDivTotal}>
-          <p className="text-lg font-semibold px-4">Order Amount</p>
-          <Typography sx={TotalTotal}>
-            ₹{scannedAmout}/₹{recipientInfo.totalAmount}
-          </Typography>
-        </Box>
         <Box sx={bottomStickyContainer}>
           <Button
             variant="contained"
             color="primary"
             onClick={handleDispatch}
             sx={ButtonCart}
+            disabled={dispatching || loading}
           >
             Ready For Dispatch
             <ArrowForwardRoundedIcon
