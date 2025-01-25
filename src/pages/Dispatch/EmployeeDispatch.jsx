@@ -25,7 +25,7 @@ const EmployeeDispatch = () => {
     vendorProductScannedCount = {},
     scannedOrderItems = [],
   } = location.state || {};
-  // console.log("new world order", id)
+  // console.log("new world ordeor", id)
   const { publish, disconnect, setIsSessionEnded } = useMqtt();
 
   const scannedAmout = scannedOrderItems.reduce((total, product) => {
