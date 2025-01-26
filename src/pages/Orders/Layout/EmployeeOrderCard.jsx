@@ -12,11 +12,11 @@ const EmployeeOrderCard = (props) => {
         onClick={(e) => {
           e.preventDefault();
 
-          if (props.orderdetails.order_status === "pending") {
-            navigate("/employee-order", {
-              state: { vendor_order: props.orderdetails._id },
-            });
-          }
+          // if (props.orderdetails.order_status === "pending") {
+          navigate("/employee-order", {
+            state: { vendor_order: props.orderdetails._id },
+          });
+          // }
         }}
       >
         <div className="bg-[#F37A20] p-2 flex h-full rounded-full">
