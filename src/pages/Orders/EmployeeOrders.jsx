@@ -81,31 +81,33 @@ const Orders = () => {
 
           <Box>
             <TabPanel value={value} index={0}>
-              {orders.map(
-                (currOrder, i) =>
-                  currOrder.order_status === "pending" && (
-                    <EmployeeOrderCard
-                      orderdetails={currOrder}
-                      value={value}
-                      key={i}
-                      handleOpenModal={handleOpenModal}
-                      handleNavigate={handleNavigate}
-                    />
-                  )
-              )}
+              {orders
+                .filter((currOrder, i) => currOrder.order_status === "pending")
+                .map((currOrder, i) => (
+                  <EmployeeOrderCard
+                    orderdetails={currOrder}
+                    value={value}
+                    key={i}
+                    handleOpenModal={handleOpenModal}
+                    handleNavigate={handleNavigate}
+                  />
+                ))}
             </TabPanel>
 
             <TabPanel value={value} index={1}>
-              {orders.map(
-                (currOrder, i) =>
-                  currOrder.order_status === "confirmed" && (
-                    <EmployeeOrderCard
-                      orderdetails={currOrder}
-                      value={value}
-                      key={i}
-                    />
-                  )
-              )}
+              {orders
+                .filter(
+                  (currOrder, i) => currOrder.order_status === "confirmed"
+                )
+                .map((currOrder, i) => (
+                  <EmployeeOrderCard
+                    orderdetails={currOrder}
+                    value={value}
+                    key={i}
+                    handleOpenModal={handleOpenModal}
+                    handleNavigate={handleNavigate}
+                  />
+                ))}
             </TabPanel>
           </Box>
         </Box>

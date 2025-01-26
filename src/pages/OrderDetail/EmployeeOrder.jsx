@@ -3,6 +3,7 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import {
   Alert,
   Button,
+  ButtonBase,
   Container,
   Grid,
   IconButton,
@@ -261,6 +262,7 @@ const EmployeeOrder = () => {
         message: db_vendor_order?.message,
         orderNo: db_vendor_order?._id,
         totalAmount: db_vendor_order?.total_amount,
+        vendor_order: db_vendor_order,
         employee_order,
       });
       setOrderItems(db_vendor_order?.products || []);
@@ -409,37 +411,37 @@ const EmployeeOrder = () => {
       </Modal>
       {isConnected && <TrolleyValues />}
 
-      <div className="absolute max-w-full top-0 z-10 flex items-center justify-center p-2 bg-white border-b border-gray-200 w-screen">
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="back"
-          onClick={handleBackClick}
-          // className="mx-2"
-        >
-          <ArrowBack />
-        </IconButton>
-        <Typography
+      {/* <div className="absolute max-w-full top-0 z-10 flex items-center justify-center p-2 bg-white border-b border-gray-200 w-screen"> */}
+      {/* <IconButton> */}
+      <ArrowBack
+        onClick={handleBackClick}
+        // className="mx-2"
+        className="fixed top-5 left-5"
+      />
+      {/* </IconButton> */}
+      {/* <Typography
           variant="h6"
           className="font-semibold font-quicksand w-full flex justify-center"
         >
           Scan Order
-        </Typography>
-      </div>
+        </Typography> */}
+      {/* </div> */}
 
-      <div className="flex flex-col h-screen w-full">
-        <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
-          <div className="flex items-center justify-center w-full h-full">
-            <BarcodeScanner
-              handleScan={handleScan}
-              activeScanner={activeScanner}
-              setActiveScanner={setActiveScanner}
-              setIsScanning={setIsScanning}
-              isScanning={isScanning}
-            />
+      <div className="flex flex-col h-screen w-full overflow-scroll">
+        {orderInfo?.vendor_order?.order_status == "confirmed" ? null : (
+          <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
+            <div className="flex items-center justify-center w-full h-full">
+              <BarcodeScanner
+                handleScan={handleScan}
+                activeScanner={activeScanner}
+                setActiveScanner={setActiveScanner}
+                setIsScanning={setIsScanning}
+                isScanning={isScanning}
+              />
+            </div>
+            {/* {objectIdToNumber("673f88a4cecc8568404a9896")} */}
           </div>
-          {/* {objectIdToNumber("673f88a4cecc8568404a9896")} */}
-        </div>
+        )}
 
         {vendor_order_id && (
           <div className="flex justify-between items-center border-b-2 border-gray-200 p-3 text-md">
@@ -526,13 +528,30 @@ const EmployeeOrder = () => {
               variant="contained"
               color="primary"
               onClick={handleDispatch}
-              className="w-full h-12 bg-blue-500  text-white rounded-lg flex justify-center items-center font-semibold text-lg px-8"
-              disabled={vendor_order_id === undefined}
+              className={
+                (vendor_order_id === undefined ||
+                !!orderInfo?.employee_order?.dispatchTime ||
+                orderInfo?.vendor_order?.order_status == "confirmed"
+                  ? "bg-blue-400"
+                  : "bg-blue-600") +
+                " " +
+                "w-full h-12  text-white rounded-lg flex justify-center items-center font-semibold text-lg px-8"
+              }
+              disabled={
+                vendor_order_id === undefined ||
+                !!orderInfo?.employee_order?.dispatchTime ||
+                orderInfo?.vendor_order?.order_status == "confirmed"
+              }
             >
-              <span className="mr-3">
-                Confirm Order ₹{scannedAmout || 0} / ₹{orderInfo.totalAmount}
-              </span>
-              <ArrowForwardRoundedIcon className="absolute right-5" />
+              <ButtonBase>
+                <span className="mr-3">
+                  {orderInfo?.employee_order?.dispatchTime
+                    ? ""
+                    : "Confirm Order"}{" "}
+                  ₹{scannedAmout || 0} / ₹{orderInfo.totalAmount}
+                </span>{" "}
+              </ButtonBase>
+              <ArrowForwardRoundedIcon className="absolute right-5" />{" "}
             </button>
           </div>
         )}

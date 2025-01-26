@@ -38,7 +38,7 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
           </Box>
         </Box>
 
-        <div>
+        <div className="flex flex-col w-[60%] h-full pt-4">
           <p variant="h6" className="font-bold py-1 text-[17px]">
             {order_item?.vendor_product?.product?.name ||
               order_item?.productId?.name ||
@@ -66,11 +66,6 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
                 }`}
             </Typography>
           </div>
-          <div style={styles.labelCodeDiv}>
-            <Typography variant="body1" sx={styles.labelCode}>
-              {order_item?.vendor_product?.labelcode}
-            </Typography>
-          </div>
         </div>
         {isScanned && (
           <img
@@ -80,6 +75,7 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
             onClick={onClick}
           />
         )}
+        {/* <div> */}
         <div style={styles.scannedCountContainer} onClick={onClick}>
           <Typography
             variant="body2"
@@ -90,6 +86,12 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
             {order_item?.quantity || order_item?.count}
           </Typography>
         </div>
+        <div style={styles.labelCodeDiv} className="absolute bottom-4 right-2">
+          <Typography variant="body1" sx={styles.labelCode}>
+            {order_item?.vendor_product?.labelcode}
+          </Typography>
+        </div>
+        {/* </div> */}
       </Box>
     </Paper>
   );
@@ -152,7 +154,7 @@ const styles = {
   },
   verifyIcon: {
     position: "absolute",
-    top: "20px",
+    top: "10px",
     right: "22px",
     width: "30px",
     height: "32px",
@@ -220,7 +222,7 @@ const styles = {
   },
   scannedCountContainer: {
     position: "absolute", // Position it absolutely
-    top: "62px", // Adjust based on your design
+    top: "30%", // Adjust based on your design
     right: "5px", // Adjust based on your design
     width: "60px", // Fixed width
     height: "auto", // Set to auto to allow wrapping
