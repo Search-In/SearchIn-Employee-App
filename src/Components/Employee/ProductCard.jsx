@@ -122,7 +122,7 @@ const styles = {
     height: "160px",
   },
   avatar: {
-    width: "71px",
+    width: "70px",
     height: "75px",
     marginLeft: "14px",
     borderRadius: "9px 0px 0px 0px",
