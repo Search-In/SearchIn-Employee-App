@@ -6,7 +6,7 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
 
   const isLooseProduct =
     (order_item?.quantity != null && !Number.isInteger(order_item.quantity)) ||
-    order_item?.productId?.name?.toLowerCase()?.includes("loose");
+    order_item?.vendor_product?.product?.name?.toLowerCase()?.includes("loose");
 
   return (
     <Paper
