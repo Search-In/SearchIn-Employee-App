@@ -63,8 +63,6 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
                 `${
                   order_item.quantity < 1
                     ? (order_item.quantity * 1000).toFixed(2) + " gm" // Convert to grams if less than 1
-                    : Number.isInteger(order_item.quantity)
-                    ? order_item.quantity
                     : order_item.quantity + " Kg" // Display as loose product if it's a decimal
                 }`}
             </Typography>
