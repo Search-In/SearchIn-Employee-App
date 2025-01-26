@@ -4,6 +4,10 @@ import verifyIcon from "../../../src/assets/verifyimage.png";
 const ProductCard = ({ product: order_item, onClick = () => {} }) => {
   const isScanned = order_item.scannedCount >= order_item.quantity;
 
+  const isLooseProduct =
+    (order_item?.quantity != null && !Number.isInteger(order_item.quantity)) ||
+    order_item?.productId?.name?.toLowerCase()?.includes("loose");
+
   return (
     <Paper
       elevation={1}
@@ -55,13 +59,10 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
             </Box>
 
             <Typography sx={styles.variantText}>
-              {order_item?.quantity != null &&
-                !Number.isInteger(order_item.quantity) && // Ensure quantity exists
+              {isLooseProduct && // Ensure quantity exists
                 `${
                   order_item.quantity < 1
                     ? (order_item.quantity * 1000).toFixed(2) + " gm" // Convert to grams if less than 1
-                    : Number.isInteger(order_item.quantity)
-                    ? order_item.quantity
                     : order_item.quantity + " Kg" // Display as loose product if it's a decimal
                 }`}
             </Typography>
@@ -77,14 +78,24 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
         )}
         {/* <div> */}
         <div style={styles.scannedCountContainer} onClick={onClick}>
-          <Typography
-            variant="body2"
-            sx={styles.scannedCount}
-            onClick={onClick}
-          >
-            {order_item?.scannedCount || order_item?.count || 0}/
-            {order_item?.quantity || order_item?.count}
-          </Typography>
+          {isLooseProduct ? (
+            <Typography
+              variant="body2"
+              sx={styles.scannedCount}
+              onClick={onClick}
+            >
+              {order_item?.scannedCount ? 1 : 0}/ 1
+            </Typography>
+          ) : (
+            <Typography
+              variant="body2"
+              sx={styles.scannedCount}
+              onClick={onClick}
+            >
+              {order_item?.scannedCount || order_item?.count || 0}/
+              {order_item?.quantity || order_item?.count}
+            </Typography>
+          )}
         </div>
         <div style={styles.labelCodeDiv} className="absolute bottom-4 right-2">
           <Typography variant="body1" sx={styles.labelCode}>
