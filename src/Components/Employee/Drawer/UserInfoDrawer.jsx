@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   Drawer,
   Box,
@@ -6,8 +6,8 @@ import {
   Button,
   Typography,
   IconButton,
-} from "@mui/material"
-import CloseIcon from "@mui/icons-material/Close"
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const UserDrawer = ({
   isOpen,
@@ -17,9 +17,9 @@ const UserDrawer = ({
   handleSubmit,
 }) => {
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   return (
     <Drawer anchor="bottom" open={isOpen} onClose={onClose}>
@@ -96,7 +96,7 @@ const UserDrawer = ({
             height: 45,
             borderRadius: "12px",
             backgroundColor: "#F37A20",
-            backgroundColor: "#5EC401",
+            backgroundColor: "#F37A20",
             color: "#FFFFFF",
             fontFamily: "Poppins",
             fontSize: "16px",
@@ -110,7 +110,7 @@ const UserDrawer = ({
         </Button>
       </Box>
     </Drawer>
-  )
-}
+  );
+};
 
-export default UserDrawer
+export default UserDrawer;

@@ -31,6 +31,7 @@ const employeeOrderToBarcodeScannedCount = (employee_order) =>
       barcode: vendorProductBatch.barcode || null, // Get barcode from the populated VendorProductBatch
       vendor_product: vendorProductBatch.vendor_product || null, // Get vendor product
       scanned_count: item.scannedCount || 0, // Scanned count
+      expiry: vendorProductBatch.expiry,
     };
   });
 
@@ -55,15 +56,15 @@ export const api = {
         );
         return result?.data || [];
       } catch (error) {
-        console.error("Error fetching product by barcode:", error);
+        // console.error("Error fetching product by barcode:", error);
         throw error;
       }
     },
 
     updateLabelCode: async (productId, { labelcode, weight }) => {
       try {
-        const result = await axios.put(
-          `${server}/products/update/${productId}`,
+        const result = await axios.patch(
+          `${server}/vendor/products/${productId}`,
           { labelcode, weight },
           { headers: getAuthHeader() }
         );

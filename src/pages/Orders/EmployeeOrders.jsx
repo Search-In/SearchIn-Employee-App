@@ -54,7 +54,7 @@ const Orders = () => {
         onConfirm={handleConfirm}
       />
       <Box className="mb-24 w-full px-3">
-        <Box className="flex items-center justify-center p-5 bg-white border-b border-gray-200">
+        {/* <Box className="flex items-center justify-center p-2 bg-white border-b border-gray-200">
           <Box className="absolute left-5">
             <Link to="/employee-home">
               <IconButton>
@@ -63,7 +63,7 @@ const Orders = () => {
             </Link>
           </Box>
           <p className="font-semibold font-quicksand">Fullfillment Orders</p>
-        </Box>
+        </Box> */}
         <Box className="w-full">
           <Box className="border-b-1 border-gray-300 flex justify-center">
             <Tabs
@@ -81,31 +81,33 @@ const Orders = () => {
 
           <Box>
             <TabPanel value={value} index={0}>
-              {orders.map(
-                (currOrder, i) =>
-                  currOrder.order_status === "pending" && (
-                    <EmployeeOrderCard
-                      orderdetails={currOrder}
-                      value={value}
-                      key={i}
-                      handleOpenModal={handleOpenModal}
-                      handleNavigate={handleNavigate}
-                    />
-                  )
-              )}
+              {orders
+                .filter((currOrder, i) => currOrder.order_status === "pending")
+                .map((currOrder, i) => (
+                  <EmployeeOrderCard
+                    orderdetails={currOrder}
+                    value={value}
+                    key={i}
+                    handleOpenModal={handleOpenModal}
+                    handleNavigate={handleNavigate}
+                  />
+                ))}
             </TabPanel>
 
             <TabPanel value={value} index={1}>
-              {orders.map(
-                (currOrder, i) =>
-                  currOrder.order_status === "confirmed" && (
-                    <EmployeeOrderCard
-                      orderdetails={currOrder}
-                      value={value}
-                      key={i}
-                    />
-                  )
-              )}
+              {orders
+                .filter(
+                  (currOrder, i) => currOrder.order_status === "confirmed"
+                )
+                .map((currOrder, i) => (
+                  <EmployeeOrderCard
+                    orderdetails={currOrder}
+                    value={value}
+                    key={i}
+                    handleOpenModal={handleOpenModal}
+                    handleNavigate={handleNavigate}
+                  />
+                ))}
             </TabPanel>
           </Box>
         </Box>

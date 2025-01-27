@@ -2,6 +2,7 @@ import { Button } from "@mui/material";
 import { Html5Qrcode } from "html5-qrcode";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "use-debounce";
+import { delay } from "../../lib/time";
 
 function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   const [scanner, setScanner] = useState(null);
@@ -23,21 +24,24 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   };
 
   // Debounce the handleScan function
-  const debouncedScanResult = useDebounce(scanResult, 900); // 500ms debounce delay
+  const [debouncedScanResult] = useDebounce(scanResult, 3100); // 500ms debounce delay
+  const [isThrottled, setIsThrottled] = useState(false);
 
   useEffect(() => {
-    if (!scanResult) return;
-
     const fetchData = async () => {
       try {
-        await handleScan(scanResult);
+        if (isThrottled) return;
+        setIsThrottled(true);
+        await handleScan(debouncedScanResult);
+        await delay(3000);
         setScanResult("");
+        setIsThrottled(false);
       } catch (error) {
         console.log("Error handling scan:", error);
       }
     };
 
-    fetchData();
+    if (debouncedScanResult) fetchData();
   }, [debouncedScanResult]);
 
   const handleScanner = async () => {
@@ -82,7 +86,9 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
             (decodedText) => {
               // setScanResult(decodedText);
               // handleScan(decodedText);
-              setScanResult(decodedText); // Use debounced version
+              if (decodedText !== scanResult) {
+                setScanResult(decodedText); // Use debounced version
+              }
 
               console.log(`QR Code detected: ${decodedText}`);
             },
@@ -131,13 +137,13 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
         color="primary"
         onClick={handleScanner}
         sx={{
-          backgroundColor: isScanning ? "#E40101" : "#5EC401",
+          backgroundColor: isScanning ? "#E40101" : "#F37A20",
           color: "#fff",
           textTransform: "none",
           fontSize: "24px",
           fontFamily: "Poppins",
           "&.MuiButtonBase-root:hover": {
-            backgroundColor: isScanning ? "#C40000" : "#64cf00",
+            backgroundColor: isScanning ? "#C40000" : "#F37A20",
           },
           position: "absolute",
           top: "15%",

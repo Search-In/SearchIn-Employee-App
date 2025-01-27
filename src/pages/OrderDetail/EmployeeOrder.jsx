@@ -3,6 +3,7 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import {
   Alert,
   Button,
+  ButtonBase,
   Container,
   Grid,
   IconButton,
@@ -20,6 +21,7 @@ import { useMqtt } from "../../context/MqttContext";
 import TrolleyValues from "./Layout/TrolleyValues";
 import { api } from "../../api/api";
 import { objectIdToNumber } from "../../lib/mongo";
+import BatchDrawer from "../../Components/BatchDrawer";
 
 /**
  * @typedef {Object} ScannedBarcodeEntry
@@ -32,6 +34,8 @@ const EmployeeOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { vendor_order: vendor_order_id } = location.state || {};
+
+  const isUpdateProductPage = !vendor_order_id;
   const { publish, isConnected } = useMqtt();
   const [id, setId] = useState();
   const [orderItems, setOrderItems] = useState([]);
@@ -43,12 +47,23 @@ const EmployeeOrder = () => {
   const [productInfo, setProductInfo] = useState("");
   const [openLabelCard, setOpenLabelCard] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [dispatchOverrideConfirm, setDispatchOverrideConfirm] = useState(false);
+  const [dispatchOverrideRequest, setDispatchOverrideRequest] = useState({
+    barcode: "",
+    dispatchOverwriteReason: "",
+  });
+
   /**
    * State for tracking scanned counts by barcode.
    * @type {[ScannedBarcodeEntry, React.Dispatch<React.SetStateAction<ScannedBarcodeEntry[]>>]}
    */
   const [barcodeScannedCount, setBarcodeScannedCount] = useState([]);
+
+  const [batchDrawerProduct, setBatchDrawerProduct] = useState("");
+  const batchDrawerScannedCount = barcodeScannedCount.filter(
+    (scan) => scan.vendor_product === batchDrawerProduct
+  );
+
+  console.log({ batchDrawerProduct });
 
   const vendorProductScannedCount = barcodeScannedCount.reduce((acc, entry) => {
     const vendorProduct = entry.vendor_product;
@@ -70,12 +85,17 @@ const EmployeeOrder = () => {
   );
   const allProductsScanned = scannedOrderItems.length === orderItems.length;
 
-  console.log({ scannedOrderItems });
+  console.log({ barcodeScannedCount });
 
-  const scannedAmout = scannedOrderItems.reduce((total, product) => {
+  const scannedAmout = orderItems.reduce((total, product) => {
     let variantMultiplier = product?.variant || 1;
     if (variantMultiplier >= 100) variantMultiplier /= 1000;
-    return total + product.quantity * (product?.price || 0) * variantMultiplier;
+    return (
+      total +
+      (vendorProductScannedCount[product?.vendor_product?._id] || 0) *
+        (product?.price || 0) *
+        variantMultiplier
+    );
   }, 0);
 
   const handleSnackbarClose = () => setOpenSnackbar(false);
@@ -195,6 +215,12 @@ const EmployeeOrder = () => {
         // Handle errors from the API
         if (error?.response?.data?.message) {
           showSnackbar(error.response.data.message, "error");
+
+          if (error?.response?.data?.message === "Product batch has expired")
+            setDispatchOverrideRequest({
+              barcode,
+              dispatchOverwriteReason: "Product batch has expired",
+            });
         } else {
           showSnackbar(
             "Unknown error occurred while processing the scan.",
@@ -214,9 +240,9 @@ const EmployeeOrder = () => {
   // New function to handle the product scan when no vendor_order exists
   const handleProductScan = async (barcode) => {
     try {
-      const productData = await api.products.getByBarcode(barcode);
-      if (productData.length > 0) {
-        setProductInfo(productData[0]);
+      const vendor_product = await api.products.getByBarcode(barcode);
+      if (vendor_product._id) {
+        setProductInfo({ ...vendor_product, barcode });
         setOpenLabelCard(true);
       } else {
         showSnackbar("Product is Not in List!", "warning");
@@ -227,6 +253,7 @@ const EmployeeOrder = () => {
   };
 
   const getOrders = async () => {
+    if (!vendor_order_id) return;
     try {
       const { db_vendor_order, barcodeScans, employee_order } =
         await api.order.getOrdersByLabelcode(vendor_order_id);
@@ -235,6 +262,7 @@ const EmployeeOrder = () => {
         message: db_vendor_order?.message,
         orderNo: db_vendor_order?._id,
         totalAmount: db_vendor_order?.total_amount,
+        vendor_order: db_vendor_order,
         employee_order,
       });
       setOrderItems(db_vendor_order?.products || []);
@@ -259,11 +287,16 @@ const EmployeeOrder = () => {
     if (isScanning)
       return showSnackbar("Please Turn Off the Camera", "warning");
 
+    console.log({ employee_order: orderInfo.employee_order });
+
     if (
       !allProductsScanned &&
-      !orderInfo.employee_order?.dispatchOverwriteApproved
+      !orderInfo.employee_order?.dispatchOverwriteApproved &&
+      orderInfo.employee_order?.dispatchOverwriteReason !== "Insufficient Stock"
     ) {
-      return setDispatchOverrideConfirm(true);
+      return setDispatchOverrideRequest({
+        dispatchOverwriteReason: "Insufficient Stock",
+      });
     } else if (
       allProductsScanned ||
       orderInfo.employee_order?.dispatchOverwriteApproved
@@ -310,36 +343,19 @@ const EmployeeOrder = () => {
     }
   }, [vendor_order_id]);
 
-  // useEffect(() => {
-  //   if (scannedOrderItems.length > 0) {
-  //     const totalPrice = scannedOrderItems.reduce((total, product) => {
-  //       let variantMultiplier = product?.variant || 1;
-  //       if (variantMultiplier >= 100) variantMultiplier /= 1000;
-  //       return (
-  //         total +
-  //         product.scannedCount * (product?.price || 0) * variantMultiplier
-  //       );
-  //     }, 0);
-
-  //     setOrderInfo((prev) => ({
-  //       ...prev,
-  //       scannedAmout: totalPrice,
-  //     }));
-  //   }
-  // }, [scannedOrderItems]);
-
   const handleBackClick = () => {
     if (isScanning)
       return showSnackbar("Please Turned Off the Camera", "warning");
     navigate(vendor_order_id ? "/employee-orders" : "/employee-home");
   };
 
-  const dispatchOverrideRequest = async () => {
+  const placeDispatchOverrideRequest = async (dispatchOverwriteReason) => {
     await api.order.updateEmployeeOrder(vendor_order_id, {
-      dispatchOverwriteReason: "Insufficient Stock",
+      dispatchOverwriteReason,
+      dispatchOverwriteApproved: false,
     });
     await getOrders();
-    setDispatchOverrideConfirm(false);
+    setDispatchOverrideRequest({});
   };
 
   return (
@@ -358,7 +374,12 @@ const EmployeeOrder = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      <Modal open={dispatchOverrideConfirm}>
+      {/* <BatchDrawer
+        drawerOpen={!!batchDrawerProduct}
+        batchData={batchDrawerScannedCount}
+        onClose={() => setBatchDrawerProduct("")}
+      /> */}
+      <Modal open={!!dispatchOverrideRequest.dispatchOverwriteReason}>
         <div
           className={
             "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 " +
@@ -366,18 +387,22 @@ const EmployeeOrder = () => {
           }
         >
           <p className="my-5 text-center text-2xl font-semibold">
-            Raise insufficient stock issue?
+            Raise {dispatchOverrideRequest.dispatchOverwriteReason} issue?
           </p>
           <div className="flex w-full gap-4 mx-auto justify-center">
             <button
               className="bg-red-500 text-white p-2 rounded-lg"
-              onClick={() => setDispatchOverrideConfirm(false)}
+              onClick={() => setDispatchOverrideRequest({})}
             >
               Cancel
             </button>
             <button
               className="text-blue-500 p-2 rounded-lg border border-blue-500"
-              onClick={() => dispatchOverrideRequest().finally(() => {})}
+              onClick={() =>
+                placeDispatchOverrideRequest(
+                  dispatchOverrideRequest.dispatchOverwriteReason
+                ).finally(() => {})
+              }
             >
               Confirm
             </button>
@@ -386,40 +411,40 @@ const EmployeeOrder = () => {
       </Modal>
       {isConnected && <TrolleyValues />}
 
-      <div className="absolute max-w-full top-0 z-10 flex items-center justify-center p-5 bg-white border-b border-gray-200 w-screen">
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="back"
-          onClick={handleBackClick}
-          // className="mx-2"
-        >
-          <ArrowBack />
-        </IconButton>
-        <Typography
+      {/* <div className="absolute max-w-full top-0 z-10 flex items-center justify-center p-2 bg-white border-b border-gray-200 w-screen"> */}
+      {/* <IconButton> */}
+      <ArrowBack
+        onClick={handleBackClick}
+        // className="mx-2"
+        className="fixed top-5 left-5"
+      />
+      {/* </IconButton> */}
+      {/* <Typography
           variant="h6"
           className="font-semibold font-quicksand w-full flex justify-center"
         >
           Scan Order
-        </Typography>
-      </div>
+        </Typography> */}
+      {/* </div> */}
 
-      <div className="flex flex-col h-screen w-full">
-        <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
-          <div className="flex items-center justify-center w-full h-full">
-            <BarcodeScanner
-              handleScan={handleScan}
-              activeScanner={activeScanner}
-              setActiveScanner={setActiveScanner}
-              setIsScanning={setIsScanning}
-              isScanning={isScanning}
-            />
+      <div className="flex flex-col h-screen w-full overflow-scroll">
+        {orderInfo?.vendor_order?.order_status == "confirmed" ? null : (
+          <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
+            <div className="flex items-center justify-center w-full h-full">
+              <BarcodeScanner
+                handleScan={handleScan}
+                activeScanner={activeScanner}
+                setActiveScanner={setActiveScanner}
+                setIsScanning={setIsScanning}
+                isScanning={isScanning}
+              />
+            </div>
+            {/* {objectIdToNumber("673f88a4cecc8568404a9896")} */}
           </div>
-          {/* {objectIdToNumber("673f88a4cecc8568404a9896")} */}
-        </div>
+        )}
 
         {vendor_order_id && (
-          <div className="flex justify-between items-center border-b-2 border-gray-200 p-5 text-lg">
+          <div className="flex justify-between items-center border-b-2 border-gray-200 p-3 text-md">
             <p
               variant="h6"
               className="flex flex-wrap font-semibold text-gray-800 max-w-[50%]"
@@ -430,10 +455,8 @@ const EmployeeOrder = () => {
                 : "Not created"}
             </p>
             <div className="flex justify-between gap-2 font-semibold text-gray-800">
-              <p className="text-md flex flex-wrap max-w-[100px]">
-                Products Scanned:
-              </p>
-              <p className="">
+              <p className="text-md flex flex-wrap max-w-[100px]">Scanned:</p>
+              <p className="flex w-full my-auto justify-center">
                 {scannedOrderItems.length} / {orderItems.length}
               </p>
             </div>
@@ -441,23 +464,28 @@ const EmployeeOrder = () => {
         )}
 
         <div className="flex-1 overflow-auto bg-white">
-          {!vendor_order_id && <Instructions />}
+          {isUpdateProductPage && <Instructions />}
 
           {openLabelCard && (
             <>
+              {/* Background Overlay */}
               <div className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-50 backdrop-blur-md"></div>
-              <div className="absolute bottom-40 z-50">
-                <LabelCodeCard
-                  product={productInfo}
-                  onLabelCodeChange={onLabelCodeChange}
-                  onRemove={() => setOpenLabelCard(false)}
-                />
+
+              {/* Centered Modal */}
+              <div className="absolute inset-0 flex justify-center items-center z-50">
+                <div className="w-full max-w-lg p-3 bg-white rounded-lg shadow-lg">
+                  <LabelCodeCard
+                    product={productInfo}
+                    onLabelCodeChange={onLabelCodeChange}
+                    onRemove={() => setOpenLabelCard(false)}
+                  />
+                </div>
               </div>
             </>
           )}
 
           {orderInfo.message && (
-            <div className="border border-gray-200 rounded p-5 bg-gray-50">
+            <div className="border border-gray-200 rounded p-2 bg-gray-50">
               <Typography
                 variant="h6"
                 className="font-semibold text-sm text-left mb-2 font-quicksand"
@@ -484,6 +512,9 @@ const EmployeeOrder = () => {
                           product?.vendor_product?._id
                         ],
                     }}
+                    onClick={() =>
+                      setBatchDrawerProduct(product?.vendor_product?._id)
+                    }
                   />
                 </Grid>
               ))}
@@ -492,17 +523,36 @@ const EmployeeOrder = () => {
         </div>
 
         {vendor_order_id && (
-          <div className="sticky bottom-0 bg-white p-5 z-50">
-            <Button
+          <div className="sticky bottom-0 bg-white p-2 z-50 ">
+            <button
               variant="contained"
               color="primary"
               onClick={handleDispatch}
-              className="w-full h-12 rounded-lg bg-indigo-600 flex justify-between items-center"
-              disabled={vendor_order_id === undefined}
+              className={
+                (vendor_order_id === undefined ||
+                !!orderInfo?.employee_order?.dispatchTime ||
+                orderInfo?.vendor_order?.order_status == "confirmed"
+                  ? "bg-blue-400"
+                  : "bg-blue-600") +
+                " " +
+                "w-full h-12  text-white rounded-lg flex justify-center items-center font-semibold text-lg px-8"
+              }
+              disabled={
+                vendor_order_id === undefined ||
+                !!orderInfo?.employee_order?.dispatchTime ||
+                orderInfo?.vendor_order?.order_status == "confirmed"
+              }
             >
-              Confirm Order ₹{scannedAmout || 0} / ₹{orderInfo.totalAmount}
-              <ArrowForwardRoundedIcon className="absolute right-5" />
-            </Button>
+              <ButtonBase>
+                <span className="mr-3">
+                  {orderInfo?.employee_order?.dispatchTime
+                    ? ""
+                    : "Confirm Order"}{" "}
+                  ₹{scannedAmout || 0} / ₹{orderInfo.totalAmount}
+                </span>{" "}
+              </ButtonBase>
+              <ArrowForwardRoundedIcon className="absolute right-5" />{" "}
+            </button>
           </div>
         )}
       </div>

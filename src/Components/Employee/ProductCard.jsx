@@ -1,8 +1,12 @@
 import { Avatar, Box, Paper, Typography } from "@mui/material";
 import verifyIcon from "../../../src/assets/verifyimage.png";
 
-const ProductCard = ({ product }) => {
-  const isScanned = product.scannedCount >= product.quantity;
+const ProductCard = ({ product: order_item, onClick = () => {} }) => {
+  const isScanned = order_item.scannedCount >= order_item.quantity;
+
+  const isLooseProduct =
+    (order_item?.quantity != null && !Number.isInteger(order_item.quantity)) ||
+    order_item?.vendor_product?.product?.name?.toLowerCase()?.includes("loose");
 
   return (
     <Paper
@@ -15,14 +19,14 @@ const ProductCard = ({ product }) => {
         <Box>
           <Avatar
             alt={
-              product?.vendor_product?.product?.name ||
-              product?.productId?.name ||
-              product?.product?.product?.name
+              order_item?.vendor_product?.product?.name ||
+              order_item?.productId?.name ||
+              order_item?.product?.product?.name
             }
             src={
-              product?.vendor_product?.product?.imageUrl ||
-              product?.productId?.imageUrl ||
-              product?.product?.product?.imageUrl
+              order_item?.vendor_product?.product?.imageUrl ||
+              order_item?.productId?.imageUrl ||
+              order_item?.product?.product?.imageUrl
             }
             sx={styles.avatar}
             variant="square"
@@ -30,74 +34,75 @@ const ProductCard = ({ product }) => {
           <Typography sx={styles.labelId}>Product Label:</Typography>
           <Box sx={styles.scanPriceTextBox}>
             <Typography sx={styles.scanPriceText}>
-              ₹
-              {(
-                product?.vendor_product?.product?.price ||
-                product?.productId?.price ||
-                product?.product?.product?.price
-              )?.toFixed(2)}
+              ₹{order_item?.vendor_product?.price?.toFixed(2)}
             </Typography>
-            <Typography sx={styles.scanRate}> Scan Rate</Typography>
+            <p className="font-semibold text-blue-900 text-sm font-[Poppins] text-[16px]">
+              Scan Rate
+            </p>
           </Box>
         </Box>
 
-        <Box sx={styles.details}>
-          <Typography variant="h6" sx={styles.productName}>
-            {product?.vendor_product?.product?.name ||
-              product?.productId?.name ||
-              product?.product?.product?.name}
-          </Typography>
-          <div style={styles.priceContainer}>
-            {/* <Box>
-              <Typography sx={styles.salePriceText}>
-                ₹
-                {(
-                  product?.vendor_product?.product?.price ||
-                  product?.productId?.price ||
-                  product?.product?.product?.price
-                ).toFixed(2)}
-              </Typography>
-            </Box> */}
+        <div className="flex flex-col w-[60%] h-full pt-4">
+          <p variant="h6" className="font-bold py-1 text-[17px]">
+            {order_item?.vendor_product?.product?.name ||
+              order_item?.productId?.name ||
+              order_item?.product?.product?.name}
+          </p>
+          <div className="flex w-full justify-between mr-3 ">
+            <Box>
+              <p className="text-orange-500 font-bold text-[18px]">
+                ₹{(order_item?.price).toFixed(2)}
+              </p>
+              <p className="font-semibold text-sm font-[Poppins] text-[16px]">
+                Ordered At
+              </p>
+            </Box>
 
             <Typography sx={styles.variantText}>
-              {(product?.vendor_product?.product?.variant ||
-                product?.productId?.variant ||
-                product?.product?.product?.variant) &&
+              {isLooseProduct && // Ensure quantity exists
                 `${
-                  (product?.vendor_product?.product?.variant ||
-                    product?.productId?.variant ||
-                    product?.product?.product?.variant) >= 100
-                    ? (product?.vendor_product?.product?.variant ||
-                        product?.productId?.variant ||
-                        product?.product?.product?.variant) + " gm"
-                    : (product?.vendor_product?.product?.variant ||
-                        product?.productId?.variant ||
-                        product?.product?.product?.variant) + " Kg"
+                  order_item.quantity < 1
+                    ? (order_item.quantity * 1000).toFixed(2) + " gm" // Convert to grams if less than 1
+                    : order_item.quantity + " Kg" // Display as loose product if it's a decimal
                 }`}
             </Typography>
           </div>
-          <div style={styles.labelCodeDiv}>
-            <Typography variant="body1" sx={styles.labelCode}>
-              {product?.vendor_product?.product?.labelcode ||
-                product?.productId?.labelcode ||
-                product?.product?.product?.labelcode}
-            </Typography>
-          </div>
-        </Box>
+        </div>
         {isScanned && (
-          <Box
-            component="img"
+          <img
             src={verifyIcon}
             alt="Verified"
-            sx={styles.verifyIcon}
+            style={styles.verifyIcon}
+            onClick={onClick}
           />
         )}
-        <Box sx={styles.scannedCountContainer}>
-          <Typography variant="body2" sx={styles.scannedCount}>
-            {product?.scannedCount || product?.count || 0}/
-            {product?.quantity || product?.count}
+        {/* <div> */}
+        <div style={styles.scannedCountContainer} onClick={onClick}>
+          {isLooseProduct ? (
+            <Typography
+              variant="body2"
+              sx={styles.scannedCount}
+              onClick={onClick}
+            >
+              {order_item?.scannedCount ? 1 : 0}/ 1
+            </Typography>
+          ) : (
+            <Typography
+              variant="body2"
+              sx={styles.scannedCount}
+              onClick={onClick}
+            >
+              {order_item?.scannedCount || order_item?.count || 0}/
+              {order_item?.quantity || order_item?.count}
+            </Typography>
+          )}
+        </div>
+        <div style={styles.labelCodeDiv} className="absolute bottom-4 right-2">
+          <Typography variant="body1" sx={styles.labelCode}>
+            {order_item?.vendor_product?.labelcode}
           </Typography>
-        </Box>
+        </div>
+        {/* </div> */}
       </Box>
     </Paper>
   );
@@ -117,7 +122,7 @@ const styles = {
     height: "160px",
   },
   avatar: {
-    width: "71px",
+    width: "70px",
     height: "75px",
     marginLeft: "14px",
     borderRadius: "9px 0px 0px 0px",
@@ -160,7 +165,7 @@ const styles = {
   },
   verifyIcon: {
     position: "absolute",
-    top: "20px",
+    top: "10px",
     right: "22px",
     width: "30px",
     height: "32px",
@@ -228,7 +233,7 @@ const styles = {
   },
   scannedCountContainer: {
     position: "absolute", // Position it absolutely
-    top: "62px", // Adjust based on your design
+    top: "30%", // Adjust based on your design
     right: "5px", // Adjust based on your design
     width: "60px", // Fixed width
     height: "auto", // Set to auto to allow wrapping
