@@ -416,7 +416,7 @@ const EmployeeOrder = () => {
       <ArrowBack
         onClick={handleBackClick}
         // className="mx-2"
-        className="fixed top-5 left-5"
+        className="fixed top-5 left-5 z-[10000]"
       />
       {/* </IconButton> */}
       {/* <Typography
@@ -429,7 +429,8 @@ const EmployeeOrder = () => {
 
       <div className="flex flex-col h-screen w-full overflow-scroll">
         {orderInfo?.vendor_order?.order_status == "confirmed" ? null : (
-          <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100">
+          // <div className="flex-[0.5] flex items-center justify-center border-b border-gray-200 bg-gray-100  w-full h-full">
+          <div className="h-[35%] min-h-[250px] flex items-center justify-center border-b border-gray-200 bg-gray-100 overflow-hidden">
             <div className="flex items-center justify-center w-full h-full">
               <BarcodeScanner
                 handleScan={handleScan}
