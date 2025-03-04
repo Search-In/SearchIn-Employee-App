@@ -31,7 +31,7 @@ const Orders = () => {
   const getOrders = async () => {
     try {
       const result = await api.order.getOrders();
-      setOrders(result);
+      setOrders(result ?? []);
     } catch (error) {
       console.error(error);
       setOrders([]);
@@ -82,7 +82,10 @@ const Orders = () => {
           <Box>
             <TabPanel value={value} index={0}>
               {orders
-                .filter((currOrder, i) => currOrder.order_status === "pending")
+                .filter(
+                  (currOrder, i) =>
+                    currOrder && currOrder.order_status === "pending"
+                )
                 .map((currOrder, i) => (
                   <EmployeeOrderCard
                     orderdetails={currOrder}
@@ -97,7 +100,8 @@ const Orders = () => {
             <TabPanel value={value} index={1}>
               {orders
                 .filter(
-                  (currOrder, i) => currOrder.order_status === "confirmed"
+                  (currOrder, i) =>
+                    currOrder && currOrder.order_status === "confirmed"
                 )
                 .map((currOrder, i) => (
                   <EmployeeOrderCard
