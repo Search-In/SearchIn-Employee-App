@@ -44,7 +44,7 @@ const ProductCard = ({ product: order_item, onClick = () => {} }) => {
 
         <div className="flex flex-col w-[60%] h-full pt-4">
           <p variant="h6" className="font-bold py-1 text-[17px]">
-            {order_item?.vendor_product?.product?.name ||
+            {`${order_item?.vendor_product?.product?.brand} ${order_item?.vendor_product?.product?.name} ${order_item?.vendor_product?.product?.quantity}` ||
               order_item?.productId?.name ||
               order_item?.product?.product?.name}
           </p>
