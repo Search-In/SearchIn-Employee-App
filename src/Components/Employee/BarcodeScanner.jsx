@@ -114,7 +114,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   //       if (scanner && isScanning) {
   //         try {
   //           await scanner.stop()
-  //           console.log("Scanner stopped.")
+  //           console.log("Scanner stopped..")
   //           setIsScanning(false)
   //         } catch (err) {
   //           console.log("Failed to stop scanner: ", err)
