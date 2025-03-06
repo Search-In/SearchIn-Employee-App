@@ -24,7 +24,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   };
 
   // Debounce the handleScan function
-  const [debouncedScanResult] = useDebounce(scanResult, 3100); // 500ms debounce delay
+  const [debouncedScanResult] = useDebounce(scanResult, 3000); // 500ms debounce delay
   const [isThrottled, setIsThrottled] = useState(false);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
         if (isThrottled) return;
         setIsThrottled(true);
         await handleScan(debouncedScanResult);
-        await delay(3000);
+        await delay(1000);
         setScanResult("");
         setIsThrottled(false);
       } catch (error) {
