@@ -24,7 +24,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   };
 
   // Debounce the handleScan function
-  const [debouncedScanResult] = useDebounce(scanResult, 3000); // 500ms debounce delay
+  const [debouncedScanResult] = useDebounce(scanResult, 1000); // 500ms debounce delay
   const [isThrottled, setIsThrottled] = useState(false);
 
   useEffect(() => {
