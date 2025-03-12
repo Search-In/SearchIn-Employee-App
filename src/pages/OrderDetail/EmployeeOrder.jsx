@@ -549,7 +549,8 @@ const EmployeeOrder = () => {
                   {orderInfo?.employee_order?.dispatchTime
                     ? ""
                     : "Confirm Order"}{" "}
-                  ₹{scannedAmout || 0} / ₹{orderInfo.totalAmount}
+                  ₹{scannedAmout.toFixed(2) || 0} / ₹
+                  {orderInfo.totalAmount.toFixed(2)}
                 </span>{" "}
               </ButtonBase>
               <ArrowForwardRoundedIcon className="absolute right-5" />{" "}
