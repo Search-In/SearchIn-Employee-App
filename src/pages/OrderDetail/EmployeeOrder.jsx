@@ -533,10 +533,10 @@ const EmployeeOrder = () => {
                 (vendor_order_id === undefined ||
                 !!orderInfo?.employee_order?.dispatchTime ||
                 orderInfo?.vendor_order?.order_status == "confirmed"
-                  ? "bg-blue-400"
-                  : "bg-blue-600") +
+                  ? "bg-orange-400"
+                  : "bg-orange-600") +
                 " " +
-                "w-full h-12  text-white rounded-lg flex justify-center items-center font-semibold text-lg px-8"
+                "w-full h-12  text-white rounded-lg flex justify-center items-center font-semibold px-8"
               }
               disabled={
                 vendor_order_id === undefined ||
@@ -548,12 +548,12 @@ const EmployeeOrder = () => {
                 <span className="mr-3">
                   {orderInfo?.employee_order?.dispatchTime
                     ? ""
-                    : "Confirm Order"}{" "}
+                    : "Confirm Order"}
                   ₹{scannedAmout.toFixed(2) || 0} / ₹
                   {orderInfo.totalAmount.toFixed(2)}
-                </span>{" "}
+                </span>
               </ButtonBase>
-              <ArrowForwardRoundedIcon className="absolute right-5" />{" "}
+              <ArrowForwardRoundedIcon className="absolute right-5" />
             </button>
           </div>
         )}
