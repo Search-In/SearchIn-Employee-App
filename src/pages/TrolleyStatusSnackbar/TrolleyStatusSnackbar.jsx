@@ -70,19 +70,23 @@ const TrolleyStatusFab = () => {
   }, [weightComparisonResult]);
   return (
     <>
-      <Fab
-        color={isConnected ? "primary" : "secondary"}
-        aria-label={isConnected ? "Trolley Connected" : "Trolley Disconnected"}
-        style={{
-          position: "fixed",
-          top: 10,
-          right: 16,
-          backgroundColor: isConnected ? "orange" : "red",
-        }}
-        onClick={handleOpen}
-      >
-        {isConnected ? <Wifi /> : <WifiOff />}
-      </Fab>
+      {isConnected && (
+        <Fab
+          color={isConnected ? "primary" : "secondary"}
+          aria-label={
+            isConnected ? "Trolley Connected" : "Trolley Disconnected"
+          }
+          style={{
+            position: "fixed",
+            top: 10,
+            right: 16,
+            backgroundColor: isConnected ? "orange" : "red",
+          }}
+          onClick={handleOpen}
+        >
+          {isConnected ? <Wifi /> : <WifiOff />}
+        </Fab>
+      )}
       <DisconnectionDialog
         open={open}
         onClose={handleClose}

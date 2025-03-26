@@ -10,7 +10,7 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
   const readerRef = useRef(null);
   const [scanResult, setScanResult] = useState("");
   const [inputValue, setInputValue] = useState(""); // New state for input value
-  const showInput = false;
+  const showInput = localStorage.getItem("showInput") == "true";
 
   const getQrBoxSize = () => {
     if (readerRef.current) {

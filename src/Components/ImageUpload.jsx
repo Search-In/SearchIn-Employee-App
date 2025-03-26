@@ -53,7 +53,7 @@ const ImageUpload = ({
   };
 
   return (
-    <div className="flex justify-center p-2 h-full">
+    <div className="flex justify-center p-2">
       <input
         type="file"
         id={`image-upload`}
@@ -76,6 +76,7 @@ const ImageUpload = ({
                 : mainImage
             }
             alt={`Preview `}
+            className="object-contain max-h-36"
           />
         </div>
       )}
@@ -85,9 +86,9 @@ const ImageUpload = ({
             <img
               src={uploadImageSrc}
               alt="Upload Image"
-              width={48}
-              height={48}
-              className="upload-image"
+              // width={48}
+              // height={48}
+              className="upload-image "
             />{" "}
             {/* Remote Upload Image icon */}
             <div className="upload-cloud-div">
