@@ -168,10 +168,12 @@ const LabelCodeCard = ({
   };
 
   const handleLabelCodeChange = async () => {
-    const labelCode = `${area}-${bayNo}-${rack}-${shelf}`;
+    const labelcode = `${area || ""}-${bayNo || ""}-${rack || ""}-${
+      shelf || ""
+    }`;
     await onLabelCodeChange(vendor_product._id, {
       imageUrl: formData?.imageUrl,
-      labelCode,
+      labelcode,
       weight,
       threshold_stock: formData.threshold_stock,
       buying_limit: formData.buying_limit,
