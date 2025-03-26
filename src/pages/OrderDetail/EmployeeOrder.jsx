@@ -44,7 +44,7 @@ const EmployeeOrder = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
   const [activeScanner, setActiveScanner] = useState("image");
   const [orderInfo, setOrderInfo] = useState({});
-  const [productInfo, setProductInfo] = useState("");
+  const [productInfo, setProductInfo] = useState();
   const [openLabelCard, setOpenLabelCard] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [dispatchOverrideRequest, setDispatchOverrideRequest] = useState({
@@ -232,7 +232,6 @@ const EmployeeOrder = () => {
       }
     } else {
       // Handle case where vendor order is not present
-
       await handleProductScan(barcode);
     }
   };
@@ -240,9 +239,11 @@ const EmployeeOrder = () => {
   // New function to handle the product scan when no vendor_order exists
   const handleProductScan = async (barcode) => {
     try {
-      const vendor_product = await api.products.getByBarcode(barcode);
+      const { vendor_product, batches } = await api.products.getByBarcode(
+        barcode
+      );
       if (vendor_product._id) {
-        setProductInfo({ ...vendor_product, barcode });
+        setProductInfo({ vendor_product, barcode, batches });
         setOpenLabelCard(true);
       } else {
         showSnackbar("Product is Not in List!", "warning");
@@ -313,16 +314,6 @@ const EmployeeOrder = () => {
       });
     } else {
       showSnackbar("Not all products are scanned.", "error");
-    }
-  };
-
-  const onLabelCodeChange = async (productId, labelcode, weight) => {
-    try {
-      await api.products.updateLabelCode(productId, { labelcode, weight });
-      await getOrders();
-      setOpenLabelCard(false);
-    } catch (error) {
-      console.log("Error updating label code:", error);
     }
   };
 
@@ -474,10 +465,9 @@ const EmployeeOrder = () => {
 
               {/* Centered Modal */}
               <div className="absolute inset-0 flex justify-center items-center z-50">
-                <div className="w-full max-w-lg p-3 bg-white rounded-lg shadow-lg">
+                <div className="w-full max-w-lg p-2 bg-white rounded-lg shadow-lg">
                   <LabelCodeCard
                     product={productInfo}
-                    onLabelCodeChange={onLabelCodeChange}
                     onRemove={() => setOpenLabelCard(false)}
                   />
                 </div>
