@@ -62,11 +62,11 @@ export const api = {
       }
     },
 
-    updateLabelCode: async (productId, { labelcode, weight }) => {
+    updateLabelCode: async (productId, update) => {
       try {
         const result = await axios.patch(
           `${server}/vendor/products/${productId}`,
-          { labelcode, weight },
+          update,
           { headers: getAuthHeader() }
         );
         return result.data;
