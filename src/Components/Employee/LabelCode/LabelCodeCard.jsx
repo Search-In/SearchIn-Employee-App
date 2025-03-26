@@ -13,6 +13,7 @@ import ImageUpload from "../../ImageUpload";
 import { ArrowBack } from "@mui/icons-material";
 import { api } from "../../../api/api";
 import Carousel from "../../Carousel";
+import { toast } from "react-toastify";
 
 const fields = [
   {
@@ -179,11 +180,15 @@ const LabelCodeCard = ({
       buying_limit: formData.buying_limit,
     });
 
+    toast("Product updated!");
+
     const batchOp = activeBatch?._id
       ? api.batch.updateById(activeBatch?._id, activeBatch)
       : api.batch.create(activeBatch);
 
     const newBatch = await batchOp;
+
+    toast("Batch updated!");
 
     const updatedBatches = [...batches];
     updatedBatches[activeBatchIndex] = newBatch;
@@ -217,10 +222,10 @@ const LabelCodeCard = ({
           // className="mx-2"
           className="top-2 left-2 z-[10000]"
         />
-        <p>Barcode - {barcode}</p>
+        <p className="font-bold">Barcode: {barcode}</p>
       </div>
 
-      <div className="flex-1 min-h-16">
+      <div className="">
         <ImageUpload
           setImageFile={(image) =>
             setFormData({ ...formData, imageUrl: [image] })
@@ -229,28 +234,34 @@ const LabelCodeCard = ({
           isEdit={true}
         />
       </div>
+      <p className="text-xl font-bold text-center">
+        {vendor_product?.product?.name}
+      </p>
       <div className="flex justify-between items-center">
         <p className="font-bold">Select batch: ({batches?.length ?? 0})</p>
         <button
-          className="border shadow-md p-1 text-orange-500 font-bold"
+          className={`border shadow-md p-1 ${
+            activeBatch?._id ? "text-orange-500" : "text-gray-500"
+          } font-bold`}
+          disabled={!activeBatch?._id}
           onClick={() => {
             setBatches([
               {
                 vendor_product: vendor_product._id,
                 barcode,
-                mrp: vendor_product.mrpPrice,
-                price: vendor_product.price,
-                stock: activeBatch.stock,
+                mrp: 0,
+                price: 0,
+                stock: 0,
               },
               ...batches,
             ]);
-            setActiveBatchIndex(0);
+            setTimeout(() => setActiveBatchIndex(0), 100);
           }}
         >
           Create batch +
         </button>
       </div>
-      <div className="mx-[0.1vw]">
+      <div className="mx-[1vw]">
         <Carousel
           slides={slides}
           onSlideChange={(index) => setActiveBatchIndex(index)} // Update active batch index
@@ -390,7 +401,7 @@ const LabelCodeCard = ({
             className="bg-orange-600 text-white rounded-md px-4 py-1"
             onClick={handleLabelCodeChange}
           >
-            Update
+            Submit
           </button>
         </div>
       </div>
