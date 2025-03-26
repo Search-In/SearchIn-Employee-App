@@ -36,6 +36,7 @@ const employeeOrderToBarcodeScannedCount = (employee_order) =>
   });
 
 export const api = {
+  server,
   auth: {
     login: async ({ phone, password }) => {
       return axios.post(`${server}/auth/employee/login`, {
