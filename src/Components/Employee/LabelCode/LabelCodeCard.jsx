@@ -250,7 +250,7 @@ const LabelCodeCard = ({
           Create batch +
         </button>
       </div>
-      <div className="-mx-1">
+      <div className="mx-[0.1vw]">
         <Carousel
           slides={slides}
           onSlideChange={(index) => setActiveBatchIndex(index)} // Update active batch index
