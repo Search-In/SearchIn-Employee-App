@@ -170,6 +170,7 @@ const LabelCodeCard = ({
   const handleLabelCodeChange = async () => {
     const labelCode = `${area}-${bayNo}-${rack}-${shelf}`;
     await onLabelCodeChange(vendor_product._id, {
+      imageUrl: formData?.imageUrl,
       labelCode,
       weight,
       threshold_stock: formData.threshold_stock,
