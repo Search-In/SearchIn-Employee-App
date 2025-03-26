@@ -5,7 +5,7 @@ const dev_env = import.meta.env.DEV === true;
 // const server = "https://estore.searchintech.in/api/v1";
 const server = !dev_env
   ? "https://estore.searchintech.in/api/v1"
-  : // : // : "https://estore.searchintech.in/api/v1";
+  : // : "https://estore.searchintech.in/api/v1";
     "http://localhost:8000/api/v1";
 
 // Helper function to get Authorization header
@@ -69,6 +69,35 @@ export const api = {
           { headers: getAuthHeader() }
         );
         return result.data;
+      } catch (error) {
+        console.error("Error updating label code:", error);
+        throw error;
+      }
+    },
+  },
+
+  batch: {
+    updateById: async (id, update) => {
+      try {
+        const result = await axios.patch(
+          `${server}/vendor/products/batch/${id}`,
+          update,
+          { headers: getAuthHeader() }
+        );
+        return result.data.batch;
+      } catch (error) {
+        console.error("Error updating label code:", error);
+        throw error;
+      }
+    },
+    create: async (data) => {
+      try {
+        const result = await axios.post(
+          `${server}/vendor/products/batch`,
+          data,
+          { headers: getAuthHeader() }
+        );
+        return result.data.batch;
       } catch (error) {
         console.error("Error updating label code:", error);
         throw error;

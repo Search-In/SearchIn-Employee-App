@@ -158,16 +158,17 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
         {isScanning ? "Stop" : "Start"}
       </Button>
       {showInput ? (
-        <div className="relative flex justify-between">
+        <div className="fixed top-[28%] flex justify-between">
           <input
             placeholder="Enter barcode"
             variant="outlined"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            fullWidth
-            sx={{
+            fullwidth="true"
+            style={{
               zIndex: 10,
               backgroundColor: "#fff",
+              padding: "8px",
             }}
           />
 
@@ -176,9 +177,9 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
             color="primary"
             onClick={() => setScanResult(inputValue)}
             sx={{
-              transform: "translateX(-50%)",
+              transform: "translateX(10%)",
               zIndex: 10,
-              padding: "10px 20px",
+              padding: "10px",
             }}
           >
             Submit
