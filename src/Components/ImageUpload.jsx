@@ -82,7 +82,7 @@ const ImageUpload = ({
       )}
       {!mainImage && (
         <label htmlFor="image-upload">
-          <div className="flex flex-col gap-2 justify-center items-center">
+          <div className="flex flex-col gap-2 size-32 justify-center items-center">
             <img
               src={uploadImageSrc}
               alt="Upload Image"

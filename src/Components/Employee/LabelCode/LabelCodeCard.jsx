@@ -192,14 +192,14 @@ const LabelCodeCard = ({
 
     const updatedBatches = [...batches];
     updatedBatches[activeBatchIndex] = newBatch;
-    // onRemove();
+    onRemove();
   };
 
   const handleRemove = () => {
-    if (!weight) {
-      alert("Please enter the weight before closing the card."); // Show alert or error message
-      return;
-    }
+    // if (!weight) {
+    //   alert("Please enter the weight before closing the card."); // Show alert or error message
+    //   return;
+    // }
     onRemove();
   };
 
