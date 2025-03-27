@@ -232,6 +232,7 @@ const EmployeeOrder = () => {
       }
     } else {
       // Handle case where vendor order is not present
+      setIsScanning(false);
       await handleProductScan(barcode);
     }
   };

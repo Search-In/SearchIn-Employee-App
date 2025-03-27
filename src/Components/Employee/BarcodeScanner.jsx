@@ -46,6 +46,19 @@ function EmployeeScanner({ handleScan, setIsScanning, isScanning }) {
     if (debouncedScanResult) fetchData();
   }, [debouncedScanResult]);
 
+  useEffect(() => {
+    if (!isScanning && scanner)
+      scanner
+        .stop()
+        .then(() => {
+          console.log("Scanner stopped.");
+          setIsScanning(false);
+        })
+        .catch((err) => {
+          console.log("Failed to stop scanner: ", err);
+        });
+  }, [isScanning]);
+
   const handleScanner = async () => {
     if (isScanning) {
       scanner
