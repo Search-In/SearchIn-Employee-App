@@ -178,6 +178,7 @@ const LabelCodeCard = ({
       weight,
       threshold_stock: formData.threshold_stock,
       buying_limit: formData.buying_limit,
+      status: formData.status,
     });
 
     toast("Product updated!");
@@ -394,6 +395,35 @@ const LabelCodeCard = ({
             maxLength={2}
             ref={shelfRef}
           />
+        </div>
+
+        <div className="flex gap-4 font-bold my-4">
+          Published:
+          <div className="flex items-center">
+            <div
+              // onClick={toggleSwitch}
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  status:
+                    formData.status === "available"
+                      ? "discontinued"
+                      : "available",
+                })
+              }
+              className={`relative inline-flex items-center cursor-pointer w-12 h-6 rounded-full transition-colors duration-200 ${
+                formData.status === "available" ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`absolute left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 transform ${
+                  formData.status === "available"
+                    ? "translate-x-6"
+                    : "translate-x-0"
+                }`}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center justify-center mt-3">
