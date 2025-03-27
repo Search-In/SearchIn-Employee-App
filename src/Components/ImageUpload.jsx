@@ -82,14 +82,14 @@ const ImageUpload = ({
       )}
       {!mainImage && (
         <label htmlFor="image-upload">
-          <div className="flex flex-col gap-2 size-32 justify-center items-center">
+          <div className="flex flex-col gap-2  justify-center items-center text-sm">
             <img
               src={uploadImageSrc}
               alt="Upload Image"
               // width={48}
               // height={48}
-              className="upload-image "
-            />{" "}
+              className="upload-image max-w-16"
+            />
             {/* Remote Upload Image icon */}
             <div className="upload-cloud-div">
               {/* <img
@@ -99,7 +99,7 @@ const ImageUpload = ({
                 height={48}
                 className="upload-cloud max-w-sm"
               /> */}
-              <p className="upload-text">Upload Image</p>
+              {/* <p className="upload-text">Upload Image</p> */}
             </div>
             <p className="upload-desc">
               File Format <span>jpeg, png</span>
