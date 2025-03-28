@@ -139,15 +139,23 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
     setShelf(shelf);
   }, [formData.labelcode]);
 
-  const [batches, setBatches] = useState([
-    {
-      product: "Product 1",
-      ean_code: "1234567890123",
-      mrp: 0,
-      mfd: "2023-01-01",
-      expiry: "2024-01-01",
-    },
-  ]);
+  const [batches, setBatches] = useState([{}]);
+
+  useEffect(() => {
+    if (batches.length == 1 && !batches._id && vendor_product._id) {
+      setBatches([
+        {
+          vendor_product: vendor_product._id,
+          barcode,
+          mrp: 0,
+          price: 0,
+          stock: 0,
+          threshold_stock: 2,
+          buying_limit: 50,
+        },
+      ]);
+    }
+  }, [vendor_product]);
 
   const [activeBatchIndex, setActiveBatchIndex] = useState(0); // Maintain active batch index
   const activeBatch = batches[activeBatchIndex]; // Get active batch using the index
@@ -280,14 +288,16 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
               isEdit={true}
             />
           </div>
-          <p className="text-xl font-bold text-center capitalize">
-            {vendor_product?.product?.original_name ||
-              [
-                vendor_product.product.brand,
-                vendor_product.product.name,
-                vendor_product.product.quantity,
-              ].join(" ")}
-          </p>
+          {vendor_product._id && (
+            <p className="text-xl font-bold text-center capitalize">
+              {vendor_product?.product?.original_name ||
+                [
+                  vendor_product?.product?.brand,
+                  vendor_product?.product?.name,
+                  vendor_product?.product?.quantity,
+                ].join(" ")}
+            </p>
+          )}
           <div className="font-bold">Barcode: {barcode}</div>
 
           {!activeBatch?._id ? (
