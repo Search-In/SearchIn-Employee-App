@@ -14,6 +14,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { api } from "../../../api/api";
 import Carousel from "../../Carousel";
 import { toast } from "react-toastify";
+import { Fragment } from "react";
 
 const fields = [
   {
@@ -106,23 +107,9 @@ const toSlides = (batches = productBatches, onDateChange) =>
     </div>
   ));
 
-const LabelCodeCard = ({
-  product: { vendor_product, batches: db_batches, barcode = "" },
-  onRemove,
-}) => {
-  const [labelArea = "", labelBay = "", labelRack = "", labelShelf = ""] =
-    vendor_product?.labelcode?.split("-") || [];
-  const [area, setArea] = useState(labelArea || "");
-  const [bayNo, setBayNo] = useState(labelBay || "");
-  const [rack, setRack] = useState(labelRack || "");
-  const [shelf, setShelf] = useState(labelShelf || "");
-  // const [weight, setWeight] = useState(vendor_product?.weight || ""); // New state for weight
-
-  const areaRef = useRef(null);
-  const bayNoRef = useRef(null);
-  const rackRef = useRef(null);
-  const shelfRef = useRef(null);
-  const weightRef = useRef(null);
+const LabelCodeCard = ({ barcode = "", onRemove }) => {
+  const [vendor_product, setProductInfo] = useState({});
+  // const vendor_product = productInfo ?? {};
 
   const [formData, setFormData] = useState({
     price: "",
@@ -132,10 +119,40 @@ const LabelCodeCard = ({
     ...vendor_product,
   });
 
-  const [batches, setBatches] = useState(db_batches);
+  const [area, setArea] = useState("");
+  const [bayNo, setBay] = useState("");
+  const [rack, setRack] = useState("");
+  const [shelf, setShelf] = useState("");
+
+  const areaRef = useRef(null);
+  const bayNoRef = useRef(null);
+  const rackRef = useRef(null);
+  const shelfRef = useRef(null);
+  const weightRef = useRef(null);
+
+  useEffect(() => {
+    const [area = "", bay = "", rack = "", shelf = ""] =
+      formData?.labelcode?.split("-") || [];
+    setArea(area);
+    setBay(bay);
+    setRack(rack);
+    setShelf(shelf);
+  }, [formData.labelcode]);
+
+  const [batches, setBatches] = useState([
+    {
+      product: "Product 1",
+      ean_code: "1234567890123",
+      mrp: 0,
+      mfd: "2023-01-01",
+      expiry: "2024-01-01",
+    },
+  ]);
 
   const [activeBatchIndex, setActiveBatchIndex] = useState(0); // Maintain active batch index
   const activeBatch = batches[activeBatchIndex]; // Get active batch using the index
+
+  const [showSearchSection, setShowSearchSection] = useState(false);
 
   const weight = activeBatch?.weight ?? 0;
 
@@ -149,6 +166,7 @@ const LabelCodeCard = ({
   };
 
   const slides = toSlides(batches, handleBatchUpdate);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -215,6 +233,28 @@ const LabelCodeCard = ({
       });
   }, [activeBatch]);
 
+  // New function to handle the product scan when no vendor_order exists
+  const handleProductScan = async (barcode) => {
+    try {
+      const { vendor_product, batches: db_batches } =
+        await api.products.getByBarcode(barcode);
+      if (vendor_product._id) {
+        setProductInfo({ vendor_product, barcode, batches });
+        setBatches(db_batches);
+      } else {
+        // showSnackbar("Product is Not in List!", "warning");
+        onRemove();
+      }
+    } catch (error) {
+      // console.log(error);
+      setShowSearchSection(true);
+    }
+  };
+
+  useEffect(() => {
+    handleProductScan(barcode);
+  }, [barcode]);
+
   return (
     <Card className="relative flex flex-col shadow-md px-1 pt-3 overflow-y-auto gap-2">
       <div className="flex gap-3">
@@ -223,224 +263,354 @@ const LabelCodeCard = ({
           // className="mx-2"
           className="top-2 left-2 z-[10000]"
         />
-        <p className="font-bold">Barcode: {barcode}</p>
       </div>
-
-      <div className="">
-        <ImageUpload
-          setImageFile={(image) =>
-            setFormData({ ...formData, imageUrl: [image] })
-          }
-          imagesSave={formData?.imageUrl?.[0] || ""}
-          isEdit={true}
+      {showSearchSection ? (
+        <SearchSection
+          setProductInfo={setProductInfo}
+          setShowSearchSection={setShowSearchSection}
         />
-      </div>
-      <p className="text-xl font-bold text-center">
-        {vendor_product?.product?.name}
-      </p>
-      <div className="flex justify-between items-center">
-        <p className="font-bold">Select batch: ({batches?.length ?? 0})</p>
-        <button
-          className={`border shadow-md p-1 ${
-            activeBatch?._id ? "text-orange-500" : "text-gray-500"
-          } font-bold`}
-          disabled={!activeBatch?._id}
-          onClick={() => {
-            setBatches([
-              {
-                vendor_product: vendor_product._id,
-                barcode,
-                mrp: 0,
-                price: 0,
-                stock: 0,
-              },
-              ...batches,
-            ]);
-            setTimeout(() => setActiveBatchIndex(0), 100);
-          }}
-        >
-          Create batch +
-        </button>
-      </div>
-      <div className="mx-[1vw]">
-        <Carousel
-          slides={slides}
-          onSlideChange={(index) => setActiveBatchIndex(index)} // Update active batch index
-        />
-      </div>
-
-      <div className="flex gap-3 my-1 *:items-center justify-between">
-        <div className="flex gap-1">
-          <div className="font-bold">Batch No:</div>
-          <input
-            type="text"
-            className="border border-gray-300 rounded-md p-1 w-16"
-            placeholder="0"
-            value={activeBatch.batch_no ?? 0}
-            onChange={(e) => handleBatchUpdate("batch_no", e.target.value)}
-            required
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleLabelCodeChange();
+      ) : (
+        <div>
+          <div className="">
+            <ImageUpload
+              setImageFile={(image) =>
+                setFormData({ ...formData, imageUrl: [image] })
               }
-            }}
-            ref={weightRef}
-          />
-        </div>
-        <div className="flex gap-1">
-          <div className="font-bold">Weight:</div>
-          <input
-            type="number"
-            className="border border-gray-300 rounded-md p-1 w-24"
-            placeholder="Weight"
-            value={weight}
-            onChange={(e) => handleBatchUpdate("weight", e.target.value)}
-            required
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleLabelCodeChange();
-              }
-            }}
-            ref={weightRef}
-          />
-          <span className="font-bold">gm</span>
-        </div>
-      </div>
+              imagesSave={formData?.imageUrl?.[0] || ""}
+              isEdit={true}
+            />
+          </div>
+          <p className="text-xl font-bold text-center capitalize">
+            {vendor_product?.product?.original_name ||
+              [
+                vendor_product.product.brand,
+                vendor_product.product.name,
+                vendor_product.product.quantity,
+              ].join(" ")}
+          </p>
+          <div className="font-bold">Barcode: {barcode}</div>
 
-      <div className="mx-auto p-2 pt-1 border rounded max-w-2xl grid grid-cols-3 gap-3 ">
-        {fields.map(
-          (
-            {
-              name,
-              label,
-              disabled = false,
-              defaultValue = 0,
-              min,
-              type = "number",
-            },
-            index
-          ) => (
-            <div className="flex flex-col justify-between" key={index}>
-              <label className="block font-bold text-sm" htmlFor={name}>
-                {label}
-              </label>
+          {!activeBatch?._id ? (
+            <p className="font-bold">Enter new batch details:-</p>
+          ) : (
+            <div className="flex justify-between items-center">
+              <p className="font-bold">
+                Select batch: ({batches?.length ?? 0})
+              </p>{" "}
+              <button
+                className={`border shadow-md p-1 ${
+                  activeBatch?._id ? "text-orange-500" : "text-gray-500"
+                } font-bold`}
+                disabled={!activeBatch?._id}
+                onClick={() => {
+                  setBatches([
+                    {
+                      vendor_product: vendor_product._id,
+                      barcode,
+                      mrp: 0,
+                      price: 0,
+                      stock: 0,
+                      threshold_stock: 2,
+                      buying_limit: 50,
+                    },
+                    ...batches,
+                  ]);
+                  setTimeout(() => setActiveBatchIndex(0), 100);
+                }}
+              >
+                Create batch +
+              </button>
+            </div>
+          )}
+          <div className="mx-[1vw]">
+            <Carousel
+              slides={slides}
+              onSlideChange={(index) => setActiveBatchIndex(index)} // Update active batch index
+            />
+          </div>
+
+          <div className="flex gap-3 my-1 *:items-center justify-between">
+            <div className="flex gap-1">
+              <div className="font-bold">Batch No:</div>
               <input
-                type={type}
-                name={name}
-                id={name}
-                value={formData[name] ?? defaultValue}
-                onChange={handleChange}
+                type="text"
+                className="border border-gray-300 rounded-md p-1 w-16"
+                placeholder="0"
+                value={activeBatch.batch_no ?? 0}
+                onChange={(e) => handleBatchUpdate("batch_no", e.target.value)}
                 required
-                min={min || 1}
-                className={`block w-full border-gray-300 rounded-md focus:ring-0 focus:border-blue-500 bg-slate-100 p-2 ${
-                  disabled ? "text-gray-900" : "font-semibold"
-                }`}
-                disabled={disabled}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleLabelCodeChange();
+                  }
+                }}
+                ref={weightRef}
               />
             </div>
-          )
-        )}
-      </div>
-
-      <div className="p-2 border-t border-gray-300 w-full">
-        <div className="font-bold mb-2">Label Code:</div>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            className="border border-gray-300 rounded-md p-1 w-full"
-            placeholder="Area"
-            value={area}
-            onChange={(e) => setArea(e.target.value.toUpperCase())}
-            onKeyDown={(e) => handleKeyPress(e, bayNoRef)}
-            maxLength={1}
-            ref={areaRef}
-          />
-          <div className="self-center text-lg">-</div>
-          <input
-            type="text"
-            className="border border-gray-300 rounded-md p-1 w-full"
-            placeholder="Bay No"
-            value={bayNo}
-            onChange={(e) => setBayNo(e.target.value)}
-            onKeyDown={(e) => handleKeyPress(e, rackRef)}
-            maxLength={2}
-            ref={bayNoRef}
-          />
-          <div className="self-center text-lg">-</div>
-          <input
-            type="text"
-            className="border border-gray-300 rounded-md p-1 w-full"
-            placeholder="Rack"
-            value={rack}
-            onChange={(e) => setRack(e.target.value)}
-            onKeyDown={(e) => handleKeyPress(e, shelfRef)}
-            maxLength={2}
-            ref={rackRef}
-          />
-          <div className="self-center text-lg">-</div>
-          <input
-            type="text"
-            className="border border-gray-300 rounded-md p-1 w-full"
-            placeholder="Shelf"
-            value={shelf}
-            onChange={(e) => setShelf(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleLabelCodeChange();
-              }
-            }}
-            maxLength={2}
-            ref={shelfRef}
-          />
-        </div>
-
-        <div className="flex gap-4 font-bold my-4">
-          Published:
-          <div className="flex items-center">
-            <div
-              // onClick={toggleSwitch}
-              onClick={() =>
-                setFormData({
-                  ...formData,
-                  status:
-                    formData.status === "available"
-                      ? "discontinued"
-                      : "available",
-                })
-              }
-              className={`relative inline-flex items-center cursor-pointer w-12 h-6 rounded-full transition-colors duration-200 ${
-                formData.status === "available" ? "bg-blue-600" : "bg-gray-300"
-              }`}
-            >
-              <span
-                className={`absolute left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 transform ${
-                  formData.status === "available"
-                    ? "translate-x-6"
-                    : "translate-x-0"
-                }`}
+            <div className="flex gap-1">
+              <div className="font-bold">Weight:</div>
+              <input
+                type="number"
+                className="border border-gray-300 rounded-md p-1 w-24"
+                placeholder="Weight"
+                value={weight}
+                onChange={(e) => handleBatchUpdate("weight", e.target.value)}
+                required
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleLabelCodeChange();
+                  }
+                }}
+                ref={weightRef}
               />
+              <span className="font-bold">gm</span>
+            </div>
+          </div>
+
+          <div className="mx-auto p-2 pt-1 border rounded max-w-2xl grid grid-cols-3 gap-3 ">
+            {fields.map(
+              (
+                {
+                  name,
+                  label,
+                  disabled = false,
+                  defaultValue = 0,
+                  min,
+                  type = "number",
+                },
+                index
+              ) => (
+                <div className="flex flex-col justify-between" key={index}>
+                  <label className="block font-bold text-sm" htmlFor={name}>
+                    {label}
+                  </label>
+                  <input
+                    type={type}
+                    name={name}
+                    id={name}
+                    value={formData[name] ?? defaultValue}
+                    onChange={handleChange}
+                    required
+                    min={min || 1}
+                    className={`block w-full border-gray-300 rounded-md focus:ring-0 focus:border-blue-500 bg-slate-100 p-2 ${
+                      disabled ? "text-gray-900" : "font-semibold"
+                    }`}
+                    disabled={disabled}
+                  />
+                </div>
+              )
+            )}
+          </div>
+
+          <div className="p-2 border-t border-gray-300 w-full">
+            <div className="font-bold mb-2">Label Code:</div>
+            <div className="flex gap-2">
+              {[
+                {
+                  placeholder: "Area",
+                  value: area,
+                  setValue: setArea,
+                  maxLength: 1,
+                  ref: areaRef,
+                },
+                {
+                  placeholder: "Bay No",
+                  value: bayNo,
+                  setValue: setBay,
+                  maxLength: 2,
+                  ref: bayNoRef,
+                },
+                {
+                  placeholder: "Rack",
+                  value: rack,
+                  setValue: setRack,
+                  maxLength: 2,
+                  ref: rackRef,
+                },
+                {
+                  placeholder: "Shelf",
+                  value: shelf,
+                  setValue: setShelf,
+                  maxLength: 2,
+                  ref: shelfRef,
+                  onEnter: handleLabelCodeChange,
+                },
+              ].map(
+                (
+                  { placeholder, value, setValue, maxLength, ref, onEnter },
+                  index
+                ) => (
+                  <Fragment key={placeholder}>
+                    <input
+                      type="text"
+                      className="border border-gray-300 rounded-md p-1 w-full"
+                      placeholder={placeholder}
+                      value={value}
+                      onChange={(e) => setValue(e.target.value.toUpperCase())}
+                      onKeyDown={(e) => {
+                        if (onEnter && e.key === "Enter") {
+                          e.preventDefault();
+                          onEnter();
+                        } else {
+                          handleKeyPress(e, ref);
+                        }
+                      }}
+                      maxLength={maxLength}
+                      ref={ref}
+                    />
+                    {index < 3 && <div className="self-center text-lg">-</div>}{" "}
+                    {/* Add separator only between inputs */}
+                  </Fragment>
+                )
+              )}
+            </div>
+
+            <div className="flex gap-4 font-bold my-4">
+              Published:
+              <div className="flex items-center">
+                <div
+                  // onClick={toggleSwitch}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      status:
+                        formData.status === "available"
+                          ? "discontinued"
+                          : "available",
+                    })
+                  }
+                  className={`relative inline-flex items-center cursor-pointer w-12 h-6 rounded-full transition-colors duration-200 ${
+                    formData.status === "available"
+                      ? "bg-blue-600"
+                      : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`absolute left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 transform ${
+                      formData.status === "available"
+                        ? "translate-x-6"
+                        : "translate-x-0"
+                    }`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center mt-3">
+              <button
+                className="bg-orange-600 text-white rounded-md px-4 py-1"
+                onClick={handleLabelCodeChange}
+              >
+                Submit
+              </button>
             </div>
           </div>
         </div>
-
-        <div className="flex items-center justify-center mt-3">
-          <button
-            className="bg-orange-600 text-white rounded-md px-4 py-1"
-            onClick={handleLabelCodeChange}
-          >
-            Submit
-          </button>
-        </div>
-      </div>
+      )}
     </Card>
   );
 };
 
 export default LabelCodeCard;
 
+function SearchSection({ setProductInfo, setShowSearchSection }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async (query = "") => {
+      setLoading(true); // Set loading to true before fetching
+      try {
+        const data = await api.products.search(searchTerm);
+        setProducts(data.results);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
+      }
+    };
+
+    fetchProducts(); // Fetch initial products
+
+    // Fetch products based on search term when it changes
+    const delayDebounceFn = setTimeout(() => {
+      searchTerm && fetchProducts(searchTerm);
+    }, 300); // Debounce for 300ms
+
+    return () => clearTimeout(delayDebounceFn); // Cleanup timeout on unmount
+  }, [searchTerm]);
+
+  async function onSelectProduct(product) {
+    try {
+      const data = await api.products.getByID(product.vendor_product._id);
+      setProductInfo(data);
+      setShowSearchSection(false);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  }
+
+  return (
+    <div className="container mx-auto p-6 max-h-[80vh]">
+      <h1 className="text-2xl font-bold mb-4">Product Search</h1>
+
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search for products..."
+          className="border border-gray-300 rounded-lg p-2 w-full"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {loading ? (
+        <div className="text-center">Loading...</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 h-[80%] overflow-y-auto">
+          {products.map((product) => {
+            // Prioritize imageUrl from the outer document
+            const imageUrl =
+              (Array.isArray(product.vendor_product?.product?.imageUrl) &&
+                product.vendor_product?.product?.imageUrl?.[0]) ||
+              product.vendor_product?.product?.imageUrl ||
+              product.imageUrl;
+
+            const name = [product.brand, product.name, product.quantity].join(
+              " "
+            );
+
+            return (
+              <div
+                key={product._id}
+                className="bg-white rounded-lg shadow-md p-4"
+                onClick={() => onSelectProduct(product)}
+              >
+                <p className="">SKU: {product.vendor_product?.vendor_sku}</p>
+                <div className="flex gap-4">
+                  <img
+                    src={imageUrl}
+                    alt={product.name}
+                    className="size-12 object-cover rounded-md mb-2"
+                  />
+                  <h2 className="text-lg font-semibold capitalize">{name}</h2>
+                </div>
+
+                <div className="flex gap-4 font-bold">
+                  <p className="">MRP: Rs.{product.vendor_product?.mrpPrice}</p>
+                  <p className="">Price: Rs.{product.price}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 const styles = {
   priceContainer: {
     display: "flex",

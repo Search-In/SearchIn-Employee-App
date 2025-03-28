@@ -45,7 +45,7 @@ const EmployeeOrder = () => {
   const [activeScanner, setActiveScanner] = useState("image");
   const [orderInfo, setOrderInfo] = useState({});
   const [productInfo, setProductInfo] = useState();
-  const [openLabelCard, setOpenLabelCard] = useState(false);
+  const [labelBarcode, setLabelBarcode] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [dispatchOverrideRequest, setDispatchOverrideRequest] = useState({
     barcode: "",
@@ -233,26 +233,28 @@ const EmployeeOrder = () => {
     } else {
       // Handle case where vendor order is not present
       setIsScanning(false);
-      await handleProductScan(barcode);
+      setLabelBarcode(barcode);
+
+      // await handleProductScan(barcode);
     }
   };
 
   // New function to handle the product scan when no vendor_order exists
-  const handleProductScan = async (barcode) => {
-    try {
-      const { vendor_product, batches } = await api.products.getByBarcode(
-        barcode
-      );
-      if (vendor_product._id) {
-        setProductInfo({ vendor_product, barcode, batches });
-        setOpenLabelCard(true);
-      } else {
-        showSnackbar("Product is Not in List!", "warning");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const handleProductScan = async (barcode) => {
+  //   try {
+  //     const { vendor_product, batches } = await api.products.getByBarcode(
+  //       barcode
+  //     );
+  //     if (vendor_product._id) {
+  //       setProductInfo({ vendor_product, barcode, batches });
+  //       setOpenLabelCard(true);
+  //     } else {
+  //       showSnackbar("Product is Not in List!", "warning");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const getOrders = async () => {
     if (!vendor_order_id) return;
@@ -456,10 +458,10 @@ const EmployeeOrder = () => {
           </div>
         )}
 
-        <div className="flex-1 overflow-auto bg-white">
+        <div className="">
           {isUpdateProductPage && <Instructions />}
 
-          {openLabelCard && (
+          {labelBarcode && (
             <>
               {/* Background Overlay */}
               <div className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-50 backdrop-blur-md"></div>
@@ -468,8 +470,8 @@ const EmployeeOrder = () => {
               <div className="absolute inset-0 flex justify-center items-center z-50">
                 <div className="w-full max-w-lg p-2 bg-white rounded-lg shadow-lg">
                   <LabelCodeCard
-                    product={productInfo}
-                    onRemove={() => setOpenLabelCard(false)}
+                    barcode={labelBarcode}
+                    onRemove={() => setLabelBarcode(false)}
                   />
                 </div>
               </div>
