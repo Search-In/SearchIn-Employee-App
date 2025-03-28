@@ -272,7 +272,9 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
           className="top-2 left-2 z-[10000]"
         />
       </div>
-      {showSearchSection ? (
+      {!vendor_product._id && !showSearchSection ? (
+        <div className="text-center">Loading...</div>
+      ) : showSearchSection ? (
         <SearchSection
           setProductInfo={setProductInfo}
           setShowSearchSection={setShowSearchSection}
@@ -532,9 +534,11 @@ function SearchSection({ setProductInfo, setShowSearchSection }) {
 
   useEffect(() => {
     const fetchProducts = async (query = "") => {
+      if (!query) return;
+
       setLoading(true); // Set loading to true before fetching
       try {
-        const data = await api.products.search(searchTerm);
+        const data = await api.products.search(query);
         setProducts(data.results);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -547,7 +551,7 @@ function SearchSection({ setProductInfo, setShowSearchSection }) {
 
     // Fetch products based on search term when it changes
     const delayDebounceFn = setTimeout(() => {
-      searchTerm && fetchProducts(searchTerm);
+      if (searchTerm) fetchProducts(searchTerm);
     }, 300); // Debounce for 300ms
 
     return () => clearTimeout(delayDebounceFn); // Cleanup timeout on unmount
@@ -564,7 +568,7 @@ function SearchSection({ setProductInfo, setShowSearchSection }) {
   }
 
   return (
-    <div className="container mx-auto p-6 max-h-[80vh]">
+    <div className="container mx-auto p-2 max-h-[80vh]">
       <h1 className="text-2xl font-bold mb-4">Product Search</h1>
 
       <div className="mb-6">
@@ -577,7 +581,7 @@ function SearchSection({ setProductInfo, setShowSearchSection }) {
         />
       </div>
 
-      {loading ? (
+      {!searchTerm ? null : loading ? (
         <div className="text-center">Loading...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 h-[80%] overflow-y-auto">
@@ -600,7 +604,7 @@ function SearchSection({ setProductInfo, setShowSearchSection }) {
                 onClick={() => onSelectProduct(product)}
               >
                 <p className="">SKU: {product.vendor_product?.vendor_sku}</p>
-                <div className="flex gap-4">
+                <div className="flex gap-4 items-center">
                   <img
                     src={imageUrl}
                     alt={product.name}
@@ -609,7 +613,7 @@ function SearchSection({ setProductInfo, setShowSearchSection }) {
                   <h2 className="text-lg font-semibold capitalize">{name}</h2>
                 </div>
 
-                <div className="flex gap-4 font-bold">
+                <div className="flex gap-4 font-bold ">
                   <p className="">MRP: Rs.{product.vendor_product?.mrpPrice}</p>
                   <p className="">Price: Rs.{product.price}</p>
                 </div>
