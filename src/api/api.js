@@ -75,6 +75,32 @@ export const api = {
         throw error;
       }
     },
+
+    search: async (q) => {
+      try {
+        const result = await axios.get(`${server}/vendor/products`, {
+          headers: getAuthHeader(),
+          params: { q, page: 1 },
+        });
+        return result.data;
+      } catch (error) {
+        console.error("Error updating label code:", error);
+        throw error;
+      }
+    },
+
+    getByID: async (productId) => {
+      try {
+        const result = await axios.get(
+          `${server}/vendor/products/${productId}`,
+          { headers: getAuthHeader() }
+        );
+        return result.data;
+      } catch (error) {
+        console.error("Error updating label code:", error);
+        throw error;
+      }
+    },
   },
 
   batch: {

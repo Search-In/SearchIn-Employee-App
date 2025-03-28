@@ -46,7 +46,7 @@ const Carousel = ({ slides, onSlideChange }) => {
       <button
         onClick={prevSlide}
         disabled={isPrevDisabled}
-        className={`text-2xl absolute top-1/4 left-0 transform -translate-y-1/2 px-2 py-0.5 rounded-full shadow ${
+        className={`text-2xl absolute top-1/3 left-0 transform -translate-y-1/2 px-2 py-0.5 rounded-full shadow ${
           isPrevDisabled ? "bg-gray-300 cursor-not-allowed" : "bg-white"
         }`}
       >
@@ -55,7 +55,7 @@ const Carousel = ({ slides, onSlideChange }) => {
       <button
         onClick={nextSlide}
         disabled={isNextDisabled}
-        className={`text-2xl absolute top-1/4 right-0 transform -translate-y-1/2 px-2 py-0.5 rounded-full shadow ${
+        className={`text-2xl absolute top-1/3 right-0 transform -translate-y-1/2 px-2 py-0.5 rounded-full shadow ${
           isNextDisabled ? "bg-gray-300 cursor-not-allowed" : "bg-white"
         }`}
       >
