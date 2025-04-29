@@ -84,11 +84,12 @@ const Orders = () => {
               {orders
                 .filter(
                   (currOrder, i) =>
-                    currOrder && currOrder.order_status === "pending"
+                    currOrder &&
+                    currOrder.vendor_order.order_status === "pending"
                 )
                 .map((currOrder, i) => (
                   <EmployeeOrderCard
-                    orderdetails={currOrder}
+                    orderdetails={currOrder.vendor_order}
                     value={value}
                     key={i}
                     handleOpenModal={handleOpenModal}
@@ -101,11 +102,12 @@ const Orders = () => {
               {orders
                 .filter(
                   (currOrder, i) =>
-                    currOrder && currOrder.order_status === "confirmed"
+                    currOrder &&
+                    currOrder.vendor_order.order_status === "confirmed"
                 )
                 .map((currOrder, i) => (
                   <EmployeeOrderCard
-                    orderdetails={currOrder}
+                    orderdetails={currOrder.vendor_order}
                     value={value}
                     key={i}
                     handleOpenModal={handleOpenModal}
