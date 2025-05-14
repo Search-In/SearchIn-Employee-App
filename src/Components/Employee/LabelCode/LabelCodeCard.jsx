@@ -272,7 +272,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
           className="top-2 left-2 z-[10000]"
         />
       </div>
-      {!vendor_product._id && !showSearchSection ? (
+      {!vendor_product.vendor_product._id && !showSearchSection ? (
         <div className="text-center">Loading...</div>
       ) : showSearchSection ? (
         <SearchSection
