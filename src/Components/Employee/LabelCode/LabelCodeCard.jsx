@@ -123,7 +123,9 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
   });
 
   const [labelArea = "", labelBay = "", labelRack = "", labelShelf = ""] =
-    vendor_product?.vendor_product?.labelcode?.split("-") || [];
+    vendor_product?.labelcode ||
+    vendor_product?.vendor_product?.labelcode?.split("-") ||
+    [];
 
   const [area, setArea] = useState(labelArea || "");
   const [bayNo, setBay] = useState(labelBay || "");
@@ -138,7 +140,9 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
 
   useEffect(() => {
     const [area = "", bay = "", rack = "", shelf = ""] =
-      formData?.vendor_product?.labelcode?.split("-") || [];
+      formData?.labelcode?.split("-") ||
+      formData?.vendor_product?.labelcode?.split("-") ||
+      [];
     setArea(area);
     setBay(bay);
     setRack(rack);
@@ -161,7 +165,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
         },
       ]);
     }
-  }, [vendor_product]);
+  }, []);
 
   const [activeBatchIndex, setActiveBatchIndex] = useState(0);
   // const activeBatch = batches[activeBatchIndex];
@@ -211,14 +215,17 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
       const labelcode = `${area || ""}-${bayNo || ""}-${rack || ""}-${
         shelf || ""
       }`;
-      await onLabelCodeChange(vendor_product?.vendor_product?._id, {
-        imageUrl: formData?.imageUrl,
-        labelcode,
-        weight,
-        threshold_stock: formData.threshold_stock,
-        buying_limit: formData.buying_limit,
-        status: formData.status,
-      });
+      await onLabelCodeChange(
+        vendor_product?._id || vendor_product?.vendor_product?._id,
+        {
+          imageUrl: formData?.imageUrl,
+          labelcode,
+          weight,
+          threshold_stock: formData.threshold_stock,
+          buying_limit: formData.buying_limit,
+          status: formData.status,
+        }
+      );
 
       toast("Product updated!");
       const { mrpPrice, price, stock } = formData;
@@ -315,6 +322,8 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
           <SearchSection
             setProductInfo={setProductInfo}
             setShowSearchSection={setShowSearchSection}
+            setBatches={setBatches}
+            setFormData={setFormData}
           />
         ) : (
           <div>
@@ -323,7 +332,11 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
                 setImageFile={(image) =>
                   setFormData({ ...formData, imageUrl: [image] })
                 }
-                imagesSave={formData?.vendor_product?.imageUrl?.[0] || ""}
+                imagesSave={
+                  formData?.imageUrl?.[0] ||
+                  formData?.vendor_product?.imageUrl?.[0] ||
+                  ""
+                }
                 isEdit={true}
               />
             </div>
@@ -578,7 +591,12 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
 
 export default LabelCodeCard;
 
-function SearchSection({ setProductInfo, setShowSearchSection }) {
+function SearchSection({
+  setProductInfo,
+  setShowSearchSection,
+  setBatches,
+  setFormData,
+}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -611,7 +629,10 @@ function SearchSection({ setProductInfo, setShowSearchSection }) {
   async function onSelectProduct(product) {
     try {
       const data = await api.products.getByID(product.vendor_product._id);
+      console.log("real", data);
       setProductInfo(data);
+      setBatches(data?.batches);
+      setFormData(data);
       setShowSearchSection(false);
     } catch (error) {
       console.error("Error fetching products:", error);
