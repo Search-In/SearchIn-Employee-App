@@ -118,6 +118,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
     stock: 50,
     threshold_stock: 2,
     buying_limit: 50,
+    vendor_sku: 0,
     status: "available",
     ...vendor_product,
   });
@@ -284,6 +285,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
           vendor_product,
           threshold_stock: vendor_product.threshold_stock,
           buying_limit: vendor_product.buying_limit,
+          vendor_sku: vendor_product.vendor_sku,
         }));
         setBatches(db_batches);
       } else {
