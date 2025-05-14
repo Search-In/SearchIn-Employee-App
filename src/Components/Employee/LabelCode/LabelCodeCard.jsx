@@ -163,8 +163,13 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
     }
   }, [vendor_product]);
 
-  const [activeBatchIndex, setActiveBatchIndex] = useState(0); // Maintain active batch index
-  const activeBatch = batches[activeBatchIndex]; // Get active batch using the index
+  const [activeBatchIndex, setActiveBatchIndex] = useState(0);
+  // const activeBatch = batches[activeBatchIndex];
+  const activeBatch = batches.reduce((latest, current) => {
+    return new Date(current.updatedAt) > new Date(latest.updatedAt)
+      ? current
+      : latest;
+  });
 
   const [showSearchSection, setShowSearchSection] = useState(false);
 
@@ -216,9 +221,14 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
       });
 
       toast("Product updated!");
+      const { mrpPrice, price, stock } = formData;
 
       const batchOp = activeBatch?._id
-        ? api.batch.updateById(activeBatch?._id, activeBatch)
+        ? api.batch.updateById(activeBatch?._id, {
+            mrp: mrpPrice,
+            price,
+            stock,
+          })
         : api.batch.create(activeBatch);
 
       const newBatch = await batchOp;
@@ -262,7 +272,12 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
         await api.products.getByBarcode(barcode);
       if (vendor_product._id) {
         setProductInfo({ vendor_product, barcode, batches });
-        setFormData((prevData) => ({ ...prevData, vendor_product }));
+        setFormData((prevData) => ({
+          ...prevData,
+          vendor_product,
+          threshold_stock: vendor_product.threshold_stock,
+          buying_limit: vendor_product.buying_limit,
+        }));
         setBatches(db_batches);
       } else {
         // showSnackbar("Product is Not in List!", "warning");
