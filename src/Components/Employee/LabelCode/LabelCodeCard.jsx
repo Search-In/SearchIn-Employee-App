@@ -15,6 +15,7 @@ import { api } from "../../../api/api";
 import Carousel from "../../Carousel";
 import { toast } from "react-toastify";
 import { Fragment } from "react";
+import { Backdrop, CircularProgress } from "@mui/material";
 
 const fields = [
   {
@@ -110,19 +111,24 @@ const toSlides = (batches = productBatches, onDateChange) =>
 const LabelCodeCard = ({ barcode = "", onRemove }) => {
   const [vendor_product, setProductInfo] = useState({});
   // const vendor_product = productInfo ?? {};
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     price: "",
     stock: 50,
     threshold_stock: 2,
     buying_limit: 50,
+    status: "available",
     ...vendor_product,
   });
 
-  const [area, setArea] = useState("");
-  const [bayNo, setBay] = useState("");
-  const [rack, setRack] = useState("");
-  const [shelf, setShelf] = useState("");
+  const [labelArea = "", labelBay = "", labelRack = "", labelShelf = ""] =
+    vendor_product?.vendor_product?.labelcode?.split("-") || [];
+
+  const [area, setArea] = useState(labelArea || "");
+  const [bayNo, setBay] = useState(labelBay || "");
+  const [rack, setRack] = useState(labelRack || "");
+  const [shelf, setShelf] = useState(labelShelf || "");
 
   const areaRef = useRef(null);
   const bayNoRef = useRef(null);
@@ -132,7 +138,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
 
   useEffect(() => {
     const [area = "", bay = "", rack = "", shelf = ""] =
-      formData?.labelcode?.split("-") || [];
+      formData?.vendor_product?.labelcode?.split("-") || [];
     setArea(area);
     setBay(bay);
     setRack(rack);
@@ -195,31 +201,39 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
   };
 
   const handleLabelCodeChange = async () => {
-    const labelcode = `${area || ""}-${bayNo || ""}-${rack || ""}-${
-      shelf || ""
-    }`;
-    await onLabelCodeChange(vendor_product._id, {
-      imageUrl: formData?.imageUrl,
-      labelcode,
-      weight,
-      threshold_stock: formData.threshold_stock,
-      buying_limit: formData.buying_limit,
-      status: formData.status,
-    });
+    try {
+      setLoading(true);
+      const labelcode = `${area || ""}-${bayNo || ""}-${rack || ""}-${
+        shelf || ""
+      }`;
+      await onLabelCodeChange(vendor_product?.vendor_product?._id, {
+        imageUrl: formData?.imageUrl,
+        labelcode,
+        weight,
+        threshold_stock: formData.threshold_stock,
+        buying_limit: formData.buying_limit,
+        status: formData.status,
+      });
 
-    toast("Product updated!");
+      toast("Product updated!");
 
-    const batchOp = activeBatch?._id
-      ? api.batch.updateById(activeBatch?._id, activeBatch)
-      : api.batch.create(activeBatch);
+      const batchOp = activeBatch?._id
+        ? api.batch.updateById(activeBatch?._id, activeBatch)
+        : api.batch.create(activeBatch);
 
-    const newBatch = await batchOp;
+      const newBatch = await batchOp;
 
-    toast("Batch updated!");
+      toast("Batch updated!");
 
-    const updatedBatches = [...batches];
-    updatedBatches[activeBatchIndex] = newBatch;
-    onRemove();
+      const updatedBatches = [...batches];
+      updatedBatches[activeBatchIndex] = newBatch;
+      onRemove();
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemove = () => {
@@ -248,6 +262,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
         await api.products.getByBarcode(barcode);
       if (vendor_product._id) {
         setProductInfo({ vendor_product, barcode, batches });
+        setFormData((prevData) => ({ ...prevData, vendor_product }));
         setBatches(db_batches);
       } else {
         // showSnackbar("Product is Not in List!", "warning");
@@ -264,45 +279,52 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
   }, [barcode]);
 
   return (
-    <Card className="relative flex flex-col shadow-md px-1 pt-3 overflow-y-auto gap-2">
-      <div className="flex gap-3">
-        <ArrowBack
-          onClick={handleRemove}
-          // className="mx-2"
-          className="top-2 left-2 z-[10000]"
-        />
-      </div>
-      {!vendor_product && !showSearchSection ? (
-        <div className="text-center">Loading...</div>
-      ) : showSearchSection ? (
-        <SearchSection
-          setProductInfo={setProductInfo}
-          setShowSearchSection={setShowSearchSection}
-        />
-      ) : (
-        <div>
-          <div className="">
-            <ImageUpload
-              setImageFile={(image) =>
-                setFormData({ ...formData, imageUrl: [image] })
-              }
-              imagesSave={formData?.imageUrl?.[0] || ""}
-              isEdit={true}
-            />
-          </div>
-          {vendor_product._id && (
-            <p className="text-xl font-bold text-center capitalize">
-              {vendor_product?.product?.original_name ||
-                [
-                  vendor_product?.product?.brand,
-                  vendor_product?.product?.name,
-                  vendor_product?.product?.quantity,
-                ].join(" ")}
-            </p>
-          )}
-          <div className="font-bold">Barcode: {barcode}</div>
+    <>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      <Card className="relative flex flex-col shadow-md px-1 pt-3 overflow-y-auto gap-2">
+        <div className="flex gap-3">
+          <ArrowBack
+            onClick={handleRemove}
+            // className="mx-2"
+            className="top-2 left-2 z-[10000]"
+          />
+        </div>
+        {!vendor_product && !showSearchSection ? (
+          <div className="text-center">Loading...</div>
+        ) : showSearchSection ? (
+          <SearchSection
+            setProductInfo={setProductInfo}
+            setShowSearchSection={setShowSearchSection}
+          />
+        ) : (
+          <div>
+            <div className="">
+              <ImageUpload
+                setImageFile={(image) =>
+                  setFormData({ ...formData, imageUrl: [image] })
+                }
+                imagesSave={formData?.vendor_product?.imageUrl?.[0] || ""}
+                isEdit={true}
+              />
+            </div>
+            {vendor_product._id && (
+              <p className="text-xl font-bold text-center capitalize">
+                {vendor_product?.product?.original_name ||
+                  [
+                    vendor_product?.product?.brand,
+                    vendor_product?.product?.name,
+                    vendor_product?.product?.quantity,
+                  ].join(" ")}
+              </p>
+            )}
+            <div className="font-bold">Barcode: {barcode}</div>
 
-          {!activeBatch?._id ? (
+            {/* {!activeBatch?._id ? (
             <p className="font-bold">Enter new batch details:-</p>
           ) : (
             <div className="flex justify-between items-center">
@@ -333,15 +355,15 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
                 Create batch +
               </button>
             </div>
-          )}
-          <div className="mx-[1vw]">
+          )} */}
+            {/* <div className="mx-[1vw]">
             <Carousel
               slides={slides}
               onSlideChange={(index) => setActiveBatchIndex(index)} // Update active batch index
             />
-          </div>
+          </div> */}
 
-          <div className="flex gap-3 my-1 *:items-center justify-between">
+            {/* <div className="flex gap-3 my-1 *:items-center justify-between">
             <div className="flex gap-1">
               <div className="font-bold">Batch No:</div>
               <input
@@ -379,149 +401,163 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
               />
               <span className="font-bold">gm</span>
             </div>
-          </div>
+          </div> */}
 
-          <div className="mx-auto p-2 pt-1 border rounded max-w-2xl grid grid-cols-3 gap-3 ">
-            {fields.map(
-              (
-                {
-                  name,
-                  label,
-                  disabled = false,
-                  defaultValue = 0,
-                  min,
-                  type = "number",
-                },
-                index
-              ) => (
-                <div className="flex flex-col justify-between" key={index}>
-                  <label className="block font-bold text-sm" htmlFor={name}>
-                    {label}
-                  </label>
-                  <input
-                    type={type}
-                    name={name}
-                    id={name}
-                    value={formData[name] ?? defaultValue}
-                    onChange={handleChange}
-                    required
-                    min={min || 1}
-                    className={`block w-full border-gray-300 rounded-md focus:ring-0 focus:border-blue-500 bg-slate-100 p-2 ${
-                      disabled ? "text-gray-900" : "font-semibold"
-                    }`}
-                    disabled={disabled}
-                  />
-                </div>
-              )
-            )}
-          </div>
-
-          <div className="p-2 border-t border-gray-300 w-full">
-            <div className="font-bold mb-2">Label Code:</div>
-            <div className="flex gap-2">
-              {[
-                {
-                  placeholder: "Area",
-                  value: area,
-                  setValue: setArea,
-                  maxLength: 1,
-                  ref: areaRef,
-                },
-                {
-                  placeholder: "Bay No",
-                  value: bayNo,
-                  setValue: setBay,
-                  maxLength: 2,
-                  ref: bayNoRef,
-                },
-                {
-                  placeholder: "Rack",
-                  value: rack,
-                  setValue: setRack,
-                  maxLength: 2,
-                  ref: rackRef,
-                },
-                {
-                  placeholder: "Shelf",
-                  value: shelf,
-                  setValue: setShelf,
-                  maxLength: 2,
-                  ref: shelfRef,
-                  onEnter: handleLabelCodeChange,
-                },
-              ].map(
+            <div className="mx-auto p-2 pt-1 border rounded max-w-2xl grid grid-cols-3 gap-3 ">
+              {fields.map(
                 (
-                  { placeholder, value, setValue, maxLength, ref, onEnter },
+                  {
+                    name,
+                    label,
+                    disabled = false,
+                    defaultValue = 0,
+                    min,
+                    type = "number",
+                  },
                   index
                 ) => (
-                  <Fragment key={placeholder}>
+                  <div className="flex flex-col justify-between" key={index}>
+                    <label className="block font-bold text-sm" htmlFor={name}>
+                      {label}
+                    </label>
                     <input
-                      type="text"
-                      className="border border-gray-300 rounded-md p-1 w-full"
-                      placeholder={placeholder}
-                      value={value}
-                      onChange={(e) => setValue(e.target.value.toUpperCase())}
-                      onKeyDown={(e) => {
-                        if (onEnter && e.key === "Enter") {
-                          e.preventDefault();
-                          onEnter();
-                        } else {
-                          handleKeyPress(e, ref);
-                        }
-                      }}
-                      maxLength={maxLength}
-                      ref={ref}
+                      type={type}
+                      name={name}
+                      id={name}
+                      value={formData[name] ?? defaultValue}
+                      onChange={handleChange}
+                      required
+                      min={min || 1}
+                      className={`block w-full border-gray-300 rounded-md focus:ring-0 focus:border-blue-500 bg-slate-100 p-2 ${
+                        disabled ? "text-gray-900" : "font-semibold"
+                      }`}
+                      disabled={disabled}
                     />
-                    {index < 3 && <div className="self-center text-lg">-</div>}{" "}
-                    {/* Add separator only between inputs */}
-                  </Fragment>
+                  </div>
                 )
               )}
             </div>
 
-            <div className="flex gap-4 font-bold my-4">
-              Published:
-              <div className="flex items-center">
-                <div
-                  // onClick={toggleSwitch}
-                  onClick={() =>
-                    setFormData({
-                      ...formData,
-                      status:
-                        formData.status === "available"
-                          ? "discontinued"
-                          : "available",
-                    })
-                  }
-                  className={`relative inline-flex items-center cursor-pointer w-12 h-6 rounded-full transition-colors duration-200 ${
-                    formData.status === "available"
-                      ? "bg-blue-600"
-                      : "bg-gray-300"
-                  }`}
-                >
-                  <span
-                    className={`absolute left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 transform ${
+            <div className="p-2 border-t border-gray-300 w-full">
+              <div className="font-bold mb-2">Label Code:</div>
+              <div className="flex gap-2">
+                {[
+                  {
+                    placeholder: "Area",
+                    value: area,
+                    setValue: setArea,
+                    maxLength: 1,
+                    ref: areaRef,
+                    nextRef: bayNoRef,
+                  },
+                  {
+                    placeholder: "Bay No",
+                    value: bayNo,
+                    setValue: setBay,
+                    maxLength: 2,
+                    ref: bayNoRef,
+                    nextRef: rackRef,
+                  },
+                  {
+                    placeholder: "Rack",
+                    value: rack,
+                    setValue: setRack,
+                    maxLength: 2,
+                    ref: rackRef,
+                    nextRef: shelfRef,
+                  },
+                  {
+                    placeholder: "Shelf",
+                    value: shelf,
+                    setValue: setShelf,
+                    maxLength: 2,
+                    ref: shelfRef,
+                    onEnter: handleLabelCodeChange,
+                  },
+                ].map(
+                  (
+                    {
+                      placeholder,
+                      value,
+                      setValue,
+                      maxLength,
+                      ref,
+                      nextRef,
+                      onEnter,
+                    },
+                    index
+                  ) => (
+                    <Fragment key={placeholder}>
+                      <input
+                        type="text"
+                        className="border border-gray-300 rounded-md p-1 w-full"
+                        placeholder={placeholder}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value.toUpperCase())}
+                        onKeyDown={(e) => {
+                          if (onEnter && e.key === "Enter") {
+                            e.preventDefault();
+                            onEnter();
+                          } else {
+                            handleKeyPress(e, nextRef);
+                          }
+                        }}
+                        maxLength={maxLength}
+                        ref={ref}
+                      />
+                      {index < 3 && (
+                        <div className="self-center text-lg">-</div>
+                      )}{" "}
+                      {/* Add separator only between inputs */}
+                    </Fragment>
+                  )
+                )}
+              </div>
+
+              <div className="flex gap-4 font-bold my-4">
+                Published:
+                <div className="flex items-center">
+                  <div
+                    // onClick={toggleSwitch}
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        status:
+                          formData.status === "available"
+                            ? "discontinued"
+                            : "available",
+                      })
+                    }
+                    className={`relative inline-flex items-center cursor-pointer w-12 h-6 rounded-full transition-colors duration-200 ${
                       formData.status === "available"
-                        ? "translate-x-6"
-                        : "translate-x-0"
+                        ? "bg-blue-600"
+                        : "bg-gray-300"
                     }`}
-                  />
+                  >
+                    <span
+                      className={`absolute left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 transform ${
+                        formData.status === "available"
+                          ? "translate-x-6"
+                          : "translate-x-0"
+                      }`}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center justify-center mt-3">
-              <button
-                className="bg-orange-600 text-white rounded-md px-4 py-1"
-                onClick={handleLabelCodeChange}
-              >
-                Submit
-              </button>
+              <div className="flex items-center justify-center mt-3">
+                <button
+                  className="bg-orange-600 text-white rounded-md px-9 py-2"
+                  onClick={handleLabelCodeChange}
+                >
+                  Submit
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </Card>
+        )}
+      </Card>
+    </>
   );
 };
 
