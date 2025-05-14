@@ -143,7 +143,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
     setBay(bay);
     setRack(rack);
     setShelf(shelf);
-  }, [formData.labelcode]);
+  }, [formData]);
 
   const [batches, setBatches] = useState([{}]);
 
