@@ -301,7 +301,6 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
   useEffect(() => {
     handleProductScan(barcode);
   }, [barcode]);
-
   return (
     <>
       <Backdrop
@@ -342,9 +341,10 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
                 isEdit={true}
               />
             </div>
-            {vendor_product._id && (
+            {vendor_product && (
               <p className="text-xl font-bold text-center capitalize">
-                {vendor_product?.product?.original_name ||
+                {vendor_product?.product?.name ||
+                  vendor_product?.vendor_product?.product?.name ||
                   [
                     vendor_product?.product?.brand,
                     vendor_product?.product?.name,
