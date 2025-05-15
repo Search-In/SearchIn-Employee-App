@@ -232,7 +232,7 @@ const EmployeeOrder = () => {
       }
     } else {
       // Handle case where vendor order is not present
-      setIsScanning(false);
+      // setIsScanning(false);
       setLabelBarcode(barcode);
 
       // await handleProductScan(barcode);
