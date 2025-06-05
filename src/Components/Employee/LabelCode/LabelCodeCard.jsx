@@ -343,7 +343,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
             </div>
             {vendor_product && (
               <p className="text-xl font-bold text-center capitalize">
-                {vendor_product?.product?.original_name ||
+                {vendor_product?.original_name ||
                   vendor_product?.vendor_product?.product?.name ||
                   [
                     vendor_product?.product?.brand,
