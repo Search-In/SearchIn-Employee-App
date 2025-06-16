@@ -336,7 +336,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
                   setFormData({ ...formData, imageUrl: [image] })
                 }
                 imagesSave={
-                  formData?.vendor_product?.imageUrl?.[0] ||
+                  formData?.imageUrl?.[0] ||
                   formData?.product?.imageUrl ||
                   ""
                 }
