@@ -27,7 +27,7 @@ const ImageUpload = ({
   const handleDeleteImage = async (index) => {
     await onDelete();
     setMainImage(null);
-    setImageFile("noimage");
+    setImageFile(undefined);
   };
 
   const [image1, setImage1] = useState([]);
