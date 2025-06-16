@@ -301,6 +301,8 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
   useEffect(() => {
     handleProductScan(barcode);
   }, [barcode]);
+
+  console.log({ formData });
   return (
     <>
       <Backdrop
@@ -334,8 +336,8 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
                   setFormData({ ...formData, imageUrl: [image] })
                 }
                 imagesSave={
-                  formData?.imageUrl?.[0] ||
                   formData?.vendor_product?.imageUrl?.[0] ||
+                  formData?.product?.imageUrl ||
                   ""
                 }
                 isEdit={true}
