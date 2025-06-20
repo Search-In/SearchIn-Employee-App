@@ -351,6 +351,8 @@ const LabelCodeCard = ({
             vendor: formData?.vendor_product
               ? formData?.vendor_product?.vendor
               : formData?.vendor,
+            batch_no: batches.length + 1,
+            barcode,
           }}
           onClose={(newBatch) => {
             if (newBatch) setActiveBatch(newBatch);

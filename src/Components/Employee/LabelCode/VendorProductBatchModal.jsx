@@ -26,9 +26,10 @@ const VendorProductBatchModal = ({ onClose = () => {}, defaults = {} }) => {
     { label: "MRP", name: "mrp", type: "number", required: true, min: 0 },
     { label: "Price", name: "price", type: "number", required: true, min: 0 },
     { label: "Stock", name: "stock", type: "number", required: true, min: 0 },
+    { label: "Batch No", name: "batch_no", type: "text" },
     { label: "Manufacturing Date", name: "mfd", type: "date" },
     { label: "Expiry Date", name: "expiry", type: "date" },
-    { label: "Batch No", name: "batch_no", type: "text" },
+
     { label: "Weight (in grams)", name: "weight", type: "number" },
   ];
 
@@ -57,26 +58,29 @@ const VendorProductBatchModal = ({ onClose = () => {}, defaults = {} }) => {
       >
         X
       </div>
-      <div className="bg-white rounded-lg shadow-lg p-6 z-10 w-96">
+      <div className="bg-white rounded-lg shadow-lg p-4 pb-1 z-10 w-96">
         <h2 className="text-lg font-semibold mb-4">Create New Product Batch</h2>
         <form onSubmit={handleSubmit}>
-          {fields.map((field) => (
-            <div className="mb-4" key={field.name}>
-              <label className="block text-sm font-medium text-gray-700">
-                {field.label}
-              </label>
-              <input
-                type={field.type}
-                name={field.name}
-                value={formData[field.name]}
-                onChange={handleChange}
-                required={field.required}
-                min={field.min}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              />
-            </div>
-          ))}
-          <div className="flex justify-end">
+          <div className="max-h-[80vh] overflow-y-auto">
+            {fields.map((field) => (
+              <div className="mb-4" key={field.name}>
+                <label className="block text-sm font-medium text-gray-700">
+                  {field.label}
+                </label>
+                <input
+                  type={field.type}
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  required={field.required}
+                  min={field.min}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end my-2">
             <button
               type="button"
               onClick={onClose}
