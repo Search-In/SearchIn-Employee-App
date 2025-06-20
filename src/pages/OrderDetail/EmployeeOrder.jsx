@@ -233,8 +233,8 @@ const EmployeeOrder = () => {
     } else {
       // Handle case where vendor order is not present
       // setIsScanning(false);
-      setLabelBarcode(barcode);
-
+      // setLabelBarcode(barcode);
+      navigate("/scan_product", { state: { barcode } });
       // await handleProductScan(barcode);
     }
   };

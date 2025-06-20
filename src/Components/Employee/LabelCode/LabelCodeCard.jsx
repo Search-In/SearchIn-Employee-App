@@ -16,6 +16,8 @@ import Carousel from "../../Carousel";
 import { toast } from "react-toastify";
 import { Fragment } from "react";
 import { Backdrop, CircularProgress } from "@mui/material";
+import { useLocation } from "react-router-dom";
+import VendorProductBatchModal from "./VendorProductBatchModal";
 
 const fields = [
   {
@@ -26,15 +28,15 @@ const fields = [
   },
   { name: "price", label: "Price" },
   { name: "stock", label: "Stock" },
-  { name: "vendor_sku", label: "SKU", type: "text", disabled: true },
-  {
-    name: "threshold_stock",
-    label: "Threshold Stock",
-  },
-  {
-    name: "buying_limit",
-    label: "Buying Limit",
-  },
+  // { name: "vendor_sku", label: "SKU", type: "text", disabled: true },
+  // {
+  //   name: "threshold_stock",
+  //   label: "Threshold Stock",
+  // },
+  // {
+  //   name: "buying_limit",
+  //   label: "Buying Limit",
+  // },
 ];
 
 const onLabelCodeChange = async (productId, update) => {
@@ -108,10 +110,16 @@ const toSlides = (batches = productBatches, onDateChange) =>
     </div>
   ));
 
-const LabelCodeCard = ({ barcode = "", onRemove }) => {
+const LabelCodeCard = ({
+  barcode: propBarcode = "",
+  onRemove = () => window.history.go(-1),
+}) => {
   const [vendor_product, setProductInfo] = useState({});
   // const vendor_product = productInfo ?? {};
   const [loading, setLoading] = useState(false);
+
+  const location = useLocation();
+  const barcode = propBarcode || location.state?.barcode;
 
   const [formData, setFormData] = useState({
     price: "",
@@ -169,12 +177,29 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
   }, []);
 
   const [activeBatchIndex, setActiveBatchIndex] = useState(0);
+
   // const activeBatch = batches[activeBatchIndex];
-  const activeBatch = batches.reduce((latest, current) => {
-    return new Date(current.updatedAt) > new Date(latest.updatedAt)
-      ? current
-      : latest;
-  });
+  const [activeBatch, setActiveBatch] = useState({});
+  useEffect(() => {
+    // const latestBatch = batches.reduce((latest, current) => {
+    //   return new Date(current.updatedAt) > new Date(latest.updatedAt)
+    //     ? current
+    //     : latest;
+    // }, {});
+
+    // Filter batches by matching barcode
+    const filteredBatches = batches.filter(
+      (batch) => batch.barcode === barcode
+    );
+    // Sort the filtered batches by expiry date in descending order
+    const sortedBatches = filteredBatches.sort(
+      (a, b) => new Date(b.expiry).getTime() - new Date(a.expiry).getTime()
+    );
+    // Select the first batch from the sorted array
+    const latestBatch = sortedBatches[0] || null; // Use null if no matching batch is found
+
+    setActiveBatch(latestBatch);
+  }, [batches, barcode]); // Dependency array to re-run effect when batches change
 
   const [showSearchSection, setShowSearchSection] = useState(false);
 
@@ -189,7 +214,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
     setBatches(updatedBatches);
   };
 
-  const slides = toSlides(batches, handleBatchUpdate);
+  // const slides = toSlides(batches, handleBatchUpdate);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -209,6 +234,8 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
       nextRef.current?.focus(); // Focus on the next input field
     }
   };
+
+  const [showBatchModal, setShowBatchModal] = useState(false);
 
   const handleLabelCodeChange = async () => {
     try {
@@ -244,7 +271,11 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
       toast("Batch updated!");
 
       const updatedBatches = [...batches];
-      updatedBatches[activeBatchIndex] = newBatch;
+      if (activeBatch?._id) {
+        updatedBatches[activeBatchIndex] = newBatch;
+        setBatches(updatedBatches);
+      } else setBatches([activeBatch, ...updatedBatches]);
+
       onRemove();
     } catch (error) {
       setLoading(false);
@@ -311,7 +342,23 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <Card className="relative flex flex-col shadow-md px-1 pt-3 overflow-y-auto gap-2">
+      {showBatchModal && (
+        <VendorProductBatchModal
+          defaults={{
+            vendor_product: formData?.vendor_product
+              ? formData?.vendor_product._id
+              : formData?._id,
+            vendor: formData?.vendor_product
+              ? formData?.vendor_product?.vendor
+              : formData?.vendor,
+          }}
+          onClose={(newBatch) => {
+            if (newBatch) setActiveBatch(newBatch);
+            setShowBatchModal(false);
+          }}
+        />
+      )}
+      <div className="relative flex flex-col shadow-md px-3 pt-3 overflow-y-auto gap-2 h-full">
         <div className="flex gap-3">
           <ArrowBack
             onClick={handleRemove}
@@ -336,8 +383,10 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
                   setFormData({ ...formData, imageUrl: [image] })
                 }
                 imagesSave={
-                  formData?.imageUrl?.[0] ||
-                  formData?.product?.imageUrl ||
+                  (formData?.vendor_product
+                    ? formData?.vendor_product.imageUrl?.[0] ||
+                      formData?.vendor_product?.product?.imageUrl
+                    : formData?.imageUrl?.[0] || formData?.product?.imageUrl) ||
                   ""
                 }
                 isEdit={true}
@@ -354,7 +403,15 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
                   ].join(" ")}
               </p>
             )}
-            <div className="font-bold">Barcode: {barcode}</div>
+            <div className="flex justify-between">
+              <div className="font-bold mb-5">Barcode: {barcode}</div>
+              <button
+                onClick={() => setShowBatchModal(true)}
+                className="bg-green-500 text-white px-4 py-2 rounded-md mb-4"
+              >
+                Create Batch
+              </button>
+            </div>
 
             {/* {!activeBatch?._id ? (
             <p className="font-bold">Enter new batch details:-</p>
@@ -389,11 +446,11 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
             </div>
           )} */}
             {/* <div className="mx-[1vw]">
-            <Carousel
-              slides={slides}
-              onSlideChange={(index) => setActiveBatchIndex(index)} // Update active batch index
-            />
-          </div> */}
+              <Carousel
+                slides={slides}
+                onSlideChange={(index) => setActiveBatchIndex(index)} // Update active batch index
+              />
+            </div> */}
 
             {/* <div className="flex gap-3 my-1 *:items-center justify-between">
             <div className="flex gap-1">
@@ -435,7 +492,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
             </div>
           </div> */}
 
-            <div className="mx-auto p-2 pt-1 border rounded max-w-2xl grid grid-cols-3 gap-3 ">
+            <div className="mx-auto p-2 pt-1 border rounded max-w-2xl grid grid-cols-1 gap-3 my-3">
               {fields.map(
                 (
                   {
@@ -588,7 +645,7 @@ const LabelCodeCard = ({ barcode = "", onRemove }) => {
             </div>
           </div>
         )}
-      </Card>
+      </div>
     </>
   );
 };
@@ -604,6 +661,9 @@ function SearchSection({
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const location = useLocation();
+  const location_barcode = location.state?.barcode;
 
   useEffect(() => {
     const fetchProducts = async (query = "") => {
@@ -644,7 +704,13 @@ function SearchSection({
   }
 
   return (
-    <div className="container mx-auto p-2 max-h-[80vh]">
+    <div
+      className={
+        "container mx-auto p-2 " + location_barcode
+          ? "h-screen"
+          : "max-h-[80vh]"
+      }
+    >
       <h1 className="text-2xl font-bold mb-4">Product Search</h1>
 
       <div className="mb-6">
