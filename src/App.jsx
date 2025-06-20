@@ -9,6 +9,7 @@ import PrivateEmployeeRoute from "./Components/PrivateRoute/PrivateRoutes";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import TrolleyLink from "./pages/TrolleyLInk/TrolleyLink";
 import CreateOrder from "./pages/CreateOrder/CreateOrder";
+import LabelCodeCard from "./Components/Employee/LabelCode/LabelCodeCard";
 
 function App() {
   const location = useLocation();
@@ -76,6 +77,14 @@ function App() {
           element={
             <PrivateEmployeeRoute>
               <CreateOrder />
+            </PrivateEmployeeRoute>
+          }
+        />
+        <Route
+          path="/scan_product"
+          element={
+            <PrivateEmployeeRoute>
+              <LabelCodeCard />
             </PrivateEmployeeRoute>
           }
         />
