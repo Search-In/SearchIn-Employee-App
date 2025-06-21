@@ -397,6 +397,7 @@ const LabelCodeCard = ({
             {vendor_product && (
               <p className="text-xl font-bold text-center capitalize">
                 {vendor_product?.original_name ||
+                  vendor_product?.vendor_product?.original_name ||
                   vendor_product?.vendor_product?.product?.name ||
                   [
                     vendor_product?.product?.brand,
@@ -406,7 +407,14 @@ const LabelCodeCard = ({
               </p>
             )}
             <div className="flex justify-between">
-              <div className="font-bold mb-5">Barcode: {barcode}</div>
+              <div>
+                <div className="font-bold mb-5">
+                  Vendor SKU:{" "}
+                  {vendor_product?.vendor_sku ||
+                    vendor_product?.vendor_product?.vendor_sku}
+                </div>
+                <div className="font-bold mb-5">Barcode: {barcode}</div>
+              </div>
               <button
                 onClick={() => setShowBatchModal(true)}
                 className="bg-green-500 text-white px-4 py-2 rounded-md mb-4"
