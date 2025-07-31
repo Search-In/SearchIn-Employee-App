@@ -188,16 +188,15 @@ const LabelCodeCard = ({
     // }, {});
 
     // Filter batches by matching barcode
-    const filteredBatches = batches.filter(
-      (batch) => batch.barcode === barcode
-    );
+    const filteredBatches = batches.filter((batch) => {
+      return String(batch.barcode).trim() === String(barcode).trim();
+    });
     // Sort the filtered batches by expiry date in descending order
     const sortedBatches = filteredBatches.sort(
       (a, b) => new Date(b.expiry).getTime() - new Date(a.expiry).getTime()
     );
     // Select the first batch from the sorted array
     const latestBatch = sortedBatches[0] || null; // Use null if no matching batch is found
-
     setActiveBatch(latestBatch);
   }, [batches, barcode]); // Dependency array to re-run effect when batches change
 
@@ -252,6 +251,8 @@ const LabelCodeCard = ({
           threshold_stock: formData.threshold_stock,
           buying_limit: formData.buying_limit,
           status: formData.status,
+          price: formData.price,
+          mrpPrice: formData.mrpPrice,
         }
       );
 
@@ -310,7 +311,7 @@ const LabelCodeCard = ({
       const { vendor_product, batches: db_batches } =
         await api.products.getByBarcode(barcode);
       if (vendor_product._id) {
-        setProductInfo({ vendor_product, barcode, batches });
+        setProductInfo({ vendor_product, barcode, batches: db_batches });
         setFormData((prevData) => ({
           ...prevData,
           vendor_product,
